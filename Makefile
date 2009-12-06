@@ -8,7 +8,7 @@ ${BINARY}: ${BINARY}.c
 
 install: ${BINARY}
 	install -m 755 ${BINARY} ${PREFIX}/bin
-	install -m 644 ${BINARY}.1 ${PREFIX}/man1
+	install -m 644 ${BINARY}.1 ${PREFIX}/man/man1
 
 clean:
 	rm -f ${BINARY}

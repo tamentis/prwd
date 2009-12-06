@@ -422,11 +422,13 @@ main(int ac, const char **av)
 					break;
 				last = s;
 			}
-			if (s == NULL)
-				s = last;
-			else {
+			/* The last element was too long, keep it */
+			if (s == NULL) {
+				s = last + 1;
+			} else {
 				s -= len;
 				strncpy(s, cfg_filler, len);
+				s++;
 			}
 		} else {
 			s += (len - cfg_maxpwdlen);

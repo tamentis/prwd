@@ -81,8 +81,8 @@ SETUP
     within the variable as-is (unresolved).
 
 AUTHORS/LICENSE
-    prwd was written by Bertrand Janin <tamentis@neopulsar.org> and is written
-    under an ISC license (BSD compatible, OSI compatible).
+    prwd was written by Bertrand Janin <tamentis@neopulsar.org> and is
+    distributed under an ISC license (BSD compatible, OSI compatible).
 
     A bunch of utility functions are borrowed from OpenBSD and OpenSSH, both
     under ISC and BSD licenses, with copyrights from the following authors:

@@ -33,18 +33,12 @@
 #define MAX_ALIASES	64	// maximum number of aliases
 #define ALIAS_NAME_LEN	32	// size of an alias
 
-/* 
- * These error message will completely replace the return value to
- * alert the user of an issue.
- */
-#define OVERRIDE_LEN	64
-#define ERR_BADOPTS	"[bad config option(s)]"
-
+#define WHITESPACE	" \t\r\n"
+#define QUOTE		"\""
 
 int	 cfg_maxpwdlen = MAXPWD_LEN;
 int 	 cfg_cleancut = 0;
 int	 cfg_newsgroup = 0;
-char	 cfg_override[OVERRIDE_LEN];
 char	 cfg_filler[FILLER_LEN] = FILLER_DEF;
 char	*home;
 int	 alias_count = 0;
@@ -145,27 +139,6 @@ strlcpy(char *dst, const char *src, size_t siz)
 size_t strlcpy(char *dst, const char *src, size_t siz);
 #endif /* !HAVE_STRLCPY */
 
-void
-fatal(const char *fmt,...)
-{
-        va_list args;
-
-	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
-	va_end(args);
-	exit(-1);
-}
-
-
-void
-set_override(const char *msg)
-{
-	strlcpy(cfg_override, msg, OVERRIDE_LEN);
-}
-
-
-#define WHITESPACE	" \t\r\n"
-#define QUOTE		"\""
 
 /**
  * Return next token in configuration line, one word at a time.
@@ -215,6 +188,21 @@ strdelim(char **s)
 
 
 /**
+ * Panic exit, preferably running in walls and waving your arms over your head.
+ */
+void
+fatal(const char *fmt,...)
+{
+        va_list args;
+
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+	exit(-1);
+}
+
+
+/**
  * Add a new alias to the list.
  */
 void
@@ -222,6 +210,8 @@ add_alias(char *name, char *value, int linenum)
 {
 	if (strlen(value) < strlen(name))
 		fatal("prwd: alias name should not be longer than the value.\n");
+	if (strchr(name, '/') != NULL)
+		fatal("prwd: alias name should not contain any '/' (slash).\n");
 	strlcpy(aliases[alias_count].name, name, ALIAS_NAME_LEN);
 	strlcpy(aliases[alias_count].path, value, MAXPATHLEN);
 	alias_count++;
@@ -323,13 +313,15 @@ process_config_line(char *line, int linenum)
 }
 
 
+/**
+ * Open the file and feed each line one by one to process_config_line.
+ */
 void
 read_config()
 {
 	FILE *fp;
 	char line[128];
 	int linenum = 1;
-	int badopt = 0;
 	char path[MAXPATHLEN];
 
 	snprintf(path, MAXPATHLEN, "%s/.prwdrc", home);
@@ -338,14 +330,8 @@ read_config()
 	if (fp == NULL)
 		return;
 
-	while (fgets(line, sizeof(line), fp)) {
-		if (process_config_line(line, linenum) != 0)
-			badopt++;
-		linenum++;
-	}
-
-	if (badopt > 0)
-		set_override(ERR_BADOPTS);
+	while (fgets(line, sizeof(line), fp))
+		process_config_line(line, linenum++);
 
 	fclose(fp);
 }
@@ -379,13 +365,6 @@ newsgroupize(char *s)
 	strlcpy(org + idx - 2, last, strlen(last) + 1);
 }
 
-void
-usage(void)
-{
-	printf("usage: prwd\n");
-	exit(-1);
-}
-
 
 int
 main(int ac, const char **av)
@@ -394,8 +373,10 @@ main(int ac, const char **av)
 	int i;
 	char *pwd, *s, *last;
 
-	if (ac != 1)
-		usage();
+	if (ac != 1) {
+		printf("usage: prwd\n");
+		exit(-1);
+	}
 
 	home = getenv("HOME");
 	if (home == NULL || *home == '\0')

@@ -1,0 +1,122 @@
+.\"	$Id$
+.\"
+.\" Copyright (c) 2009 Bertrand Janin <tamentis@neopulsar.org>
+.\" 
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\" 
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd $Mdocdate: December 6 2009 $
+.Dt PWD 1
+.Os
+.Sh NAME
+.Nm prwd
+.Nd return reduced working directory name
+.Sh SYNOPSIS
+.Nm prwd
+.Sh DESCRIPTION
+The
+.Nm
+utility prints the absolute pathname of the current working directory to
+the standard output. It is similar to
+.Nm pwd
+but has a configuration file (~/.pwdrc) allowing the following features:
+
+     - aliases
+     - max length and filler characters
+     - newsgroup style
+
+The reasoning behind 'prwd' is that most shells read $PS1 differently and
+have a very rigid way to display the current working directory. 'prwd'
+allows you to have one way to handle the display of your working directory
+and use it across multiple shells. 
+
+The syntax of the configuration files is described below, lines starting
+with '#' are ignored.
+
+.Sh ALIASES
+Defines a replacement name for a long path, for example, if you had the
+following line in your prwdrc:
+
+    alias *prwd /home/tamentis/projects/prwd
+
+Then if you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
+return "*prwd/doc/html". If you have spaces in your directories, you can
+wrap your 'alias' parameters with double quotes:
+
+    alias winDocs "/mnt/Windows XP/My Documents/"
+
+.Sh MAX LENGTH
+Defines the maximum length to return, the default filler string is "...",
+the default length is 32, a value of 0 will disable the feature all
+together.
+
+    set maxlength 20
+
+This setting would turn "~/projects/prwd/doc/html" into a shorter string:
+"...cts/prwd/doc/html". You can define the filler string with the 'filler'
+variable:
+
+    set filler "-"
+
+Or if your font/terminal/shell supports UTF:
+
+    set filler "…"
+
+If you want prwd to keep complete path elements instead of cutting as much
+as possible, you can use this setting:
+
+    set cleancut on
+
+.Sh NEWSGROUP STYLE
+    This will shorten the path by only displaying the first letter of each path
+    components, toggle it with:
+
+        set newsgroup on
+
+    This will turn the "/home/tamentis/projects/prwd/src/nowhere" path into
+    "/h/t/p/s/nowhere". Note that the newsgroup style filter is applied before
+    the path is trimmed with 'maxlength'.
+
+.Sh SETUP
+    This will depend on your shell, but here are a few:
+
+     - ksh (~/.profile or ~/.kshrc):
+        export PS1='\\h:`prwd`\\p '
+
+     - bash
+     - zsh
+     - csh
+     - tcsh
+
+    Note that the single quote matters since you want to keep the command
+    within the variable as-is (unresolved).
+
+.Sh SEE ALSO
+.Xr pwd 1 ,
+.Xr csh 1 ,
+.Xr ksh 1 ,
+.Xr sh 1 ,
+.Xr getcwd 3
+.Sh BUGS
+None so far.
+.Sh AUTHORS
+prwd was written by Bertrand Janin <tamentis@neopulsar.org> and is
+distributed under an ISC license (BSD compatible, OSI compatible).
+
+A bunch of utility functions are borrowed from OpenBSD and OpenSSH, both
+under ISC and BSD licenses, with copyrights from the following authors:
+
+    Copyright (c) 2004 Ted Unangst and Todd Miller
+    Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
+    Copyright (c) 2000 Markus Friedl.  All rights reserved.
+    Copyright (c) 2005,2006 Damien Miller.  All rights reserved.
+

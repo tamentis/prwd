@@ -1,0 +1,94 @@
+prwd - print reduced working directory
+======================================
+
+INTRO
+    Prints the working directory with a few 'enhancements' from pwd:
+
+     - aliases
+     - max length and filler characters
+     - newsgroup style
+
+    All of this is driven by your ~/.prwdrc file.
+
+    The reasoning behind 'prwd' is that most shells read $PS1 differently and
+    have a very rigid way to display the current working directory. 'prwd'
+    allows you to have one way to handle the display of your working directory
+    and use it across multiple shells. 
+    
+    The syntax of the configuration files is described below, lines starting
+    with '#' are ignored.
+
+ALIASES
+    Defines a replacement name for a long path, for example, if you had the
+    following line in your prwdrc:
+
+        alias *prwd /home/tamentis/projects/prwd
+
+    Then if you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
+    return "*prwd/doc/html". If you have spaces in your directories, you can
+    wrap your 'alias' parameters with double quotes:
+
+        alias winDocs "/mnt/Windows XP/My Documents/"
+
+MAX LENGTH
+    Defines the maximum length to return, the default filler string is "...",
+    the default length is 32, a value of 0 will disable the feature all
+    together.
+
+        set maxlength 20
+
+    This setting would turn "~/projects/prwd/doc/html" into a shorter string:
+    "...cts/prwd/doc/html". You can define the filler string with the 'filler'
+    variable:
+
+        set filler "-"
+
+    Or if your font/terminal/shell supports UTF:
+
+        set filler "…"
+
+    If you want prwd to keep complete path elements instead of cutting as much
+    as possible, you can use this setting:
+
+        set cleancut on
+
+NEWSGROUP STYLE
+    This will shorten the path by only displaying the first letter of each path
+    components, toggle it with:
+
+        set newsgroup on
+
+    This will turn the "/home/tamentis/projects/prwd/src/nowhere" path into
+    "/h/t/p/s/nowhere". Note that the newsgroup style filter is applied before
+    the path is trimmed with 'maxlength'.
+
+INSTALL
+    make
+    sudo make install
+
+SETUP
+    This will depend on your shell, but here are a few:
+
+     - ksh (~/.profile or ~/.kshrc):
+        export PS1='\h:`spwd`\p '
+
+     - bash
+     - zsh
+     - csh
+     - tcsh
+
+    Note that the single quote matters since you want to keep the command
+    within the variable as-is (unresolved).
+
+AUTHORS/LICENSE
+    prwd was written by Bertrand Janin <tamentis@neopulsar.org> and is written
+    under an ISC license (BSD compatible, OSI compatible).
+
+    A bunch of utility functions are borrowed from OpenBSD and OpenSSH, both
+    under ISC and BSD licenses, with copyrights from the following authors:
+
+	Copyright (c) 2004 Ted Unangst and Todd Miller
+	Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
+	Copyright (c) 2000 Markus Friedl.  All rights reserved.
+        Copyright (c) 2005,2006 Damien Miller.  All rights reserved.
+

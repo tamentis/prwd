@@ -214,7 +214,7 @@ void
 newsgroupize(char *s)
 {
 	char t[MAXPATHLEN];
-	char *last, *org = s;
+	char *last = NULL, *org = s;
 	int idx = 0;
 
 	/* Unless we are starting from a / (slash), we can use the first one */
@@ -231,7 +231,8 @@ newsgroupize(char *s)
 	
 	/* Copy the letters+slash and make sure the last part is left untouched. */
 	strlcpy(org, t, idx);
-	strlcpy(org + idx - 2, last, strlen(last) + 1);
+	if (last != NULL)
+		strlcpy(org + idx - 2, last, strlen(last) + 1);
 }
 
 
@@ -297,7 +298,6 @@ main(int ac, const char **av)
 			} else {
 				s -= len;
 				strncpy(s, cfg_filler, len);
-				s++;
 			}
 		} else {
 			s += (len - cfg_maxpwdlen);

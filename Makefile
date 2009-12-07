@@ -3,7 +3,7 @@ PREFIX?=/usr/local
 
 CFLAGS?=-Wall
 
-#CFLAGS+=-ggdb
+CFLAGS+=-ggdb
 
 all: ${BINARY}
 

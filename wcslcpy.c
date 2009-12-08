@@ -23,7 +23,7 @@
 #ifndef HAVE_STRLCPY
 
 #include <sys/types.h>
-#include <string.h>
+#include <wchar.h>
 
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters
@@ -31,10 +31,10 @@
  * Returns strlen(src); if retval >= siz, truncation occurred.
  */
 size_t
-strlcpy(char *dst, const char *src, size_t siz)
+wcslcpy(wchar_t *dst, const wchar_t *src, size_t siz)
 {
-	char *d = dst;
-	const char *s = src;
+	wchar_t *d = dst;
+	const wchar_t *s = src;
 	size_t n = siz;
 
 	/* Copy as many bytes as will fit */

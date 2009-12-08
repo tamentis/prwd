@@ -22,43 +22,44 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
+#include <wchar.h>
 #include <limits.h>
 #include <errno.h>
 #include <err.h>
+#include <locale.h>
+#include <inttypes.h>
 
 #define FILLER_LEN	16	// maximum filler length
-#define FILLER_DEF	"..."	// default filler
+#define FILLER_DEF	L"..."	// default filler
 #define MAXPWD_LEN	24	// default maximum length
 #define MAX_ALIASES	64	// maximum number of aliases
 #define ALIAS_NAME_LEN	32	// size of an alias
 
-#define WHITESPACE	" \t\r\n"
-#define QUOTE		"\""
+#define WHITESPACE	L" \t\r\n"
+#define QUOTE		L"\""
 
 int	 cfg_maxpwdlen = MAXPWD_LEN;
 int 	 cfg_cleancut = 0;
 int	 cfg_newsgroup = 0;
-char	 cfg_filler[FILLER_LEN] = FILLER_DEF;
-char	*home;
+wchar_t	 cfg_filler[FILLER_LEN] = FILLER_DEF;
+wchar_t	 home[MAXPATHLEN];
 int	 alias_count = 0;
 
 struct {
-	char	name[ALIAS_NAME_LEN];
-	char	path[MAXPATHLEN];
+	wchar_t	name[ALIAS_NAME_LEN];
+	wchar_t	path[MAXPATHLEN];
 } aliases[MAX_ALIASES];
 
 
 /* Utility functions from OpenBSD/SSH in separate files (ISC license) */
-size_t		 strlcpy(char *dst, const char *src, size_t siz);
-long long	 strtonum(const char *numstr, long long minval,
-			  long long maxval, const char **errstrp);
-char		*strdelim(char **s);
+size_t		 wcslcpy(wchar_t *dst, const wchar_t *src, size_t siz);
+wchar_t		*strdelim(wchar_t **s);
 
 
 /**
  * Panic exit, preferably running in walls and waving your arms over your head.
  */
+#ifndef TESTING
 void
 fatal(const char *fmt,...)
 {
@@ -69,20 +70,31 @@ fatal(const char *fmt,...)
 	va_end(args);
 	exit(-1);
 }
+#else
+void fatal(const char *fmt, ...);
+#endif
 
 
 /**
  * Add a new alias to the list.
  */
 void
-add_alias(char *name, char *value, int linenum)
+add_alias(wchar_t *name, wchar_t *value, int linenum)
 {
-	if (strlen(value) < strlen(name))
-		fatal("prwd: alias name should not be longer than the value.\n");
-	if (strchr(name, '/') != NULL)
-		fatal("prwd: alias name should not contain any '/' (slash).\n");
-	strlcpy(aliases[alias_count].name, name, ALIAS_NAME_LEN);
-	strlcpy(aliases[alias_count].path, value, MAXPATHLEN);
+	if (wcslen(value) < wcslen(name)) {
+		fatal("prwdrc: alias name should not be longer than the value.\n");
+		return;
+	}
+	if (wcschr(name, '/') != NULL) {
+		fatal("prwdrc: alias name should not contain any '/' (slash).\n");
+		return;
+	}
+	if (alias_count >= MAX_ALIASES - 1) {
+		fatal("prwdrc: you cannot have more than %d aliases.\n", MAX_ALIASES);
+		return;
+	}
+	wcslcpy(aliases[alias_count].name, name, ALIAS_NAME_LEN);
+	wcslcpy(aliases[alias_count].path, value, MAXPATHLEN);
 	alias_count++;
 }
 
@@ -92,39 +104,37 @@ add_alias(char *name, char *value, int linenum)
  * just in case.
  */
 void
-set_variable(char *name, char *value, int linenum)
+set_variable(wchar_t *name, wchar_t *value, int linenum)
 {
-	const char *errstr = NULL;
-
 	/* set maxlength <int> */
-	if (strcasecmp(name, "maxlength") == 0) {
+	if (wcscasecmp(name, L"maxlength") == 0) {
 		if (value == NULL || *value == '\0') {
 			cfg_maxpwdlen = 0;
 			return;
 		}
-		cfg_maxpwdlen = strtonum(value, 0, 256, &errstr);
-		if (errstr != NULL)
-			fatal("prwd: invalid number for set maxlength.\n");
+		cfg_maxpwdlen = wcstoumax(value, NULL, 10);
+		if (cfg_maxpwdlen > 255)
+			fatal("prwdrc: invalid number for set maxlength.\n");
 
 	/* set filler <string> */
-	} else if (strcasecmp(name, "filler") == 0) {
+	} else if (wcscasecmp(name, L"filler") == 0) {
 		if (value == NULL || *value == '\0') {
 			*cfg_filler = '\0';
 			return;
 		}
-		strlcpy(cfg_filler, value, FILLER_LEN);
+		wcslcpy(cfg_filler, value, FILLER_LEN);
 
 	/* set cleancut <bool> */
-	} else if (strcasecmp(name, "cleancut") == 0) {
+	} else if (wcscasecmp(name, L"cleancut") == 0) {
 		cfg_cleancut = (value != NULL && *value == 'o') ? 1 : 0;
 
 	/* set newsgroup <bool> */
-	} else if (strcasecmp(name, "newsgroup") == 0) {
+	} else if (wcscasecmp(name, L"newsgroup") == 0) {
 		cfg_newsgroup = (value != NULL && *value == 'o') ? 1 : 0;
 
 	/* ??? */
 	} else {
-		fatal("prwd: unknown varible for set on line %d.\n", linenum);
+		fatal("prwdrc: unknown variable for set on line %d.\n", linenum);
 	}
 }
 
@@ -136,14 +146,14 @@ set_variable(char *name, char *value, int linenum)
  * anyways.
  */
 int
-process_config_line(char *line, int linenum)
+process_config_line(wchar_t *line, int linenum)
 {
 	int len;
-	char *keyword, *name, *value;
+	wchar_t *keyword, *name, *value;
 
         /* Strip trailing whitespace */
-	for (len = strlen(line) - 1; len > 0; len--) {
-		if (strchr(WHITESPACE, line[len]) == NULL)
+	for (len = wcslen(line) - 1; len > 0; len--) {
+		if (wcschr(WHITESPACE, line[len]) == NULL)
 			break;
 		line[len] = '\0';
 	}
@@ -160,22 +170,27 @@ process_config_line(char *line, int linenum)
 		return 0;
 
 	/* set varname value */
-	if (strcasecmp(keyword, "set") == 0) {
-		if ((name = strdelim(&line)) == NULL)
-			fatal("prwd: set without variable name on line %d.\n", linenum);
+	if (wcscasecmp(keyword, L"set") == 0) {
+		if ((name = strdelim(&line)) == NULL) {
+			fatal("prwdrc: set without variable name on line %d.\n", linenum);
+			return -1;
+		}
 		value = strdelim(&line);
 		set_variable(name, value, linenum);
 
 	/* alias short long */
-	} else if (strcmp(keyword, "alias") == 0) {
-		if ((name = strdelim(&line)) == NULL)
-			fatal("prwd: alias without name on line %d.\n", linenum);
+	} else if (wcscmp(keyword, L"alias") == 0) {
+		if ((name = strdelim(&line)) == NULL) {
+			fatal("prwdrc: alias without name on line %d.\n", linenum);
+			return -1;
+		}
 		value = strdelim(&line);
 		add_alias(name, value, linenum);
 
 	/* Unknown operation... God help us. */
 	} else {
-		fatal("prwd: unknown command on line %d.\n", linenum);
+		fatal("prwdrc: unknown command on line %d.\n", linenum);
+		return -1;
 	}
 
 	return 0;
@@ -190,17 +205,20 @@ read_config()
 {
 	FILE *fp;
 	char line[128];
+	wchar_t wline[128];
 	int linenum = 1;
 	char path[MAXPATHLEN];
 
-	snprintf(path, MAXPATHLEN, "%s/.prwdrc", home);
+	snprintf(path, MAXPATHLEN, "%ls/.prwdrc", home);
 
 	fp = fopen(path, "r");
 	if (fp == NULL)
 		return;
 
-	while (fgets(line, sizeof(line), fp))
-		process_config_line(line, linenum++);
+	while (fgets(line, sizeof(line), fp)) {
+		mbstowcs(wline, line, 128);
+		process_config_line(wline, linenum++);
+	}
 
 	fclose(fp);
 }
@@ -211,102 +229,201 @@ read_config()
  * letters, except the last one.
  */
 void
-newsgroupize(char *s)
+newsgroupize(wchar_t *s)
 {
-	char t[MAXPATHLEN];
-	char *last = NULL, *org = s;
+	wchar_t t[MAXPATHLEN];
+	wchar_t *last = NULL, *org = s;
 	int idx = 0;
 
+	if (s == NULL || *s == '\0')
+		return;
+
 	/* Unless we are starting from a / (slash), we can use the first one */
-	if (*s != '/')
+	if (*s != L'/') {
 		t[idx++] = *s;
+	}
 	t[idx++] = '/';
+	t[idx] = '\0';
 
 	/* For every component, add the first letter and a slash */
-	while ((s = strchr(s, '/')) != NULL) {
+	while ((s = wcschr(s, L'/')) != NULL) {
+		/* Catter for trailing slashes */
+		if (s[1] == '\0')
+			break;
 		last = ++s;
-		t[idx++] = (char)*s;
-		t[idx++] = '/';
+		t[idx++] = (wchar_t)*s;
+		t[idx++] = L'/';
 	}
 	
 	/* Copy the letters+slash and make sure the last part is left untouched. */
-	strlcpy(org, t, idx);
+	wcslcpy(org, t, idx);
 	if (last != NULL)
-		strlcpy(org + idx - 2, last, strlen(last) + 1);
+		wcslcpy(org + idx - 2, last, wcslen(last) + 1);
+}
+
+/**
+ * Reduce the given string with the global max length and filler.
+ */
+void
+quickcut(wchar_t *s, size_t len)
+{
+	wchar_t t[MAXPATHLEN];
+	size_t	filler_len = wcslen(cfg_filler), cl = sizeof(wchar_t);
+
+	if (s == NULL || len == 0 || *s == '\0' || len <= cfg_maxpwdlen)
+		return;
+
+	wcslcpy(t, cfg_filler, filler_len + cl);
+	wcslcpy(t + filler_len, s + len - cfg_maxpwdlen + filler_len, cfg_maxpwdlen - filler_len + cl);
+	wcslcpy(s, t, cfg_maxpwdlen + cl);
 }
 
 
+/**
+ * Reduce the given string to the smallest it could get to fit within
+ * the global max length and without cutting any word.
+ */
+void
+cleancut(wchar_t *s)
+{
+	size_t flen;
+	wchar_t *last = NULL, t[MAXPATHLEN], *org = s;
+
+	/* NULL or empty input, nothing to touch */
+	if (s == NULL || *s == '\0')
+		return;
+
+	/* Nothing needs to be cropped */
+	if (wcslen(s) <= cfg_maxpwdlen)
+		return;
+
+	/* As long as we can't fit 's' within the maxpwdlen, keep trimming */
+	flen = wcslen(cfg_filler);
+	while (wcslen(s) > (cfg_maxpwdlen - flen)) {
+		s++;
+		s = wcschr(s, '/');
+		if (s == NULL)
+			break;
+		last = s;
+	}
+
+	/* The last element was too long, keep it */
+	if (s == NULL) {
+		/* 
+		 * last has never been touched, this means we only have
+		 * one slash, revert s to its original value, there is
+		 * nothing we can crop.
+		 */
+		if (last == NULL) {
+			s = org;
+			goto cleancut_final;
+		} else {
+			s = last;
+		}
+	}
+
+	s -= flen;
+	wcsncpy(s, cfg_filler, flen);
+	
+cleancut_final:
+	wcslcpy(t, s, MAXPATHLEN);
+	wcslcpy(org, t, MAXPATHLEN);
+}
+
+/**
+ * Loop through the user-defined aliases and find the best match to
+ * get the shortest path as possible.
+ */
+void
+replace_aliases(wchar_t *s)
+{
+	int i, chosen = -1;
+	size_t len, nlen, max = 0;
+	wchar_t t[MAXPATHLEN], *org = s;
+
+	for (i = 0; i < alias_count; i++) {
+		len = wcslen(aliases[i].path);
+		if (wcsncmp(aliases[i].path, s, len) == 0) {
+			if (len > max) {
+				chosen = i;
+				max = len;
+			}
+		}
+	}
+
+	/* No alias found, you can leave now */
+	if (i == -1)
+		return;
+	
+	nlen = wcslen(aliases[chosen].name);
+	s += (max - nlen);
+	wcsncpy(s, aliases[chosen].name, nlen);
+
+	wcslcpy(t, s, MAXPATHLEN);
+	wcslcpy(org, t, MAXPATHLEN);
+}
+
+
+#ifndef TESTING
 int
 main(int ac, const char **av)
 {
+	wchar_t pwd[MAXPATHLEN], *s;
 	size_t len, nlen;
-	int i;
-	char *pwd, *s, *last;
+	char *t;
 
 	if (ac != 1) {
 		printf("usage: prwd\n");
 		exit(-1);
 	}
 
-	home = getenv("HOME");
+	setlocale(LC_ALL, "");
+
+	/* Get $HOME */
+	t = getenv("HOME");
+	mbstowcs(home, t, MAXPATHLEN);
 	if (home == NULL || *home == '\0')
 		errx(0, "Unknown variable '$HOME'.");
 
-	pwd = getcwd(NULL, MAXPATHLEN);
+	/* Get the working directory */
+	t = getcwd(NULL, MAXPATHLEN);
+	mbstowcs(pwd, t, MAXPATHLEN);
 	if (pwd == NULL)
 		errx(0, "Unable to get current working directory.");
-	s = pwd;
+	free(t);
 
 	read_config();
 
 	/* Alias handling */
-	for (i = 0; i < alias_count; i++) {
-		len = strlen(aliases[i].path);
-		if (strncmp(aliases[i].path, pwd, len) == 0) {
-			nlen = strlen(aliases[i].name);
-			s += (len - nlen);
-			strncpy(s, aliases[i].name, nlen);
-		}
-	}
+	replace_aliases(pwd);
 
 	/* Replace the beginning with ~ for directories within $HOME. */
-	len = strlen(home);
-	if (strncmp(home, s, len) == 0) {
+	add_alias("~", home)
+	/*
+	len = wcslen(home);
+	if (wcsncmp(home, s, len) == 0) {
 		s += (len - 1);
 		*s = '~';
 	}
+	*/
 
 	/* Newsgroup mode, keep only the first letters. */
 	if (cfg_newsgroup == 1)
-		newsgroupize(s);
+		newsgroupize(pwd);
 
 	/* If the path is still too long, crop it. */
-	len = strlen(s);
+	len = wcslen(s);
+
 	if (cfg_maxpwdlen > 0 && len > cfg_maxpwdlen) {
 		if (cfg_cleancut == 1 && cfg_newsgroup != 1) {
-			len = strlen(cfg_filler);
-			while (strlen(s) > (cfg_maxpwdlen - len)) {
-				s++;
-				s = strchr(s, '/');
-				if (s == NULL)
-					break;
-				last = s;
-			}
-			/* The last element was too long, keep it */
-			if (s == NULL) {
-				s = last + 1;
-			} else {
-				s -= len;
-				strncpy(s, cfg_filler, len);
-			}
+			cleancut(pwd);
 		} else {
-			s += (len - cfg_maxpwdlen);
-			strncpy(s, cfg_filler, strlen(cfg_filler));
+			quickcut(pwd, len);
 		}
 	}
 
-	printf("%s\n", s);
-	free(pwd);
+	printf("%ls\n", pwd);
 
 	return 0;
 }
+#endif

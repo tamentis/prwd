@@ -26,17 +26,18 @@
  */
 
 #include <string.h>
+#include <wchar.h>
 
 
 /* Characters considered whitespace in strsep calls. */
-#define WHITESPACE " \t\r\n"
-#define QUOTE	"\""
+#define WHITESPACE	L" \t\r\n"
+#define QUOTE		L"\""
 
 /* return next token in configuration line */
-char *
-strdelim(char **s)
+wchar_t *
+strdelim(wchar_t **s)
 {
-	char *old;
+	wchar_t *old;
 	int wspace = 0;
 
 	if (*s == NULL)
@@ -44,30 +45,30 @@ strdelim(char **s)
 
 	old = *s;
 
-	*s = strpbrk(*s, WHITESPACE QUOTE "=");
+	*s = wcspbrk(*s, WHITESPACE QUOTE "=");
 	if (*s == NULL)
 		return (old);
 
-	if (*s[0] == '\"') {
-		memmove(*s, *s + 1, strlen(*s)); /* move nul too */
+	if (*s[0] == L'\"') {
+		wmemmove(*s, *s + 1, wcslen((char*)*s)); /* move nul too */
 		/* Find matching quote */
-		if ((*s = strpbrk(*s, QUOTE)) == NULL) {
+		if ((*s = wcspbrk(*s, QUOTE)) == NULL) {
 			return (NULL);		/* no matching quote */
 		} else {
-			*s[0] = '\0';
+			*s[0] = L'\0';
 			return (old);
 		}
 	}
 
 	/* Allow only one '=' to be skipped */
-	if (*s[0] == '=')
+	if (*s[0] == L'=')
 		wspace = 1;
-	*s[0] = '\0';
+	*s[0] = L'\0';
 
 	/* Skip any extra whitespace after first token */
-	*s += strspn(*s + 1, WHITESPACE) + 1;
-	if (*s[0] == '=' && !wspace)
-		*s += strspn(*s + 1, WHITESPACE) + 1;
+	*s += wcsspn(*s + 1, WHITESPACE) + 1;
+	if (*s[0] == L'=' && !wspace)
+		*s += wcsspn(*s + 1, WHITESPACE) + 1;
 
 	return (old);
 }

@@ -238,6 +238,10 @@ newsgroupize(wchar_t *s)
 	if (s == NULL || *s == '\0')
 		return;
 
+	/* Root (/) can escape right now, it's as short as it can get */
+	if (*s == L'/' && s[1] == '\0')
+		return;
+
 	/* Unless we are starting from a / (slash), we can use the first one */
 	if (*s != L'/') {
 		t[idx++] = *s;
@@ -254,6 +258,10 @@ newsgroupize(wchar_t *s)
 		t[idx++] = (wchar_t)*s;
 		t[idx++] = L'/';
 	}
+
+	/* If idx is less than 4, we only have one slash, just keep org as is */
+	if (idx < 4)
+		return;
 	
 	/* Copy the letters+slash and make sure the last part is left untouched. */
 	wcslcpy(org, t, idx);

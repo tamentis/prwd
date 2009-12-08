@@ -65,6 +65,30 @@ test_newsgroupize_one(void)
 }
 
 void
+test_newsgroupize_root(void)
+{
+	wchar_t s[] = L"/";
+	newsgroupize(s);
+	assert(wcscmp(s, L"/") == 0);
+}
+
+void
+test_newsgroupize_slash_one(void)
+{
+	wchar_t s[] = L"/a";
+	newsgroupize(s);
+	assert(wcscmp(s, L"/a") == 0);
+}
+
+void
+test_newsgroupize_tmp(void)
+{
+	wchar_t s[] = L"/tmp";
+	newsgroupize(s);
+	assert(wcscmp(s, L"/tmp") == 0);
+}
+
+void
 test_newsgroupize_home(void)
 {
 	wchar_t s[] = L"/home/tamentis";
@@ -111,6 +135,9 @@ test_newsgroupize()
 	test_newsgroupize_null();
 	test_newsgroupize_empty();
 	test_newsgroupize_one();
+	test_newsgroupize_slash_one();
+	test_newsgroupize_root();
+	test_newsgroupize_tmp();
 	test_newsgroupize_home();
 	test_newsgroupize_shorthome();
 	test_newsgroupize_alreadyshort();

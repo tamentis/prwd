@@ -1,4 +1,4 @@
-/* $Id */
+/* $Id$ */
 /* $OpenBSD: misc.c,v 1.69 2008/06/13 01:38:23 dtucker Exp $ */
 /*
  * Copyright (c) 2000 Markus Friedl.  All rights reserved.

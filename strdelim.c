@@ -50,7 +50,7 @@ strdelim(wchar_t **s)
 		return (old);
 
 	if (*s[0] == L'\"') {
-		wmemmove(*s, *s + 1, wcslen((char*)*s)); /* move nul too */
+		wmemmove(*s, *s + 1, wcslen(*s)); /* move nul too */
 		/* Find matching quote */
 		if ((*s = wcspbrk(*s, QUOTE)) == NULL) {
 			return (NULL);		/* no matching quote */

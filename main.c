@@ -352,7 +352,7 @@ replace_aliases(wchar_t *s)
 	}
 
 	/* No alias found, you can leave now */
-	if (i == -1)
+	if (chosen == -1)
 		return;
 	
 	nlen = wcslen(aliases[chosen].name);
@@ -368,8 +368,8 @@ replace_aliases(wchar_t *s)
 int
 main(int ac, const char **av)
 {
-	wchar_t pwd[MAXPATHLEN], *s;
-	size_t len, nlen;
+	wchar_t pwd[MAXPATHLEN];
+	size_t len;
 	char *t;
 
 	if (ac != 1) {
@@ -394,25 +394,18 @@ main(int ac, const char **av)
 
 	read_config();
 
+	/* Replace the beginning with ~ for directories within $HOME. */
+	add_alias(L"~", home, 0);
+
 	/* Alias handling */
 	replace_aliases(pwd);
-
-	/* Replace the beginning with ~ for directories within $HOME. */
-	add_alias("~", home)
-	/*
-	len = wcslen(home);
-	if (wcsncmp(home, s, len) == 0) {
-		s += (len - 1);
-		*s = '~';
-	}
-	*/
 
 	/* Newsgroup mode, keep only the first letters. */
 	if (cfg_newsgroup == 1)
 		newsgroupize(pwd);
 
 	/* If the path is still too long, crop it. */
-	len = wcslen(s);
+	len = wcslen(pwd);
 
 	if (cfg_maxpwdlen > 0 && len > cfg_maxpwdlen) {
 		if (cfg_cleancut == 1 && cfg_newsgroup != 1) {

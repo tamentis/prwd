@@ -107,7 +107,7 @@ void
 set_variable(wchar_t *name, wchar_t *value, int linenum)
 {
 	/* set maxlength <int> */
-	if (wcscasecmp(name, L"maxlength") == 0) {
+	if (wcscmp(name, L"maxlength") == 0) {
 		if (value == NULL || *value == '\0') {
 			cfg_maxpwdlen = 0;
 			return;
@@ -117,7 +117,7 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 			fatal("prwdrc: invalid number for set maxlength.\n");
 
 	/* set filler <string> */
-	} else if (wcscasecmp(name, L"filler") == 0) {
+	} else if (wcscmp(name, L"filler") == 0) {
 		if (value == NULL || *value == '\0') {
 			*cfg_filler = '\0';
 			return;
@@ -125,11 +125,11 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 		wcslcpy(cfg_filler, value, FILLER_LEN);
 
 	/* set cleancut <bool> */
-	} else if (wcscasecmp(name, L"cleancut") == 0) {
+	} else if (wcscmp(name, L"cleancut") == 0) {
 		cfg_cleancut = (value != NULL && *value == 'o') ? 1 : 0;
 
 	/* set newsgroup <bool> */
-	} else if (wcscasecmp(name, L"newsgroup") == 0) {
+	} else if (wcscmp(name, L"newsgroup") == 0) {
 		cfg_newsgroup = (value != NULL && *value == 'o') ? 1 : 0;
 
 	/* ??? */
@@ -170,7 +170,7 @@ process_config_line(wchar_t *line, int linenum)
 		return 0;
 
 	/* set varname value */
-	if (wcscasecmp(keyword, L"set") == 0) {
+	if (wcscmp(keyword, L"set") == 0) {
 		if ((name = strdelim(&line)) == NULL) {
 			fatal("prwdrc: set without variable name on line %d.\n", linenum);
 			return -1;
@@ -294,7 +294,7 @@ quickcut(wchar_t *s, size_t len)
 void
 cleancut(wchar_t *s)
 {
-	size_t flen;
+	int flen;
 	wchar_t *last = NULL, t[MAXPATHLEN], *org = s;
 
 	/* NULL or empty input, nothing to touch */
@@ -307,7 +307,7 @@ cleancut(wchar_t *s)
 
 	/* As long as we can't fit 's' within the maxpwdlen, keep trimming */
 	flen = wcslen(cfg_filler);
-	while (wcslen(s) > (cfg_maxpwdlen - flen)) {
+	while ((int)wcslen(s) > (cfg_maxpwdlen - flen)) {
 		s++;
 		s = wcschr(s, '/');
 		if (s == NULL)
@@ -376,6 +376,7 @@ replace_aliases(wchar_t *s)
 int
 main(int ac, const char **av)
 {
+	char mbpwd[MAXPATHLEN];
 	wchar_t pwd[MAXPATHLEN];
 	size_t len;
 	char *t;
@@ -423,7 +424,8 @@ main(int ac, const char **av)
 		}
 	}
 
-	printf("%ls\n", pwd);
+	wcstombs(mbpwd, pwd, MAXPATHLEN);
+	puts(mbpwd);
 
 	return 0;
 }

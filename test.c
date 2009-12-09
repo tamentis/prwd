@@ -121,14 +121,6 @@ test_newsgroupize_trailingslash(void)
 }
 
 void
-test_newsgroupize_utf(void)
-{
-	wchar_t s[] = L"…/région/Franche-Comté";
-	newsgroupize(s);
-	assert(wcscmp(s, L"…/r/Franche-Comté") == 0);
-}
-
-void
 test_newsgroupize()
 {
 	printf("newsgroupize\n");
@@ -142,7 +134,6 @@ test_newsgroupize()
 	test_newsgroupize_shorthome();
 	test_newsgroupize_alreadyshort();
 	test_newsgroupize_trailingslash();
-	test_newsgroupize_utf();
 }
 
 
@@ -193,16 +184,6 @@ test_quickcut_thirty_to_ten(void)
 }
 
 void
-test_quickcut_thirty_to_ten_utf(void)
-{
-	wchar_t s[] = L"ábcdéèfghìïjklmnóöpqrstuvwxyzÜ";
-	wcscpy(cfg_filler, L"…");
-	cfg_maxpwdlen = 10;
-	quickcut(s, 30);
-	assert(wcscmp(s, L"…stuvwxyzÜ") == 0);
-}
-
-void
 test_quickcut_ten_to_thirty(void)
 {
 	wchar_t s[] = L"1234567890";
@@ -229,7 +210,6 @@ test_quickcut()
 	test_quickcut_one_to_one();
 	test_quickcut_one_to_two();
 	test_quickcut_thirty_to_ten();
-	test_quickcut_thirty_to_ten_utf();
 	test_quickcut_ten_to_thirty();
 	test_quickcut_ten_to_ten();
 }
@@ -268,7 +248,7 @@ test_cleancut_root_to_one()
 {
 	wchar_t s[] = L"/";
 	cfg_maxpwdlen = 1;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"...");
 	cleancut(s);
 	assert(wcscmp(s, L"/") == 0);
 }
@@ -278,7 +258,7 @@ test_cleancut_tmp_to_one()
 {
 	wchar_t s[] = L"/tmp";
 	cfg_maxpwdlen = 1;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"...");
 	cleancut(s);
 	assert(wcscmp(s, L"/tmp") == 0);
 }
@@ -288,7 +268,7 @@ test_cleancut_tmp_to_three()
 {
 	wchar_t s[] = L"/tmp";
 	cfg_maxpwdlen = 3;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"...");
 	cleancut(s);
 	assert(wcscmp(s, L"/tmp") == 0);
 }
@@ -298,7 +278,7 @@ test_cleancut_tmp_to_four()
 {
 	wchar_t s[] = L"/tmp";
 	cfg_maxpwdlen = 4;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"...");
 	cleancut(s);
 	assert(wcscmp(s, L"/tmp") == 0);
 }
@@ -308,7 +288,7 @@ test_cleancut_tmp_to_ten()
 {
 	wchar_t s[] = L"/tmp";
 	cfg_maxpwdlen = 10;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"...");
 	cleancut(s);
 	assert(wcscmp(s, L"/tmp") == 0);
 }
@@ -318,9 +298,9 @@ test_cleancut_uld_to_one()
 {
 	wchar_t s[] = L"/usr/local/doc";
 	cfg_maxpwdlen = 1;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"...");
 	cleancut(s);
-	assert(wcscmp(s, L"…/doc") == 0);
+	assert(wcscmp(s, L".../doc") == 0);
 }
 
 void
@@ -328,9 +308,9 @@ test_cleancut_uld_to_five()
 {
 	wchar_t s[] = L"/usr/local/doc";
 	cfg_maxpwdlen = 5;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"...");
 	cleancut(s);
-	assert(wcscmp(s, L"…/doc") == 0);
+	assert(wcscmp(s, L".../doc") == 0);
 }
 
 void
@@ -338,9 +318,9 @@ test_cleancut_uld_to_ten()
 {
 	wchar_t s[] = L"/usr/local/doc";
 	cfg_maxpwdlen = 10;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"...");
 	cleancut(s);
-	assert(wcscmp(s, L"…/doc") == 0);
+	assert(wcscmp(s, L".../doc") == 0);
 }
 
 void
@@ -348,9 +328,9 @@ test_cleancut_uld_to_eleven()
 {
 	wchar_t s[] = L"/usr/local/doc";
 	cfg_maxpwdlen = 11;
-	wcscpy(cfg_filler, L"…");
+	wcscpy(cfg_filler, L"_");
 	cleancut(s);
-	assert(wcscmp(s, L"…/local/doc") == 0);
+	assert(wcscmp(s, L"_/local/doc") == 0);
 }
 
 void

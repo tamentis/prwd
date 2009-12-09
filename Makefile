@@ -30,4 +30,4 @@ install: ${BINARY}
 	install -m 644 ${BINARY}.1 ${PREFIX}/man/man1
 
 clean:
-	rm -f ${BINARY} main.o wcslcpy.o strdelim.o test.o run_tests
+	rm -f ${BINARY} main.o wcslcpy.o strdelim.o test.o run_tests *core

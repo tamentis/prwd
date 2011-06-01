@@ -1,6 +1,5 @@
-/* $Id$ */
 /*
- * Copyright (c) 2009 Bertrand Janin <tamentis@neopulsar.org>
+ * Copyright (c) 2009,2011 Bertrand Janin <tamentis@neopulsar.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -38,8 +37,9 @@
 #define WHITESPACE	L" \t\r\n"
 #define QUOTE		L"\""
 
-int	 cfg_maxpwdlen = MAXPWD_LEN;
 int 	 cfg_cleancut = 0;
+int	 cfg_maxpwdlen = MAXPWD_LEN;
+int	 cfg_mercurial = 0;
 int	 cfg_newsgroup = 0;
 wchar_t	 cfg_filler[FILLER_LEN] = FILLER_DEF;
 wchar_t	 home[MAXPATHLEN];
@@ -57,7 +57,8 @@ wchar_t		*strdelim(wchar_t **s);
 
 
 /**
- * Panic exit, preferably running in walls and waving your arms over your head.
+ * Panic exit, preferably screaming, running into walls with your arms in the
+ * air.
  */
 #ifndef TESTING
 void
@@ -128,6 +129,10 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 	} else if (wcscmp(name, L"cleancut") == 0) {
 		cfg_cleancut = (value != NULL && *value == 'o') ? 1 : 0;
 
+	/* set mercurial <bool> */
+	} else if (wcscmp(name, L"mercurial") == 0) {
+		cfg_mercurial = (value != NULL && *value == 'o') ? 1 : 0;
+
 	/* set newsgroup <bool> */
 	} else if (wcscmp(name, L"newsgroup") == 0) {
 		cfg_newsgroup = (value != NULL && *value == 'o') ? 1 : 0;
@@ -140,10 +145,9 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 
 
 /**
- * Parse a single line of the config file. Returns 0 on success or
- * anything else if an error occured, it will be rare since most
- * fatal errors will quit the program with an error message
- * anyways.
+ * Parse a single line of the configuration file. Returns 0 on success or
+ * anything else if an error occurred, it will be rare since most fatal errors
+ * will quit the program with an error message anyways.
  */
 int
 process_config_line(wchar_t *line, int linenum)
@@ -251,7 +255,7 @@ newsgroupize(wchar_t *s)
 
 	/* For every component, add the first letter and a slash */
 	while ((s = wcschr(s, L'/')) != NULL) {
-		/* Catter for trailing slashes */
+		/* Cater for trailing slashes */
 		if (s[1] == '\0')
 			break;
 		last = ++s;

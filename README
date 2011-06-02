@@ -62,6 +62,15 @@ NEWSGROUP STYLE
     "/h/t/p/s/nowhere". Note that the newsgroup style filter is applied before
     the path is trimmed with 'maxlength'.
 
+MERCURIAL
+    You can see the currently selected branch as a prefix to your path
+    whenever you are in a mercurial repository, enable this feature with
+    the following option:
+
+        set mercurial on
+
+    The resulting path will be "my-branch:project/folder".
+
 INSTALL
     make
     sudo make install

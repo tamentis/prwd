@@ -16,6 +16,7 @@
 
 #include <sys/param.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -33,6 +34,7 @@
 #define MAXPWD_LEN	24	// default maximum length
 #define MAX_ALIASES	64	// maximum number of aliases
 #define ALIAS_NAME_LEN	32	// size of an alias
+#define MAX_BRANCH_LEN	32	// max size of a branch name
 
 #define WHITESPACE	L" \t\r\n"
 #define QUOTE		L"\""
@@ -263,11 +265,11 @@ newsgroupize(wchar_t *s)
 		t[idx++] = L'/';
 	}
 
-	/* If idx is less than 4, we only have one slash, just keep org as is */
+	/* idx is less than 4, we only have one slash, just keep org as is */
 	if (idx < 4)
 		return;
 	
-	/* Copy the letters+slash and make sure the last part is left untouched. */
+	/* Copy letters+slash making sure the last part is left untouched. */
 	wcslcpy(org, t, idx);
 	if (last != NULL)
 		wcslcpy(org + idx - 2, last, wcslen(last) + 1);
@@ -286,8 +288,82 @@ quickcut(wchar_t *s, size_t len)
 		return;
 
 	wcslcpy(t, cfg_filler, filler_len + cl);
-	wcslcpy(t + filler_len, s + len - cfg_maxpwdlen + filler_len, cfg_maxpwdlen - filler_len + cl);
+	wcslcpy(t + filler_len, s + len - cfg_maxpwdlen + filler_len,
+			cfg_maxpwdlen - filler_len + cl);
 	wcslcpy(s, t, cfg_maxpwdlen + cl);
+}
+
+/**
+ * Recurse up from $PWD to find a .hg/ directory with a valid branch file,
+ * read this file, copy the branch name in dst, up to a maximum of 'size'
+ * and return the amount of bytes copied.
+ */
+size_t
+get_branch(wchar_t *dst, size_t size)
+{
+	FILE *fp;
+	char *c;
+	char pwd[MAXPATHLEN];
+	char candidate[MAXPATHLEN];
+	char buf[MAX_BRANCH_LEN];
+	size_t branch_size;
+	struct stat bufstat;
+	int found_repo = -1;
+	
+	/* start from the working dir */
+	strlcpy(pwd, getcwd(NULL, MAXPATHLEN), MAXPATHLEN);
+
+	do {
+		snprintf(candidate, MAXPATHLEN, "%s/.hg/branch", pwd);
+
+		found_repo = stat(candidate, &bufstat);
+
+		if ((c = strrchr(pwd, '/')) == NULL)
+			break;
+
+		*c = '\0';
+	} while (found_repo != 0 && candidate[1] != '\0');
+
+	if (found_repo == -1)
+		return 0;
+
+	/* TODO: unable to open + verbose -> say it! */
+	fp = fopen(candidate, "r");
+	if (fp == NULL)
+		return 0;
+	
+	fread(buf, 1, size, fp);
+	fclose(fp);
+
+	/* remove the trailing new line if any */
+	if ((c = strchr(buf, '\n')) != NULL)
+		*c = '\0';
+
+	branch_size = mbstowcs(dst, buf, MAX_BRANCH_LEN);
+
+	return branch_size;
+}
+
+/**
+ * Add the mercurial branch at the beginning of the path.
+ */
+void
+add_branch(wchar_t *s)
+{
+	wchar_t org[MAXPATHLEN];
+	wchar_t branch[MAX_BRANCH_LEN];
+	size_t len;
+
+	wcslcpy(org, s, MAXPATHLEN);
+
+	if (get_branch(branch, MAX_BRANCH_LEN) == 0)
+		return;
+
+	len = wcslcpy(s, branch, MAX_BRANCH_LEN);
+
+	s += len;
+	*(s++) = ':';
+	wcslcpy(s, org, MAXPATHLEN - len - 1);
 }
 
 
@@ -392,7 +468,7 @@ main(int ac, const char **av)
 
 	setlocale(LC_ALL, "");
 
-	/* Get $HOME */
+	/* Populate $HOME */
 	t = getenv("HOME");
 	mbstowcs(home, t, MAXPATHLEN);
 	if (home == NULL || *home == '\0')
@@ -426,6 +502,11 @@ main(int ac, const char **av)
 		} else {
 			quickcut(pwd, len);
 		}
+	}
+
+	/* If mercurial is enabled, show the branch */
+	if (cfg_mercurial == 1) {
+		add_branch(pwd);
 	}
 
 	wcstombs(mbpwd, pwd, MAXPATHLEN);

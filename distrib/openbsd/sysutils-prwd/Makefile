@@ -15,11 +15,8 @@ PERMIT_DISTFILES_FTP=	Yes
 
 MASTER_SITES=	http://tamentis.com/projects/prwd/files/
 
-WANTLIB= 		c
+WANTLIB= 	c
 
-USE_GREFF=		Yes
-
-#WRKDIST=	${WRKDIR}/ls
 NO_REGRESS=	Yes
 
 .include <bsd.port.mk>

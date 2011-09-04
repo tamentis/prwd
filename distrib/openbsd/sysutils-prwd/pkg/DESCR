@@ -1,0 +1,12 @@
+Prints the working directory with a few 'enhancements' from pwd:
+
+ - aliases
+ - max length and filler characters
+ - newsgroup style
+
+All of this is driven by your ~/.prwdrc file.
+
+The reasoning behind 'prwd' is that most shells read $PS1 differently and
+have a very rigid way to display the current working directory. 'prwd'
+allows you to have one way to handle the display of your working directory
+and use it across multiple shells.

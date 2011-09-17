@@ -83,6 +83,9 @@ SETUP
     Note that the single quote matters since you want to keep the command
     within the variable as-is (unresolved).
 
+TODO
+    Not crash if the current directory does not exist.
+
 AUTHORS/LICENSE
     prwd was written by Bertrand Janin <tamentis@neopulsar.org> and is
     distributed under an ISC license (BSD compatible, OSI compatible).

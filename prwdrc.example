@@ -8,6 +8,9 @@ set cleancut on
 # Shorten the path newsgroup style (first letters)
 #set newsgroup on
 
+# Show mercurial branch
+#set mercurial on
+
 # Aliases
 alias *lt /home/tamentis/livetech
 alias *svn /home/tamentis/dev/trunk

@@ -30,6 +30,13 @@ ALIASES
 
         alias winDocs "/mnt/Windows XP/My Documents/"
 
+    You can define multiple values for a single alias, this allows you to share
+    your configuration on different machines, but keep the same alias, for
+    example::
+        
+	alias $tp /home/tamentis/truveris/projects
+	alias $tp /Users/tamentis/truveris/projects
+
 MAX LENGTH
     Defines the maximum length to return, the default filler string is "...",
     the default length is 32, a value of 0 will disable the feature all

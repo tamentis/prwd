@@ -10,6 +10,9 @@ set cleancut on
 
 # Show mercurial branch
 #set mercurial on
+#
+# Show git branch
+#set git on
 
 # Aliases
 alias *lt /home/tamentis/livetech

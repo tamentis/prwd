@@ -56,6 +56,7 @@ struct {
 /* Utility functions from OpenBSD/SSH in separate files (ISC license) */
 size_t		 wcslcpy(wchar_t *dst, const wchar_t *src, size_t siz);
 wchar_t		*strdelim(wchar_t **s);
+size_t		strlcpy(char *dst, const char *src, size_t siz);
 
 
 /**
@@ -268,7 +269,7 @@ newsgroupize(wchar_t *s)
 	/* idx is less than 4, we only have one slash, just keep org as is */
 	if (idx < 4)
 		return;
-	
+
 	/* Copy letters+slash making sure the last part is left untouched. */
 	wcslcpy(org, t, idx);
 	if (last != NULL)
@@ -309,7 +310,7 @@ get_branch(wchar_t *dst, size_t size)
 	size_t branch_size;
 	struct stat bufstat;
 	int found_repo = -1;
-	
+
 	/* start from the working dir */
 	strlcpy(pwd, getcwd(NULL, MAXPATHLEN), MAXPATHLEN);
 
@@ -331,7 +332,7 @@ get_branch(wchar_t *dst, size_t size)
 	fp = fopen(candidate, "r");
 	if (fp == NULL)
 		return 0;
-	
+
 	fread(buf, 1, size, fp);
 	fclose(fp);
 
@@ -397,7 +398,7 @@ cleancut(wchar_t *s)
 
 	/* The last element was too long, keep it */
 	if (s == NULL) {
-		/* 
+		/*
 		 * last has never been touched, this means we only have
 		 * one slash, revert s to its original value, there is
 		 * nothing we can crop.
@@ -412,7 +413,7 @@ cleancut(wchar_t *s)
 
 	s -= flen;
 	wcsncpy(s, cfg_filler, flen);
-	
+
 cleancut_final:
 	wcslcpy(t, s, MAXPATHLEN);
 	wcslcpy(org, t, MAXPATHLEN);
@@ -442,7 +443,7 @@ replace_aliases(wchar_t *s)
 	/* No alias found, you can leave now */
 	if (chosen == -1)
 		return;
-	
+
 	nlen = wcslen(aliases[chosen].name);
 	s += (max - nlen);
 	wcsncpy(s, aliases[chosen].name, nlen);

@@ -13,8 +13,8 @@ INTRO
     The reasoning behind 'prwd' is that most shells read $PS1 differently and
     have a very rigid way to display the current working directory. 'prwd'
     allows you to have one way to handle the display of your working directory
-    and use it across multiple shells. 
-    
+    and use it across multiple shells.
+
     The syntax of the configuration files is described below, lines starting
     with '#' are ignored.
 
@@ -33,7 +33,7 @@ ALIASES
     You can define multiple values for a single alias, this allows you to share
     your configuration on different machines, but keep the same alias, for
     example::
-        
+
 	alias $tp /home/tamentis/truveris/projects
 	alias $tp /Users/tamentis/truveris/projects
 
@@ -69,12 +69,13 @@ NEWSGROUP STYLE
     "/h/t/p/s/nowhere". Note that the newsgroup style filter is applied before
     the path is trimmed with 'maxlength'.
 
-MERCURIAL
+MERCURIAL & GIT
     You can see the currently selected branch as a prefix to your path
-    whenever you are in a mercurial repository, enable this feature with
-    the following option:
+    whenever you are in a mercurial or git repository, enable this feature with
+    the following options:
 
         set mercurial on
+        set git on
 
     The resulting path will be "my-branch:project/folder".
 

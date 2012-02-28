@@ -1,3 +1,7 @@
+1.6 Stephane Angel <s.angel@twidi.com>
+
+	* Added support for mercurial repository branches.
+
 1.5 Bertrand Janin <tamentis@neopulsar.org>
 
 	* Added support for mercurial repository branches.

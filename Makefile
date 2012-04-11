@@ -1,29 +1,30 @@
 BINARY=prwd
 PREFIX?=/usr/local
+CC?=clang
 
-CFLAGS?=-Wall
+CFLAGS?=-Wall --std=c99
 
 #CFLAGS+=-ggdb -O1
 
 all: ${BINARY}
 
 ${BINARY}: main.o wcslcpy.o strdelim.o
-	gcc -o ${BINARY} main.o wcslcpy.o strdelim.o
+	$(CC) -o ${BINARY} main.o wcslcpy.o strdelim.o
 
 prwd_tests: main.c wcslcpy.o strdelim.o test.c
-	gcc ${CFLAGS} -D TESTING -c main.c -o main.o
-	gcc ${CFLAGS} -c test.c -o test.o
-	gcc -ggdb -o run_tests main.o wcslcpy.o strdelim.o test.o
+	$(CC) ${CFLAGS} -D TESTING -c main.c -o main.o
+	$(CC) ${CFLAGS} -c test.c -o test.o
+	$(CC) -ggdb -o run_tests main.o wcslcpy.o strdelim.o test.o
 
 tests: prwd_tests
 	./run_tests
 
 main.o: main.c
-	gcc ${CFLAGS} -c main.c -o main.o
+	$(CC) ${CFLAGS} -c main.c -o main.o
 wcslcpy.o: wcslcpy.c
-	gcc ${CFLAGS} -c wcslcpy.c -o wcslcpy.o
+	$(CC) ${CFLAGS} -c wcslcpy.c -o wcslcpy.o
 strdelim.o: strdelim.c
-	gcc ${CFLAGS} -c strdelim.c -o strdelim.o
+	$(CC) ${CFLAGS} -c strdelim.c -o strdelim.o
 
 install: ${BINARY}
 	install -m 755 ${BINARY} ${PREFIX}/bin

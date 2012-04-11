@@ -1,4 +1,9 @@
-1.5 Bertrand Janin <tamentis@neopulsar.org>
+1.6 Bertrand Janin <b@grun.gy>
+
+	* Fixed segfault in directories that got removed or got their
+	permissions changed.
+
+1.5 Bertrand Janin <b@grun.gy>
 
 	* Added support for mercurial repository branches.
 

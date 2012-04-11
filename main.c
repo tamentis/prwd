@@ -20,6 +20,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <wchar.h>
@@ -476,9 +477,9 @@ main(int ac, const char **av)
 
 	/* Get the working directory */
 	t = getcwd(NULL, MAXPATHLEN);
-	mbstowcs(pwd, t, MAXPATHLEN);
-	if (pwd == NULL)
+	if (t == NULL)
 		errx(0, "Unable to get current working directory.");
+	mbstowcs(pwd, t, MAXPATHLEN);
 	free(t);
 
 	read_config();

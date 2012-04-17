@@ -78,6 +78,17 @@ MERCURIAL
 
     The resulting path will be "my-branch:project/folder".
 
+GIT
+    You can see the currently HEAD position as a prefix to your path when you
+    are in a git repository, you can enable this feature with the following
+    option:
+
+        set git on
+
+    The resulting path will be "my-branch:project/folder" if you are located on
+    the HEAD of a branch, it will be "59cefd9...:project/folder" if you are
+    anywhere else.
+
 INSTALL
     make
     sudo make install

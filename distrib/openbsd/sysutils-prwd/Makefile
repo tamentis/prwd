@@ -2,10 +2,10 @@
 
 COMMENT=	print reduced working directory
 
-DISTNAME=	prwd-1.5
+DISTNAME=	prwd-1.6
 CATEGORIES=	sysutils
 
-MAINTAINER=	Bertrand Janin <tamentis@neopulsar.org>
+MAINTAINER=	Bertrand Janin <b@grun.gy>
 
 # BSD
 PERMIT_PACKAGE_CDROM=	Yes

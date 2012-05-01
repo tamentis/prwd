@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009,2011 Bertrand Janin <tamentis@neopulsar.org>
+ * Copyright (c) 2009-2012 Bertrand Janin <b@grun.gy>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,6 +20,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <wchar.h>
@@ -55,9 +56,17 @@ struct {
 
 
 /* Utility functions from OpenBSD/SSH in separate files (ISC license) */
-size_t		 wcslcpy(wchar_t *dst, const wchar_t *src, size_t siz);
-wchar_t		*strdelim(wchar_t **s);
-size_t		strlcpy(char *dst, const char *src, size_t siz);
+size_t		 wcslcpy(wchar_t *, const wchar_t *, size_t);
+wchar_t		*strdelim(wchar_t **);
+size_t		 strlcpy(char *, const char *, size_t);
+
+
+/* Types of source control mechanisms */
+enum version_control_system {
+	VCS_NONE,
+	VCS_MERCURIAL,
+	VCS_GIT
+};
 
 
 /**
@@ -300,18 +309,18 @@ quickcut(wchar_t *s, size_t len)
 }
 
 /**
- * Recurse up from $PWD to find a .hg/ or .git/ directory with a valid branch
- * file, read this file, copy the branch name in dst, up to a maximum of 'size'
+ * Recurse up from $PWD to find a .hg/ directory with a valid branch file,
+ * read this file, copy the branch name in dst, up to a maximum of 'size'
  * and return the amount of bytes copied.
  */
 size_t
-get_branch(const char *filename, wchar_t *dst, size_t size)
+get_mercurial_branch(wchar_t *dst, size_t size)
 {
 	FILE *fp;
 	char *c;
 	char pwd[MAXPATHLEN];
 	char candidate[MAXPATHLEN];
-	char buf[MAXPATHLEN];
+	char buf[MAX_BRANCH_LEN];
 	size_t branch_size;
 	struct stat bufstat;
 	int found_repo = -1;
@@ -320,7 +329,7 @@ get_branch(const char *filename, wchar_t *dst, size_t size)
 	strlcpy(pwd, getcwd(NULL, MAXPATHLEN), MAXPATHLEN);
 
 	do {
-		snprintf(candidate, MAXPATHLEN, filename, pwd);
+		snprintf(candidate, MAXPATHLEN, "%s/.hg/branch", pwd);
 
 		found_repo = stat(candidate, &bufstat);
 
@@ -333,10 +342,11 @@ get_branch(const char *filename, wchar_t *dst, size_t size)
 	if (found_repo == -1)
 		return 0;
 
-	/* TODO: unable to open + verbose -> say it! */
 	fp = fopen(candidate, "r");
-	if (fp == NULL)
-		return 0;
+	if (fp == NULL) {
+		strlcpy(buf, "###", 4);
+		return mbstowcs(dst, buf, MAX_BRANCH_LEN);
+	}
 
 	fread(buf, 1, size, fp);
 	fclose(fp);
@@ -345,33 +355,116 @@ get_branch(const char *filename, wchar_t *dst, size_t size)
 	if ((c = strchr(buf, '\n')) != NULL)
 		*c = '\0';
 
-	branch_size = mbstowcs(dst, buf, MAXPATHLEN);
+	branch_size = mbstowcs(dst, buf, MAX_BRANCH_LEN);
 
 	return branch_size;
 }
 
 /**
- * Add a branch at the beginning of the path.
+ * Recurse up from $PWD to find a .git/ directory with a valid HEAD file,
+ * read this file, copy the branch name in dst, up to a maximum of 'size'
+ * and return the amount of bytes copied.
  */
-void
-add_branch(wchar_t *s, const char *filename, size_t lstriplen)
+size_t
+get_git_branch(wchar_t *dst, size_t size)
+{
+	FILE *fp;
+	char *c;
+	char pwd[MAXPATHLEN];
+	char candidate[MAXPATHLEN];
+	char buf[MAX_BRANCH_LEN];
+	size_t s;
+	struct stat bufstat;
+	int found_repo = -1;
+
+	/* start from the working dir */
+	strlcpy(pwd, getcwd(NULL, MAXPATHLEN), MAXPATHLEN);
+
+	do {
+		snprintf(candidate, MAXPATHLEN, "%s/.git/HEAD", pwd);
+
+		found_repo = stat(candidate, &bufstat);
+
+		if ((c = strrchr(pwd, '/')) == NULL)
+			break;
+
+		*c = '\0';
+	} while (found_repo != 0 && candidate[1] != '\0');
+
+	if (found_repo == -1)
+		return 0;
+
+	fp = fopen(candidate, "r");
+	if (fp == NULL) {
+		strlcpy(buf, "###", 4);
+		return mbstowcs(dst, buf, MAX_BRANCH_LEN);
+	}
+
+	s = fread(buf, 1, size, fp);
+	fclose(fp);
+
+	buf[MAX_BRANCH_LEN] = '\0';
+
+	/* This is a branch head, just print the branch. */
+	if (strncmp(buf, "ref: refs/heads/", 16) == 0) {
+		*(strchr(buf, '\n')) = '\0';
+		c = buf + 16;
+		return mbstowcs(dst, c, MAX_BRANCH_LEN);
+	}
+
+	/* Show all other kinds of ref as-is (does it even exist?) */
+	if (strncmp(buf, "ref:", 4) == 0) {
+		*(strchr(buf, '\n')) = '\0';
+		c = buf + 5;
+		return mbstowcs(dst, c, MAX_BRANCH_LEN);
+	}
+
+	/* That's probably just a changeset, just show the first 6 chars */
+	if (s > 6) {
+		strlcpy(buf + 6, "...", 4);
+		return mbstowcs(dst, buf, MAX_BRANCH_LEN);
+	}
+
+	/* We shouldn't get there, but we mind as well no crash. */
+	strlcpy(buf, "???", 4);
+	return mbstowcs(dst, buf, MAX_BRANCH_LEN);
+}
+
+/**
+ * Add the mercurial branch at the beginning of the path. If a branch was
+ * found, 1 is returned else 0.
+ */
+int
+add_branch(wchar_t *s, enum version_control_system vcs)
 {
 	wchar_t org[MAXPATHLEN];
-	wchar_t branch[MAXPATHLEN];
-    wchar_t *branch_ptr = &branch[lstriplen];
+	wchar_t branch[MAX_BRANCH_LEN];
 	size_t len;
 
 	wcslcpy(org, s, MAXPATHLEN);
 
-	if (get_branch(filename, branch, MAXPATHLEN) == 0)
-		return;
+	switch (vcs) {
+		case VCS_MERCURIAL:
+			if (get_mercurial_branch(branch, MAX_BRANCH_LEN) == 0)
+				return 0;
+			break;
+		case VCS_GIT:
+			if (get_git_branch(branch, MAX_BRANCH_LEN) == 0)
+				return 0;
+			break;
+		default:
+			return 0;
+	}
 
-	len = wcslcpy(s, branch_ptr, MAX_BRANCH_LEN);
+	len = wcslcpy(s, branch, MAX_BRANCH_LEN);
 
 	s += len;
 	*(s++) = ':';
 	wcslcpy(s, org, MAXPATHLEN - len - 1);
+
+	return 1;
 }
+
 
 /**
  * Reduce the given string to the smallest it could get to fit within
@@ -403,7 +496,7 @@ cleancut(wchar_t *s)
 
 	/* The last element was too long, keep it */
 	if (s == NULL) {
-		/*
+		/* 
 		 * last has never been touched, this means we only have
 		 * one slash, revert s to its original value, there is
 		 * nothing we can crop.
@@ -466,6 +559,7 @@ main(int ac, const char **av)
 	wchar_t pwd[MAXPATHLEN];
 	size_t len;
 	char *t;
+	int found_repo = 0;
 
 	if (ac != 1) {
 		printf("usage: prwd\n");
@@ -482,9 +576,9 @@ main(int ac, const char **av)
 
 	/* Get the working directory */
 	t = getcwd(NULL, MAXPATHLEN);
-	mbstowcs(pwd, t, MAXPATHLEN);
-	if (pwd == NULL)
+	if (t == NULL)
 		errx(0, "Unable to get current working directory.");
+	mbstowcs(pwd, t, MAXPATHLEN);
 	free(t);
 
 	read_config();
@@ -512,12 +606,11 @@ main(int ac, const char **av)
 
 	/* If mercurial is enabled, show the branch */
 	if (cfg_mercurial == 1) {
-        add_branch(pwd, "%s/.hg/branch", 0);
+		found_repo = add_branch(pwd, VCS_MERCURIAL);
 	}
 
-	/* If git is enabled, show the branch (but remove useless left part) */
-	if (cfg_git == 1) {
-        add_branch(pwd, "%s/.git/HEAD", 16);
+	if (found_repo == 0 && cfg_git == 1) {
+		add_branch(pwd, VCS_GIT);
 	}
 
 	wcstombs(mbpwd, pwd, MAXPATHLEN);

@@ -8,10 +8,8 @@ set cleancut on
 # Shorten the path newsgroup style (first letters)
 #set newsgroup on
 
-# Show mercurial branch
+# Show mercurial and git branches
 #set mercurial on
-#
-# Show git branch
 #set git on
 
 # Aliases

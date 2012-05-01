@@ -7,14 +7,15 @@ INTRO
      - aliases
      - max length and filler characters
      - newsgroup style
+     - mercurial and git branches
 
     All of this is driven by your ~/.prwdrc file.
 
     The reasoning behind 'prwd' is that most shells read $PS1 differently and
     have a very rigid way to display the current working directory. 'prwd'
     allows you to have one way to handle the display of your working directory
-    and use it across multiple shells.
-
+    and use it across multiple shells. 
+    
     The syntax of the configuration files is described below, lines starting
     with '#' are ignored.
 
@@ -33,7 +34,7 @@ ALIASES
     You can define multiple values for a single alias, this allows you to share
     your configuration on different machines, but keep the same alias, for
     example::
-
+        
 	alias $tp /home/tamentis/truveris/projects
 	alias $tp /Users/tamentis/truveris/projects
 
@@ -69,15 +70,25 @@ NEWSGROUP STYLE
     "/h/t/p/s/nowhere". Note that the newsgroup style filter is applied before
     the path is trimmed with 'maxlength'.
 
-MERCURIAL & GIT
+MERCURIAL
     You can see the currently selected branch as a prefix to your path
-    whenever you are in a mercurial or git repository, enable this feature with
-    the following options:
+    whenever you are in a mercurial repository, enable this feature with
+    the following option:
 
         set mercurial on
-        set git on
 
     The resulting path will be "my-branch:project/folder".
+
+GIT
+    You can see the currently HEAD position as a prefix to your path when you
+    are in a git repository, you can enable this feature with the following
+    option:
+
+        set git on
+
+    The resulting path will be "my-branch:project/folder" if you are located on
+    the HEAD of a branch, it will be "59cefd9...:project/folder" if you are
+    anywhere else.
 
 INSTALL
     make
@@ -95,8 +106,8 @@ TODO
     Not crash if the current directory does not exist.
 
 AUTHORS/LICENSE
-    prwd was written by Bertrand Janin <tamentis@neopulsar.org> and is
-    distributed under an ISC license (BSD compatible, OSI compatible).
+    prwd was written by Bertrand Janin <b@grun.gy> and is distributed under an
+    ISC license (BSD compatible, OSI compatible).
 
     A bunch of utility functions are borrowed from OpenBSD and OpenSSH, both
     under ISC and BSD licenses, with copyrights from the following authors:

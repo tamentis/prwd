@@ -267,6 +267,16 @@ newsgroupize(wchar_t *s)
 	if (*s != L'/') {
 		t[idx++] = *s;
 	}
+	
+	/* Keep the first part if it's an alias (start by *) */
+	 if (*s == L'*') {
+	 	wchar_t *sl = wcschr(s, L'/');
+	 	if (sl) {
+	    	wcslcpy(t, s, sl - s + 1);
+	 		idx += sl - s - 1;
+	 		s = sl;
+	 	}
+	 }
 	t[idx++] = '/';
 	t[idx] = '\0';
 

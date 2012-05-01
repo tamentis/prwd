@@ -407,14 +407,18 @@ get_git_branch(wchar_t *dst, size_t size)
 
 	/* This is a branch head, just print the branch. */
 	if (strncmp(buf, "ref: refs/heads/", 16) == 0) {
-		*(strchr(buf, '\n')) = '\0';
+		char *nl = strchr(buf, '\n');
+		if (nl)
+			*(nl) = '\0';
 		c = buf + 16;
 		return mbstowcs(dst, c, MAX_BRANCH_LEN);
 	}
 
 	/* Show all other kinds of ref as-is (does it even exist?) */
 	if (strncmp(buf, "ref:", 4) == 0) {
-		*(strchr(buf, '\n')) = '\0';
+		char *nl = strchr(buf, '\n');
+		if (nl) 
+			*(nl) = '\0';
 		c = buf + 5;
 		return mbstowcs(dst, c, MAX_BRANCH_LEN);
 	}

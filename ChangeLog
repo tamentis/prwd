@@ -4,6 +4,8 @@
 	  permissions changed.
 	* Added primitive support for git HEAD display (initial patch by
 	  Stéphane Angel)
+	* Fixed alias display with newsgroup mode (#4, by Stéphane Angel)
+	* Fixed segfault on long git branch names (#2, by Stéphane Angel)
 
 1.5 Bertrand Janin <b@grun.gy>
 

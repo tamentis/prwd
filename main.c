@@ -267,22 +267,22 @@ newsgroupize(wchar_t *s)
 	if (*s != L'/') {
 		t[idx++] = *s;
 	}
-	
+
 	/* Keep the first part if it's an alias (start by *) */
 	if (*s == L'*') {
-	 	wchar_t *sl = wcschr(s, L'/');
-	 	/* If we have a / the path is not only the alias, so continue */
-	 	if (sl) {
-	    	wcslcpy(t, s, sl - s + 1);
-	 		idx += sl - s - 1;
-	 		s = sl;
-	 		/* If we have no other /, we want to keep the alias AND the last
-	 		 * part, so we return without doing anything */
-	 		sl = wcschr(s+1, L'/');
-	 		if (sl == NULL) {
-	 			return;
-	 		}
-	 	}
+		wchar_t *sl = wcschr(s, L'/');
+
+		if (sl) {
+			wcslcpy(t, s, sl - s + 1);
+			idx += sl - s - 1;
+			s = sl;
+			/* If we have no other /, keep the alias AND the last
+			 * part, so we return without doing anything */
+			sl = wcschr(s + 1, L'/');
+			if (sl == NULL) {
+				return;
+			}
+		}
 	}
 	t[idx++] = '/';
 	t[idx] = '\0';

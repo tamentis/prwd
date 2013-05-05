@@ -1,4 +1,4 @@
-1.6 Bertrand Janin <b@grun.gy>
+1.6 Bertrand Janin <b@grun.gy> (2013-05-04)
 
 	* Fixed segfault in directories that got removed or got their
 	  permissions changed.
@@ -6,8 +6,13 @@
 	  Stéphane Angel)
 	* Fixed alias display with newsgroup mode (#4, by Stéphane Angel)
 	* Fixed segfault on long git branch names (#2, by Stéphane Angel)
+	* Added a configure script.
+	* Fix a buffer overflow.
 
-1.5 Bertrand Janin <b@grun.gy>
+1.5 Bertrand Janin <b@janin.com> (2011-06-01)
 
 	* Added support for mercurial repository branches.
 
+1.4 Bertrand Janin <b@janin.com> (2009-12-06)
+
+	* First working release.

@@ -8,6 +8,7 @@
 	* Fixed segfault on long git branch names (#2, by Stéphane Angel)
 	* Added a configure script.
 	* Fix a buffer overflow.
+	* Added -V to get the version.
 
 1.5 Bertrand Janin <b@janin.com> (2011-06-01)
 

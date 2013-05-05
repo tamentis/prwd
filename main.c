@@ -572,19 +572,32 @@ replace_aliases(wchar_t *s)
 }
 
 
+void
+show_version(void)
+{
+	puts("prwd-" PRWD_VERSION);
+}
+
+
 #ifndef TESTING
 int
-main(int ac, const char **av)
+main(int argc, char **argv)
 {
 	char mbpwd[MAXPATHLEN];
 	wchar_t pwd[MAXPATHLEN];
 	size_t len;
 	char *t;
-	int found_repo = 0;
+	int opt, found_repo = 0;
 
-	if (ac != 1) {
-		printf("usage: prwd\n");
-		exit(-1);
+	while ((opt = getopt(argc, argv, "Vh")) != -1) {
+		switch (opt) {
+		case 'V':
+			show_version();
+			exit(-1);
+		default:
+			printf("usage: prwd [-Vh]\n");
+			exit(-1);
+		}
 	}
 
 	setlocale(LC_ALL, "");

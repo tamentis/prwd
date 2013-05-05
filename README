@@ -5,7 +5,7 @@ NAME
      prwd — print reduced working directory
 
 SYNOPSIS
-     prwd
+     prwd [−Vh]
 
 DESCRIPTION
      prwd prints the absolute pathname of the current working directory to the

@@ -12,7 +12,7 @@ prwd_tests: main.c wcslcpy.o strdelim.o strlcpy.o test.c
 	$(CC) ${CFLAGS} -c test.c -o test.o
 	$(CC) -ggdb -o run_tests main.o wcslcpy.o strdelim.o strlcpy.o test.o
 
-tests: prwd_tests
+test: prwd_tests
 	./run_tests
 
 main.o: main.c

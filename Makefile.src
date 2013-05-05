@@ -30,3 +30,9 @@ install: ${BINARY}
 
 clean:
 	rm -f ${BINARY} main.o wcslcpy.o strdelim.o strlcpy.o test.o run_tests *core
+
+mantest:
+	nroff -man prwd.1 | less -R
+
+README: prwd.1
+	nroff -man prwd.1 | col -b > README

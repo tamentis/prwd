@@ -1,116 +1,124 @@
-prwd - print reduced working directory
-======================================
 
-INTRO
-    Prints the working directory with a few 'enhancements' from pwd:
+PRWD(1) 		  BSD General Commands Manual		       PRWD(1)
 
-     - aliases
-     - max length and filler characters
-     - newsgroup style
-     - mercurial and git branches
+NAME
+     prwd — print reduced working directory
 
-    All of this is driven by your ~/.prwdrc file.
+SYNOPSIS
+     prwd
 
-    The reasoning behind 'prwd' is that most shells read $PS1 differently and
-    have a very rigid way to display the current working directory. 'prwd'
-    allows you to have one way to handle the display of your working directory
-    and use it across multiple shells. 
-    
-    The syntax of the configuration files is described below, lines starting
-    with '#' are ignored.
+DESCRIPTION
+     prwd prints the absolute pathname of the current working directory to the
+     standard output. It is similar to pwd but has a configuration file
+     (~/.prwdrc) allowing the following features:
+
+       ‐ aliases
+       ‐ max length and filler characters
+       ‐ newsgroup style
+       ‐ mercurial and git branches
+
+     Most shells read $PS1 differently and have a very rigid way to display
+     the current working directory.  prwd allows you to have one way to handle
+     the display of your working directory and use it across multiple shells.
+     It also has awareness of a few version control system (git and mercurial)
+     and will display the current branch when you enter a project under ver‐
+     sion control.
+
+     The syntax of the configuration files is described below, lines starting
+     with ’#’ are ignored.
 
 ALIASES
-    Defines a replacement name for a long path, for example, if you had the
-    following line in your prwdrc:
+     Defines a replacement name for a long path, for example, if you had the
+     following line in your prwdrc:
 
-        alias *prwd /home/tamentis/projects/prwd
+	 alias *prwd /home/tamentis/projects/prwd
 
-    Then if you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
-    return "*prwd/doc/html". If you have spaces in your directories, you can
-    wrap your 'alias' parameters with double quotes:
+     Then if you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
+     return "*prwd/doc/html". If you have spaces in your directories, you can
+     wrap your ’alias’ parameters with double quotes:
 
-        alias winDocs "/mnt/Windows XP/My Documents/"
+	 alias winDocs "/mnt/Windows XP/My Documents/"
 
-    You can define multiple values for a single alias, this allows you to share
-    your configuration on different machines, but keep the same alias, for
-    example::
-        
-	alias $tp /home/tamentis/truveris/projects
-	alias $tp /Users/tamentis/truveris/projects
+     You can define multiple values for a single alias, this allows you to
+     share your configuration on different machines, but keep the same alias,
+     for example:
+
+	 alias $tp /home/tamentis/truveris/projects
+	 alias $tp /Users/tamentis/truveris/projects
 
 MAX LENGTH
-    Defines the maximum length to return, the default filler string is "...",
-    the default length is 32, a value of 0 will disable the feature all
-    together.
+     Defines the maximum length to return, the default filler string is "...",
+     the default length is 32, a value of 0 will disable the feature all
+     together.
 
-        set maxlength 20
+	   set maxlength 20
 
-    This setting would turn "~/projects/prwd/doc/html" into a shorter string:
-    "...cts/prwd/doc/html". You can define the filler string with the 'filler'
-    variable:
+     This setting would turn "~/projects/prwd/doc/html" into a shorter string:
+     "...cts/prwd/doc/html". You can define the filler string with the
+     ’filler’ variable:
 
-        set filler "-"
+	   set filler "‐"
 
-    Or if your font/terminal/shell supports UTF:
+     Or if your font/terminal/shell supports UTF:
 
-        set filler "…"
+	   set filler "â¦"
 
-    If you want prwd to keep complete path elements instead of cutting as much
-    as possible, you can use this setting:
+     If you want prwd to keep complete path elements instead of cutting as
+     much as possible, you can use this setting:
 
-        set cleancut on
+	   set cleancut on
 
 NEWSGROUP STYLE
-    This will shorten the path by only displaying the first letter of each path
-    components, toggle it with:
+     This will shorten the path by only displaying the first letter of each
+     path components, toggle it with:
 
-        set newsgroup on
+	   set newsgroup on
 
-    This will turn the "/home/tamentis/projects/prwd/src/nowhere" path into
-    "/h/t/p/s/nowhere". Note that the newsgroup style filter is applied before
-    the path is trimmed with 'maxlength'.
+     This will turn the "/home/tamentis/projects/prwd/src/nowhere" path into
+     "/h/t/p/s/nowhere". Note that the newsgroup style filter is applied
+     before the path is trimmed with ’maxlength’.
 
 MERCURIAL
-    You can see the currently selected branch as a prefix to your path
-    whenever you are in a mercurial repository, enable this feature with
-    the following option:
+     You can see the currently selected branch as a prefix to your path when‐
+     ever you are in a mercurial repository, enable this feature with the fol‐
+     lowing option:
 
-        set mercurial on
+	   set mercurial on
 
-    The resulting path will be "my-branch:project/folder".
+     The resulting path will be "my‐branch:project/folder".
 
 GIT
-    You can see the currently HEAD position as a prefix to your path when you
-    are in a git repository, you can enable this feature with the following
-    option:
+     You can see the currently HEAD position as a prefix to your path when you
+     are in a git repository, you can enable this feature with the following
+     option:
 
-        set git on
+	   set git on
 
-    The resulting path will be "my-branch:project/folder" if you are located on
-    the HEAD of a branch, it will be "59cefd9...:project/folder" if you are
-    anywhere else.
-
-INSTALL
-    make
-    sudo make install
+     The resulting path will be "my‐branch:project/folder" if you are located
+     on the HEAD of a branch, it will be "59cefd9...:project/folder" if you
+     are anywhere else.
 
 SETUP
-    This will depend on your shell, but in general the following will do:
+     This will depend on your shell, but the following will usually do:
 
-        export PS1='\h:`prwd`\p '
+	   export PS1=’\h:‘prwd‘\p ’
 
-    Note that the single quote matters since you want to keep the command
-    within the variable as-is (unresolved).
+     Note that the single quote matters since you want to keep the command
+     within the variable as‐is (unresolved).
 
-AUTHORS/LICENSE
-    prwd was written by Bertrand Janin <b@grun.gy> and is distributed under an
-    ISC license (BSD compatible, OSI compatible).
+SEE ALSO
+     pwd(1), csh(1), ksh(1), sh(1), getcwd(3)
 
-    A bunch of utility functions are borrowed from OpenBSD and OpenSSH, both
-    under ISC and BSD licenses, with copyrights from the following authors:
+AUTHORS
+     prwd was written by Bertrand Janin <b@grun.gy> and is distributed under
+     an ISC license (BSD compatible, OSI compatible).
 
-	Copyright (c) 2004 Ted Unangst and Todd Miller
-	Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
-	Copyright (c) 2000 Markus Friedl.  All rights reserved.
-        Copyright (c) 2005,2006 Damien Miller.  All rights reserved.
+     A bunch of utility functions are borrowed from OpenBSD and OpenSSH, both
+     under ISC and BSD licenses, with copyrights from the following authors:
 
+      Copyright (c) 2004 Ted Unangst and Todd Miller
+      Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
+      Copyright (c) 2000 Markus Friedl.  All rights reserved.
+      Copyright (c) 2005,2006 Damien Miller.  All rights reserved.
+
+BSD				  May 4, 2013				   BSD

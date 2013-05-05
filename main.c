@@ -420,7 +420,7 @@ get_git_branch(wchar_t *dst, size_t size)
 	s = fread(buf, 1, size, fp);
 	fclose(fp);
 
-	buf[MAX_BRANCH_LEN] = '\0';
+	buf[MAX_BRANCH_LEN - 1] = '\0';
 
 	/* This is a branch head, just print the branch. */
 	if (strncmp(buf, "ref: refs/heads/", 16) == 0) {

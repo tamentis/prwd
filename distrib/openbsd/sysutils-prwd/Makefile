@@ -5,7 +5,7 @@ COMMENT=	print reduced working directory
 DISTNAME=	prwd-1.6
 CATEGORIES=	sysutils
 
-MAINTAINER=	Bertrand Janin <b@grun.gy>
+MAINTAINER=	Bertrand Janin <b@janin.com>
 
 # BSD
 PERMIT_PACKAGE_CDROM=	Yes

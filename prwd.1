@@ -1,4 +1,4 @@
-.\" Copyright (c) 2009-2012 Bertrand Janin <b@janin.com>
+.\" Copyright (c) 2009-2013 Bertrand Janin <b@janin.com>
 .\" 
 .\" Permission to use, copy, modify, and distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
@@ -12,7 +12,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: May 4 2013 $
+.Dd $Mdocdate: May 9 2013 $
 .Dt PRWD 1
 .Os
 .Sh NAME
@@ -20,19 +20,27 @@
 .Nd print reduced working directory
 .Sh SYNOPSIS
 .Nm prwd
-.Op Fl Vh
+.Op Fl aVh
 .Sh DESCRIPTION
 .Nm
 prints the absolute pathname of the current working directory to the standard
 output. It is similar to
 .Nm pwd
-but has a configuration file (~/.prwdrc) allowing the following features:
-.Pp
-  - aliases
-  - max length and filler characters
-  - newsgroup style
-  - mercurial and git branches
-.Pp
+but has a configuration file (~/.prwdrc) allowing a number of ways to shorten
+your current path. The command-line options are as follows:
+.Bl -tag -width Ds
+.It Fl V
+Show current version.
+.It Fl h
+Show usage.
+.It Fl a
+Outputs all the aliases starting with '$' as shell variable exports. The output
+from this command is meant to be used with eval in your .profile file, see
+section
+.Nm ALIAS VARIABLES
+for more detailed information.
+.El
+.Sh REASONING
 Most shells read $PS1 differently and have a very rigid way to display the
 current working directory.
 .Nm
@@ -41,26 +49,29 @@ and use it across multiple shells. It also has awareness of a few version
 control system (git and mercurial) and will display the current branch
 when you enter a project under version control.
 .Pp
-The syntax of the configuration files is described below, lines starting
-with '#' are ignored.
+The keywords available in the configuration are described in the sections
+below. Lines starting with '#' are ignored.
 .Sh ALIASES
 Defines a replacement name for a long path, for example, if you had the
 following line in your prwdrc:
-.Pp
-    alias *prwd /home/tamentis/projects/prwd
+.Bd -literal -offset indent
+alias *prwd /home/tamentis/projects/prwd
+.Ed
 .Pp
 Then if you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
 return "*prwd/doc/html". If you have spaces in your directories, you can
 wrap your 'alias' parameters with double quotes:
-.Pp
-    alias winDocs "/mnt/Windows XP/My Documents/"
+.Bd -literal -offset indent
+alias winDocs "/mnt/Windows XP/My Documents/"
+.Ed
 .Pp
 You can define multiple values for a single alias, this allows you to share
 your configuration on different machines, but keep the same alias, for
 example:
-.Pp
-    alias $tp /home/tamentis/truveris/projects
-    alias $tp /Users/tamentis/truveris/projects
+.Bd -literal -offset indent
+alias $tp /home/tamentis/truveris/projects
+alias $tp /Users/tamentis/truveris/projects
+.Ed
 .Sh MAX LENGTH
 Defines the maximum length to return, the default filler string is "...",
 the default length is 32, a value of 0 will disable the feature all
@@ -118,6 +129,20 @@ set git on
 The resulting path will be "my-branch:project/folder" if you are located on
 the HEAD of a branch, it will be "59cefd9...:project/folder" if you are
 anywhere else.
+.Sh ALIAS VARIABLES
+Since you already define your aliases in your prwdrc file, you might want to
+use them in your shell without having to redefine them somewhere else. If you
+prefix your aliases with a '$' and add the following line to your .profile, you
+will be able to do exactlt that:
+.Bd -literal -offset indent
+eval `prwd -a`
+.Ed
+.Pp
+You can then use your aliases in your shell using the variable name, for
+example:
+.Bd -literal -offset indent
+cd $py3k
+.Ed
 .Sh SETUP
 This will depend on your shell, but the following will usually do:
 .Bd -literal -offset indent
@@ -133,8 +158,8 @@ within the variable as-is (unresolved).
 .Xr sh 1 ,
 .Xr getcwd 3
 .Sh AUTHORS
-prwd was written by Bertrand Janin <b@grun.gy> and is distributed under an ISC
-license (BSD compatible, OSI compatible).
+prwd was written by Bertrand Janin <b@janin.com> and is distributed under an
+ISC license (BSD compatible, OSI compatible).
 .Pp
 A bunch of utility functions are borrowed from OpenBSD and OpenSSH, both
 under ISC and BSD licenses, with copyrights from the following authors:

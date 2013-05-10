@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2013 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -579,34 +579,39 @@ show_version(void)
 }
 
 
-#ifndef TESTING
-int
-main(int argc, char **argv)
+/*
+ * Dump all the aliases starting with $ as shell variable. This output is meant
+ * to be used with eval in your profile file.
+ *
+ * This thing could be doing some shell escaping on the path, but I'd be
+ * surprised anyone using this software would have such monstrosities on their
+ * computers.
+ */
+void
+dump_alias_vars(void)
 {
-	char mbpwd[MAXPATHLEN];
-	wchar_t pwd[MAXPATHLEN];
-	size_t len;
-	char *t;
-	int opt, found_repo = 0;
+	int i;
 
-	while ((opt = getopt(argc, argv, "Vh")) != -1) {
-		switch (opt) {
-		case 'V':
-			show_version();
-			exit(-1);
-		default:
-			printf("usage: prwd [-Vh]\n");
-			exit(-1);
+	for (i = 0; i < alias_count; i++) {
+		if (aliases[i].name[0] == '$') {
+			wprintf(L"export %ls=\"%ls\"\n", aliases[i].name + 1,
+					aliases[i].path);
 		}
 	}
+}
 
-	setlocale(LC_ALL, "");
 
-	/* Populate $HOME */
-	t = getenv("HOME");
-	mbstowcs(home, t, MAXPATHLEN);
-	if (home == NULL || *home == '\0')
-		errx(0, "Unknown variable '$HOME'.");
+/*
+ * Main prwd functionality, prints a reduced working directory.
+ */
+void
+prwd(void)
+{
+	size_t len;
+	int found_repo = 0;
+	char *t;
+	char mbpwd[MAXPATHLEN];
+	wchar_t pwd[MAXPATHLEN];
 
 	/* Get the working directory */
 	t = getcwd(NULL, MAXPATHLEN);
@@ -614,8 +619,6 @@ main(int argc, char **argv)
 		errx(0, "Unable to get current working directory.");
 	mbstowcs(pwd, t, MAXPATHLEN);
 	free(t);
-
-	read_config();
 
 	/* Replace the beginning with ~ for directories within $HOME. */
 	add_alias(L"~", home, 0);
@@ -649,6 +652,45 @@ main(int argc, char **argv)
 
 	wcstombs(mbpwd, pwd, MAXPATHLEN);
 	puts(mbpwd);
+}
+
+
+#ifndef TESTING
+int
+main(int argc, char **argv)
+{
+	char *t;
+	int opt, run_dump_alias_vars = 0;
+
+	while ((opt = getopt(argc, argv, "aVh")) != -1) {
+		switch (opt) {
+		case 'a':
+			run_dump_alias_vars = 1;
+			break;
+		case 'V':
+			show_version();
+			exit(-1);
+		default:
+			printf("usage: prwd [-aVh]\n");
+			exit(-1);
+		}
+	}
+
+	setlocale(LC_ALL, "");
+
+	/* Populate $HOME */
+	t = getenv("HOME");
+	mbstowcs(home, t, MAXPATHLEN);
+	if (home == NULL || *home == '\0')
+		errx(0, "Unknown variable '$HOME'.");
+
+	read_config();
+
+	if (run_dump_alias_vars) {
+		dump_alias_vars();
+	} else {
+		prwd();
+	}
 
 	return 0;
 }

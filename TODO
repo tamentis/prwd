@@ -1,5 +1,0 @@
- - add a -e (for env) that will print out all the aliases with a '$' prefix in
-   a format usable by eval (similar to ssh-add). These define variables usable
-   by 'cd' and other commands. It would be defined in your ~/.profile this way::
-
-     eval `prwd -e`

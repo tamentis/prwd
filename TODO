@@ -1,0 +1,4 @@
+ - You should be able to use aliases within aliases. For example:
+
+     alias $tp /tmp/that/directory
+     alias $new $tp/new

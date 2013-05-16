@@ -67,3 +67,11 @@ nodist_prwd_SOURCES =
 if NO_STRLCPY
 nodist_prwd_SOURCES += strlcpy.c
 endif
+
+prwd_tests: main.c wcslcpy.o strdelim.o strlcpy.o test.c
+	$(CC) ${CFLAGS} -D VERSION=\"test\" -D TESTING -c main.c -o main.o
+	$(CC) ${CFLAGS} -c test.c -o test.o
+	$(CC) -ggdb -o run_tests main.o wcslcpy.o strdelim.o strlcpy.o test.o
+
+test: prwd_tests
+	./run_tests

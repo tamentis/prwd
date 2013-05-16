@@ -154,96 +154,12 @@ if test "x$found_cmsg_data" = xno; then
 fi
 AC_SUBST(XOPEN_DEFINES)
 
-# Look for imsg in libutil. compat/imsg.c is linked by Makefile.am if missing.
-AC_SEARCH_LIBS(imsg_init, util, found_imsg_init=yes, found_imsg_init=no)
-if test "x$found_imsg_init" = xyes; then
-	AC_DEFINE(HAVE_IMSG)
-fi
-AM_CONDITIONAL(NO_IMSG, [test "x$found_imsg_init" = xno])
-
-# Look for forkpty in libutil. compat/forkpty-*.c is linked if not found.
-AC_SEARCH_LIBS(forkpty, util, found_forkpty=yes, found_forkpty=no)
-if test "x$found_forkpty" = xyes; then
-	AC_DEFINE(HAVE_FORKPTY)
-fi
-AM_CONDITIONAL(NO_FORKPTY, [test "x$found_forkpty" = xno])
-
-# Look for closefrom, compat/closefrom.c used if missing.
-AC_CHECK_FUNC(closefrom, found_closefrom=yes, found_closefrom=no)
-if test "x$found_closefrom" = xyes; then
-	AC_DEFINE(HAVE_CLOSEFROM)
-fi
-AM_CONDITIONAL(NO_CLOSEFROM, [test "x$found_closefrom" = xno])
-
-# Look for daemon, compat/daemon.c used if missing.
-AC_CHECK_FUNC(daemon, found_daemon=yes, found_daemon=no)
-if test "x$found_daemon" = xyes; then
-	AC_DEFINE(HAVE_DAEMON)
-fi
-AM_CONDITIONAL(NO_DAEMON, [test "x$found_daemon" = xno])
-
-# Look for setenv, compat/setenv.c used if missing.
-AC_CHECK_FUNC(setenv, found_setenv=yes, found_setenv=no)
-if test "x$found_setenv" = xyes; then
-	AC_DEFINE(HAVE_SETENV)
-fi
-AM_CONDITIONAL(NO_SETENV, [test "x$found_setenv" = xno])
-
 # Look for strlcpy, compat/strlcpy.c used if missing.
 AC_CHECK_FUNC(strlcpy, found_strlcpy=yes, found_strlcpy=no)
 if test "x$found_strlcpy" = xyes; then
 	AC_DEFINE(HAVE_STRLCPY)
 fi
 AM_CONDITIONAL(NO_STRLCPY, [test "x$found_strlcpy" = xno])
-
-# Look for strlcat, compat/strlcat.c used if missing.
-AC_CHECK_FUNC(strlcat, found_strlcat=yes, found_strlcat=no)
-if test "x$found_strlcat" = xyes; then
-	AC_DEFINE(HAVE_STRLCAT)
-fi
-AM_CONDITIONAL(NO_STRLCAT, [test "x$found_strlcat" = xno])
-
-# Look for asprintf, compat/asprintf.c used if missing.
-AC_CHECK_FUNC(asprintf, found_asprintf=yes, found_asprintf=no)
-if test "x$found_asprintf" = xyes; then
-	AC_DEFINE(HAVE_ASPRINTF)
-fi
-AM_CONDITIONAL(NO_ASPRINTF, [test "x$found_asprintf" = xno])
-
-# Look for fgetln, compat/fgetln.c used if missing.
-AC_CHECK_FUNC(fgetln, found_fgetln=yes, found_fgetln=no)
-if test "x$found_fgetln" = xyes; then
-	AC_DEFINE(HAVE_FGETLN)
-fi
-AM_CONDITIONAL(NO_FGETLN, [test "x$found_fgetln" = xno])
-
-# Look for strcasestr, compat/strcasestr.c used if missing.
-AC_CHECK_FUNC(strcasestr, found_strcasestr=yes, found_strcasestr=no)
-if test "x$found_strcasestr" = xyes; then
-	AC_DEFINE(HAVE_STRCASESTR)
-fi
-AM_CONDITIONAL(NO_STRCASESTR, [test "x$found_strcasestr" = xno])
-
-# Look for strsep, compat/strsep.c used if missing.
-AC_CHECK_FUNC(strsep, found_strsep=yes, found_strsep=no)
-if test "x$found_strsep" = xyes; then
-	AC_DEFINE(HAVE_STRSEP)
-fi
-AM_CONDITIONAL(NO_STRSEP, [test "x$found_strsep" = xno])
-
-# Look for strtonum, compat/strtonum.c used if missing.
-AC_CHECK_FUNC(strtonum, found_strtonum=yes, found_strtonum=no)
-if test "x$found_strtonum" = xyes; then
-	AC_DEFINE(HAVE_STRTONUM)
-fi
-AM_CONDITIONAL(NO_STRTONUM, [test "x$found_strtonum" = xno])
-
-# Look for strnvis, compat/{vis,unvis}.c used if missing.
-AC_CHECK_FUNC(strnvis, found_strnvis=yes, found_strnvis=no)
-if test "x$found_strnvis" = xyes; then
-	AC_DEFINE(HAVE_VIS)
-fi
-AM_CONDITIONAL(NO_VIS, [test "x$found_strnvis" = xno])
 
 # Look for getopt. glibc's getopt does not enforce argument order and the ways
 # of making it do so are stupid, so just use our own instead.

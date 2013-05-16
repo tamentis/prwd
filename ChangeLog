@@ -3,6 +3,7 @@
 	* Added -a flag that prints all the aliases starting with '$' in a
 	  format that could be passed to eval with eval `prwd -a`. Allowing
 	  aliases to be used with other tools via shell variables.
+	* Switch to the autotools bullshit.
 
 1.6 Bertrand Janin <b@janin.com> (2013-05-04)
 

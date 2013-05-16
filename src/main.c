@@ -365,7 +365,8 @@ get_mercurial_branch(wchar_t *dst, size_t size)
 		return mbstowcs(dst, buf, MAX_BRANCH_LEN);
 	}
 
-	fread(buf, 1, size, fp);
+	if (fread(buf, 1, size, fp) == 0)
+		fatal("prwd: failed to read the .hg/branch file.\n");
 	fclose(fp);
 
 	/* remove the trailing new line if any */
@@ -575,7 +576,7 @@ replace_aliases(wchar_t *s)
 void
 show_version(void)
 {
-	puts("prwd-" PRWD_VERSION);
+	puts("prwd-" VERSION);
 }
 
 

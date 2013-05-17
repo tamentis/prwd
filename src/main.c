@@ -576,7 +576,7 @@ replace_aliases(wchar_t *s)
 void
 show_version(void)
 {
-	puts("prwd-" VERSION);
+	puts("prwd-" PRWD_VERSION);
 }
 
 

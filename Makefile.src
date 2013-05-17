@@ -1,0 +1,20 @@
+all: src/prwd
+
+src/prwd:
+	cd src/ && make
+
+test:
+	cd src/ && make test
+
+install: src/prwd
+	install -m 755 src/prwd ${PREFIX}/bin
+	install -m 644 prwd.1 ${PREFIX}/man/man1
+
+clean:
+	cd src/ && make clean
+
+mantest:
+	nroff -man prwd.1 | less -R
+
+README: prwd.1
+	nroff -man prwd.1 | col -b > README

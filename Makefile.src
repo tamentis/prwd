@@ -1,4 +1,3 @@
-DESTDIR?=${PREFIX}
 
 all: src/prwd
 
@@ -9,9 +8,10 @@ test:
 	cd src/ && make test
 
 install: src/prwd
-	install -m 755 src/prwd ${DESTDIR}/bin
-	install -d ${DESTDIR}/man/man1
-	install -m 644 prwd.1 ${DESTDIR}/man/man1
+	install -d ${DESTDIR}${PREFIX}/bin
+	install -m 755 src/prwd ${DESTDIR}${PREFIX}/bin
+	install -d ${DESTDIR}${MANDIR}/man1
+	install -m 644 prwd.1 ${DESTDIR}${MANDIR}/man1
 
 clean:
 	cd src/ && make clean

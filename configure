@@ -38,7 +38,7 @@ generate_makefile() {
 
 	echo "CC?=$CC"
 	echo "PREFIX?=$PREFIX"
-	echo "MANDEST=$MANDEST"
+	echo "MANDIR=$MANDIR"
 
 	cat "$1"
 }
@@ -87,6 +87,11 @@ while true; do
 
 		--prefix=*)
 			PREFIX="${1##--prefix=}"
+			shift
+			;;
+
+		--mandir=*)
+			MANDIR="${1##--mandir=}"
 			shift
 			;;
 
@@ -140,6 +145,7 @@ esac
 # Default paths
 [ -z "$PREFIX" ]	&& PREFIX="/usr/local"
 [ -z "$MANDEST" ]	&& MANDEST="man"
+[ -z "$MANDIR" ]	&& MANDIR="${PREFIX}/${MANDEST}"
 
 
 # Check for make

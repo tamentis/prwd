@@ -2,3 +2,9 @@
 
      alias $tp /tmp/that/directory
      alias $new $tp/new
+
+ - You should be able to replace the hostname functionality as well.
+
+     set hostname on
+
+   which prefixes the output with hostname:

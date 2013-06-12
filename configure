@@ -5,7 +5,7 @@
 #
 #
 
-PRWD_VERSION="1.7"
+PRWD_VERSION="1.8"
 
 
 # Some shells have shitty echos

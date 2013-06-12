@@ -1,3 +1,7 @@
+1.8 Bertrand Janin <b@janin.com> (2013-06-12)
+
+	* Added set hostname configuration flag to show the hostname.
+
 1.7 Bertrand Janin <b@janin.com> (2013-05-25)
 
 	* Added -a flag that prints all the aliases starting with '$' in a

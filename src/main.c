@@ -30,12 +30,21 @@
 #include <locale.h>
 #include <inttypes.h>
 
-#define FILLER_LEN	16	// maximum filler length
-#define FILLER_DEF	L"..."	// default filler
-#define MAXPWD_LEN	24	// default maximum length
-#define MAX_ALIASES	64	// maximum number of aliases
-#define ALIAS_NAME_LEN	32	// size of an alias
-#define MAX_BRANCH_LEN	32	// max size of a branch name
+
+/* Maximum filler length and default filler. */
+#define FILLER_LEN 16
+#define FILLER_DEF L"..."
+
+/* Default value for the maxpwdlen configuration setting. */
+#define MAXPWD_LEN 24
+
+/* Maximum number of aliases and maximum length of alias names. */
+#define MAX_ALIASES 64
+#define ALIAS_NAME_LEN 32
+
+/* Maximum character length for branch and hostname. */
+#define MAX_BRANCH_LEN 32
+#define MAX_HOSTNAME_LEN 32
 
 #define WHITESPACE	L" \t\r\n"
 #define QUOTE		L"\""
@@ -44,6 +53,7 @@ int 	 cfg_cleancut = 0;
 int	 cfg_maxpwdlen = MAXPWD_LEN;
 int	 cfg_mercurial = 0;
 int	 cfg_git = 0;
+int	 cfg_hostname = 0;
 int	 cfg_newsgroup = 0;
 wchar_t	 cfg_filler[FILLER_LEN] = FILLER_DEF;
 wchar_t	 home[MAXPATHLEN];
@@ -69,7 +79,7 @@ enum version_control_system {
 };
 
 
-/**
+/*
  * Panic exit, preferably screaming, running into walls with your arms in the
  * air.
  */
@@ -89,7 +99,7 @@ void fatal(const char *fmt, ...);
 #endif
 
 
-/**
+/*
  * Add a new alias to the list.
  */
 void
@@ -113,7 +123,7 @@ add_alias(wchar_t *name, wchar_t *value, int linenum)
 }
 
 
-/**
+/*
  * Sets the value of the given variable, also do some type check
  * just in case.
  */
@@ -150,6 +160,10 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 	} else if (wcscmp(name, L"git") == 0) {
 		cfg_git = (value != NULL && *value == 'o') ? 1 : 0;
 
+	/* set hostname <bool> */
+	} else if (wcscmp(name, L"hostname") == 0) {
+		cfg_hostname = (value != NULL && *value == 'o') ? 1 : 0;
+
 	/* set newsgroup <bool> */
 	} else if (wcscmp(name, L"newsgroup") == 0) {
 		cfg_newsgroup = (value != NULL && *value == 'o') ? 1 : 0;
@@ -161,7 +175,7 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 }
 
 
-/**
+/*
  * Parse a single line of the configuration file. Returns 0 on success or
  * anything else if an error occurred, it will be rare since most fatal errors
  * will quit the program with an error message anyways.
@@ -218,7 +232,7 @@ process_config_line(wchar_t *line, int linenum)
 }
 
 
-/**
+/*
  * Open the file and feed each line one by one to process_config_line.
  */
 void
@@ -245,7 +259,7 @@ read_config()
 }
 
 
-/**
+/*
  * Take a string and replace all the full words by their first
  * letters, except the last one.
  */
@@ -307,7 +321,7 @@ newsgroupize(wchar_t *s)
 		wcslcpy(org + idx - 2, last, wcslen(last) + 1);
 }
 
-/**
+/*
  * Reduce the given string with the global max length and filler.
  */
 void
@@ -325,7 +339,7 @@ quickcut(wchar_t *s, size_t len)
 	wcslcpy(s, t, cfg_maxpwdlen + cl);
 }
 
-/**
+/*
  * Recurse up from $PWD to find a .hg/ directory with a valid branch file,
  * read this file, copy the branch name in dst, up to a maximum of 'size'
  * and return the amount of bytes copied.
@@ -378,7 +392,7 @@ get_mercurial_branch(wchar_t *dst, size_t size)
 	return branch_size;
 }
 
-/**
+/*
  * Recurse up from $PWD to find a .git/ directory with a valid HEAD file,
  * read this file, copy the branch name in dst, up to a maximum of 'size'
  * and return the amount of bytes copied.
@@ -452,7 +466,7 @@ get_git_branch(wchar_t *dst, size_t size)
 	return mbstowcs(dst, buf, MAX_BRANCH_LEN);
 }
 
-/**
+/*
  * Add the mercurial branch at the beginning of the path. If a branch was
  * found, 1 is returned else 0.
  */
@@ -488,7 +502,40 @@ add_branch(wchar_t *s, enum version_control_system vcs)
 }
 
 
-/**
+/*
+ * Add the hostname in front of the path.
+ */
+void
+add_hostname(wchar_t *s)
+{
+	char buf[MAXHOSTNAMELEN], *c;
+	wchar_t org[MAXPATHLEN];
+	wchar_t hostname[MAX_HOSTNAME_LEN];
+	size_t len;
+
+	wcslcpy(org, s, MAXPATHLEN);
+
+	/* We failed to get the hostname. Complain and die. */
+	if (gethostname(buf, MAXHOSTNAMELEN) != 0)
+		return err(1, "gethostname");
+
+	/* Find the first dot and stop right here. */
+	c = strchr(buf, '.');
+	if (c != NULL)
+		*c = '\0';
+
+	if (mbstowcs(hostname, buf, MAX_HOSTNAME_LEN) == -1)
+		return err(1, "mbstowcs(hostname, ...)");
+
+	len = wcslcpy(s, hostname, MAX_HOSTNAME_LEN);
+
+	s += len;
+	*(s++) = ':';
+	wcslcpy(s, org, MAXPATHLEN - len - 1);
+}
+
+
+/*
  * Reduce the given string to the smallest it could get to fit within
  * the global max length and without cutting any word.
  */
@@ -539,7 +586,7 @@ cleancut_final:
 	wcslcpy(org, t, MAXPATHLEN);
 }
 
-/**
+/*
  * Loop through the user-defined aliases and find the best match to
  * get the shortest path as possible.
  */
@@ -642,13 +689,18 @@ prwd(void)
 		}
 	}
 
-	/* If mercurial is enabled, show the branch */
+	/* If mercurial or git is enabled, show the branch */
 	if (cfg_mercurial == 1) {
 		found_repo = add_branch(pwd, VCS_MERCURIAL);
 	}
 
 	if (found_repo == 0 && cfg_git == 1) {
 		add_branch(pwd, VCS_GIT);
+	}
+
+	/* Do we show the hostname? */
+	if (cfg_hostname == 1) {
+		add_hostname(pwd);
 	}
 
 	wcstombs(mbpwd, pwd, MAXPATHLEN);

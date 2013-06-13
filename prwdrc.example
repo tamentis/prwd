@@ -12,6 +12,12 @@ set cleancut on
 #set mercurial on
 #set git on
 
+# Prefix the result with the short hostname.
+#set hostname on
+
+# Add a suffix character UID hint ($ or #).
+#set uid_indicator on
+
 # Aliases
 alias *lt /home/tamentis/livetech
 alias *svn /home/tamentis/dev/trunk

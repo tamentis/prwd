@@ -3,11 +3,5 @@
      alias $tp /tmp/that/directory
      alias $new $tp/new
 
- - You should be able to replace the hostname functionality as well.
-
-     set hostname on
-
-   which prefixes the output with hostname:
-
  - When there are multiple definitions of the same alias, check which ones
    point to an existing directory. If multiple do, use the last one.

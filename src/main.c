@@ -54,6 +54,7 @@ int	 cfg_maxpwdlen = MAXPWD_LEN;
 int	 cfg_mercurial = 0;
 int	 cfg_git = 0;
 int	 cfg_hostname = 0;
+int	 cfg_uid_indicator = 0;
 int	 cfg_newsgroup = 0;
 wchar_t	 cfg_filler[FILLER_LEN] = FILLER_DEF;
 wchar_t	 home[MAXPATHLEN];
@@ -163,6 +164,10 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 	/* set hostname <bool> */
 	} else if (wcscmp(name, L"hostname") == 0) {
 		cfg_hostname = (value != NULL && *value == 'o') ? 1 : 0;
+
+	/* set uid_indicator <bool> */
+	} else if (wcscmp(name, L"uid_indicator") == 0) {
+		cfg_uid_indicator = (value != NULL && *value == 'o') ? 1 : 0;
 
 	/* set newsgroup <bool> */
 	} else if (wcscmp(name, L"newsgroup") == 0) {
@@ -536,6 +541,27 @@ add_hostname(wchar_t *s)
 
 
 /*
+ * Add the UID indicator.
+ */
+void
+add_uid_indicator(wchar_t *s)
+{
+	wchar_t buf[MAXPATHLEN];
+	wchar_t c;
+
+	if (getuid() == 0) {
+		c = L'#';
+	} else {
+		c = L'$';
+	}
+
+	swprintf(buf, MAXPATHLEN, L"%ls%lc", s, c);
+
+	wcslcpy(s, buf, MAXPATHLEN);
+}
+
+
+/*
  * Reduce the given string to the smallest it could get to fit within
  * the global max length and without cutting any word.
  */
@@ -701,6 +727,11 @@ prwd(void)
 	/* Do we show the hostname? */
 	if (cfg_hostname == 1) {
 		add_hostname(pwd);
+	}
+
+	/* Add the '$' or '#' character depending if your root. */
+	if (cfg_uid_indicator == 1) {
+		add_uid_indicator(pwd);
 	}
 
 	wcstombs(mbpwd, pwd, MAXPATHLEN);

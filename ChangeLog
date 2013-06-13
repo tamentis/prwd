@@ -1,6 +1,8 @@
-1.8 Bertrand Janin <b@janin.com> (2013-06-12)
+1.8 Bertrand Janin <b@janin.com> (..........)
 
-	* Added set hostname configuration flag to show the hostname.
+	* Added set hostname configuration flag to prefix the hostname.
+	* Added set uid_indicator configuration flag to suffix $ or #
+	  depending on whether the user is root or not.
 
 1.7 Bertrand Janin <b@janin.com> (2013-05-25)
 

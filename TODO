@@ -1,3 +1,8 @@
+ - Allow the configuration to be overridden by command-line flags.
+
+ - Separate the MAXPATHLEN from the MAX_OUTPUT_LEN to clarify what's a PATH and
+   what's the output.
+
  - You should be able to use aliases within aliases. For example:
 
      alias $tp /tmp/that/directory

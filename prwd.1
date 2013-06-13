@@ -143,6 +143,23 @@ example:
 .Bd -literal -offset indent
 cd $py3k
 .Ed
+.Sh PS1 REPLACEMENT
+The following options are pulled from much higher context and have nothing to
+do with your current path. They have been added to prwd because they are simple
+to implement and make the handling of both hostname and uid indication more
+streamlined. This one will prefix everything with the short hostname:
+.Bd -literal -offset indent
+set hostname on
+.Ed
+.Pp
+The result will look like "myhostname:project/folder". Combined with the
+following:
+.Bd -literal -offset indent
+set uid_indicator on
+.Ed
+.Pp
+You will obtain something like "myhostname:project/folder$" which is as close
+as you could get to your typical default PS1 on your average shell.
 .Sh SETUP
 This will depend on your shell, but the following will usually do:
 .Bd -literal -offset indent
@@ -150,7 +167,11 @@ export PS1='\\h:`prwd`\\p '
 .Ed
 .Pp
 Note that the single quote matters since you want to keep the command
-within the variable as-is (unresolved).
+within the variable as-is (unresolved). If you use both the hostname and
+uid_indicator options, you can simplify your PS1 even more:
+.Bd -literal -offset indent
+export PS1='`prwd` '
+.Ed
 .Sh SEE ALSO
 .Xr pwd 1 ,
 .Xr csh 1 ,

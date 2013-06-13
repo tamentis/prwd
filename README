@@ -117,13 +117,33 @@ ALIAS VARIABLES
 
 	   cd $py3k
 
+PS1 REPLACEMENT
+     The following options are pulled from much higher context and have noth‐
+     ing to do with your current path. They have been added to prwd because
+     they are simple to implement and make the handling of both hostname and
+     uid indication more streamlined. This one will prefix everything with the
+     short hostname:
+
+	   set hostname on
+
+     The result will look like "myhostname:project/folder". Combined with the
+     following:
+
+	   set uid_indicator on
+
+     You will obtain something like "myhostname:project/folder$" which is as
+     close as you could get to your typical default PS1 on your average shell.
+
 SETUP
      This will depend on your shell, but the following will usually do:
 
 	   export PS1=’\h:‘prwd‘\p ’
 
      Note that the single quote matters since you want to keep the command
-     within the variable as‐is (unresolved).
+     within the variable as‐is (unresolved). If you use both the hostname and
+     uid_indicator options, you can simplify your PS1 even more:
+
+	   export PS1=’‘prwd‘ ’
 
 SEE ALSO
      pwd(1), csh(1), ksh(1), sh(1), getcwd(3)
@@ -140,4 +160,4 @@ AUTHORS
       Copyright (c) 2000 Markus Friedl.  All rights reserved.
       Copyright (c) 2005,2006 Damien Miller.  All rights reserved.
 
-BSD				  May 9, 2013				   BSD
+BSD				 June 13, 2013				   BSD

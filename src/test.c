@@ -22,10 +22,15 @@
 #include <locale.h>
 #include <stdarg.h>
 
+#include "config.h"
+#include "utils.h"
+
+
 extern int cfg_maxpwdlen;
 extern wchar_t cfg_filler[];
 extern int alias_count;
 char errbuffer[255] = "";
+
 
 void fatal(const char *fmt,...)
 {

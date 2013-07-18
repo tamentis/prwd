@@ -1,3 +1,5 @@
+ - Check if we are in a symlink?
+
  - Allow the configuration to be overridden by command-line flags.
 
  - Separate the MAXPATHLEN from the MAX_OUTPUT_LEN to clarify what's a PATH and

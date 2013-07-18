@@ -121,7 +121,7 @@ echo $OS
 case $OS in
 	Linux|Unix|POSIX)
 		X_CFLAGS="-D_GNU_SOURCE"
-		X_OBJECTS="arc4random.o strlcpy.o"
+		X_OBJECTS="strlcpy.o wcslcpy.o"
 		MANDEST="share/man"
 		;;
 

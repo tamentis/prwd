@@ -1,6 +1,6 @@
 BINARY=prwd
 
-OBJECTS=main.o config.o wcslcpy.o strdelim.o strlcpy.o utils.o
+OBJECTS=main.o config.o strdelim.o utils.o
 OBJECTS+=${EXTRA_OBJECTS}
 
 CFLAGS?=--std=c99
@@ -10,7 +10,7 @@ all: ${BINARY}
 ${BINARY}: ${OBJECTS}
 	$(CC) -o ${BINARY} ${OBJECTS}
 
-prwd_tests: main.c config.o wcslcpy.o strdelim.o strlcpy.o test.c utils.c
+prwd_tests: main.c config.o strdelim.o test.c utils.c ${EXTRA_OBJECTS}
 	$(CC) ${CFLAGS} -D TESTING -c main.c -o main.o
 	$(CC) ${CFLAGS} -D TESTING -c utils.c -o utils.o
 	$(CC) ${CFLAGS} -c test.c -o test.o

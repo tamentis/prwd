@@ -55,18 +55,30 @@ extern wchar_t	 home[MAXPATHLEN];
 void
 add_alias(wchar_t *name, wchar_t *value, int linenum)
 {
+	if (wcslen(value) > (MAXPATHLEN - 1)) {
+		fatal("prwdrc:%d: alias path is too long (MAXPATHLEN=%d).\n",
+				linenum, MAXPATHLEN);
+		return;
+	}
+
 	if (wcslen(value) < wcslen(name)) {
-		fatal("prwdrc: alias name should not be longer than the value.\n");
+		fatal("prwdrc:%d: alias name should not be longer than the "
+				"value.\n", linenum);
 		return;
 	}
+
 	if (wcschr(name, '/') != NULL) {
-		fatal("prwdrc: alias name should not contain any '/' (slash).\n");
+		fatal("prwdrc:%d: alias name should not contain any '/' "
+				"(slash).\n", linenum);
 		return;
 	}
+
 	if (alias_count >= MAX_ALIASES - 1) {
-		fatal("prwdrc: you cannot have more than %d aliases.\n", MAX_ALIASES);
+		fatal("prwdrc:%d: you have reached the %d aliases limit.\n",
+				linenum, MAX_ALIASES);
 		return;
 	}
+
 	wcslcpy(aliases[alias_count].name, name, ALIAS_NAME_LEN);
 	wcslcpy(aliases[alias_count].path, value, MAXPATHLEN);
 	alias_count++;

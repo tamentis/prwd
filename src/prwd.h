@@ -29,8 +29,12 @@
 #define MAX_BRANCH_LEN 32
 #define MAX_HOSTNAME_LEN 32
 
+/* Used to split various things. */
 #define WHITESPACE	L" \t\r\n"
 #define QUOTE		L"\""
+
+/* Maximum output size. */
+#define MAX_OUTPUT_LEN 1024
 
 struct {
 	wchar_t	name[ALIAS_NAME_LEN];

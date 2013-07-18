@@ -58,14 +58,14 @@ wchar_t	 home[MAXPATHLEN];
 void
 newsgroupize(wchar_t *s)
 {
-	wchar_t t[MAXPATHLEN];
+	wchar_t t[MAX_OUTPUT_LEN];
 	wchar_t *last = NULL, *org = s;
 	int idx = 0;
 
 	if (s == NULL || *s == '\0')
 		return;
 
-	/* Root (/) can escape right now, it's as short as it can get */
+	/* Root (/) is as short as it can get. */
 	if (*s == L'/' && s[1] == '\0')
 		return;
 
@@ -119,7 +119,7 @@ newsgroupize(wchar_t *s)
 void
 quickcut(wchar_t *s, size_t len)
 {
-	wchar_t t[MAXPATHLEN];
+	wchar_t t[MAX_OUTPUT_LEN];
 	size_t	filler_len = wcslen(cfg_filler), cl = sizeof(wchar_t);
 
 	if (s == NULL || len == 0 || *s == '\0' || len <= cfg_maxpwdlen)
@@ -141,7 +141,7 @@ get_mercurial_branch(wchar_t *dst, size_t size)
 {
 	FILE *fp;
 	char *c;
-	char pwd[MAXPATHLEN];
+	char pwd[MAX_OUTPUT_LEN];
 	char candidate[MAXPATHLEN];
 	char buf[MAX_BRANCH_LEN];
 	size_t branch_size;
@@ -149,7 +149,7 @@ get_mercurial_branch(wchar_t *dst, size_t size)
 	int found_repo = -1;
 
 	/* start from the working dir */
-	strlcpy(pwd, getcwd(NULL, MAXPATHLEN), MAXPATHLEN);
+	strlcpy(pwd, getcwd(NULL, MAX_OUTPUT_LEN), MAX_OUTPUT_LEN);
 
 	do {
 		snprintf(candidate, MAXPATHLEN, "%s/.hg/branch", pwd);
@@ -194,7 +194,7 @@ get_git_branch(wchar_t *dst, size_t size)
 {
 	FILE *fp;
 	char *c;
-	char pwd[MAXPATHLEN];
+	char pwd[MAX_OUTPUT_LEN];
 	char candidate[MAXPATHLEN];
 	char buf[MAX_BRANCH_LEN];
 	size_t s;
@@ -202,7 +202,7 @@ get_git_branch(wchar_t *dst, size_t size)
 	int found_repo = -1;
 
 	/* start from the working dir */
-	strlcpy(pwd, getcwd(NULL, MAXPATHLEN), MAXPATHLEN);
+	strlcpy(pwd, getcwd(NULL, MAX_OUTPUT_LEN), MAX_OUTPUT_LEN);
 
 	do {
 		snprintf(candidate, MAXPATHLEN, "%s/.git/HEAD", pwd);
@@ -265,11 +265,11 @@ get_git_branch(wchar_t *dst, size_t size)
 int
 add_branch(wchar_t *s, enum version_control_system vcs)
 {
-	wchar_t org[MAXPATHLEN];
+	wchar_t org[MAX_OUTPUT_LEN];
 	wchar_t branch[MAX_BRANCH_LEN];
 	size_t len;
 
-	wcslcpy(org, s, MAXPATHLEN);
+	wcslcpy(org, s, MAX_OUTPUT_LEN);
 
 	switch (vcs) {
 		case VCS_MERCURIAL:
@@ -288,7 +288,7 @@ add_branch(wchar_t *s, enum version_control_system vcs)
 
 	s += len;
 	*(s++) = ':';
-	wcslcpy(s, org, MAXPATHLEN - len - 1);
+	wcslcpy(s, org, MAX_OUTPUT_LEN - len - 1);
 
 	return 1;
 }
@@ -301,11 +301,11 @@ void
 add_hostname(wchar_t *s)
 {
 	char buf[MAXHOSTNAMELEN], *c;
-	wchar_t org[MAXPATHLEN];
+	wchar_t org[MAX_OUTPUT_LEN];
 	wchar_t hostname[MAX_HOSTNAME_LEN];
 	size_t len;
 
-	wcslcpy(org, s, MAXPATHLEN);
+	wcslcpy(org, s, MAX_OUTPUT_LEN);
 
 	/* We failed to get the hostname. Complain and die. */
 	if (gethostname(buf, MAXHOSTNAMELEN) != 0)
@@ -323,7 +323,7 @@ add_hostname(wchar_t *s)
 
 	s += len;
 	*(s++) = ':';
-	wcslcpy(s, org, MAXPATHLEN - len - 1);
+	wcslcpy(s, org, MAX_OUTPUT_LEN - len - 1);
 }
 
 
@@ -333,7 +333,7 @@ add_hostname(wchar_t *s)
 void
 add_uid_indicator(wchar_t *s)
 {
-	wchar_t buf[MAXPATHLEN];
+	wchar_t buf[MAX_OUTPUT_LEN];
 	wchar_t c;
 
 	if (getuid() == 0) {
@@ -342,9 +342,9 @@ add_uid_indicator(wchar_t *s)
 		c = L'$';
 	}
 
-	swprintf(buf, MAXPATHLEN, L"%ls%lc", s, c);
+	swprintf(buf, MAX_OUTPUT_LEN, L"%ls%lc", s, c);
 
-	wcslcpy(s, buf, MAXPATHLEN);
+	wcslcpy(s, buf, MAX_OUTPUT_LEN);
 }
 
 
@@ -356,7 +356,7 @@ void
 cleancut(wchar_t *s)
 {
 	int flen;
-	wchar_t *last = NULL, t[MAXPATHLEN], *org = s;
+	wchar_t *last = NULL, t[MAX_OUTPUT_LEN], *org = s;
 
 	/* NULL or empty input, nothing to touch */
 	if (s == NULL || *s == '\0')
@@ -395,8 +395,8 @@ cleancut(wchar_t *s)
 	wcsncpy(s, cfg_filler, flen);
 
 cleancut_final:
-	wcslcpy(t, s, MAXPATHLEN);
-	wcslcpy(org, t, MAXPATHLEN);
+	wcslcpy(t, s, MAX_OUTPUT_LEN);
+	wcslcpy(org, t, MAX_OUTPUT_LEN);
 }
 
 /*
@@ -408,7 +408,7 @@ replace_aliases(wchar_t *s)
 {
 	int i, chosen = -1;
 	size_t len, nlen, max = 0;
-	wchar_t t[MAXPATHLEN], *org = s;
+	wchar_t t[MAX_OUTPUT_LEN], *org = s;
 
 	for (i = 0; i < alias_count; i++) {
 		len = wcslen(aliases[i].path);
@@ -428,8 +428,8 @@ replace_aliases(wchar_t *s)
 	s += (max - nlen);
 	wcsncpy(s, aliases[chosen].name, nlen);
 
-	wcslcpy(t, s, MAXPATHLEN);
-	wcslcpy(org, t, MAXPATHLEN);
+	wcslcpy(t, s, MAX_OUTPUT_LEN);
+	wcslcpy(org, t, MAX_OUTPUT_LEN);
 }
 
 
@@ -471,14 +471,14 @@ prwd(void)
 	size_t len;
 	int found_repo = 0;
 	char *t;
-	char mbpwd[MAXPATHLEN];
-	wchar_t pwd[MAXPATHLEN];
+	char mbpwd[MAX_OUTPUT_LEN];
+	wchar_t pwd[MAX_OUTPUT_LEN];
 
 	/* Get the working directory */
 	t = getcwd(NULL, MAXPATHLEN);
 	if (t == NULL)
 		errx(0, "Unable to get current working directory.");
-	mbstowcs(pwd, t, MAXPATHLEN);
+	mbstowcs(pwd, t, MAX_OUTPUT_LEN);
 	free(t);
 
 	/* Replace the beginning with ~ for directories within $HOME. */
@@ -521,7 +521,7 @@ prwd(void)
 		add_uid_indicator(pwd);
 	}
 
-	wcstombs(mbpwd, pwd, MAXPATHLEN);
+	wcstombs(mbpwd, pwd, MAX_OUTPUT_LEN);
 	puts(mbpwd);
 }
 

@@ -470,16 +470,22 @@ prwd(void)
 {
 	size_t len;
 	int found_repo = 0;
-	char *t;
+	char *t = NULL;
 	char mbpwd[MAX_OUTPUT_LEN];
 	wchar_t pwd[MAX_OUTPUT_LEN];
 
-	/* Get the working directory */
-	t = getcwd(NULL, MAXPATHLEN);
+	/*
+	 * Attempt to read the shell's PWD environment variable to obtain the
+	 * current directory. If this fails (shell has no such variable) or if
+	 * it was configured otherwise, use the return from getcwd().
+	 */
+	t = getenv("PWD");
+	if (t == NULL || t[0] == '\0')
+		t = getcwd(NULL, MAXPATHLEN);
 	if (t == NULL)
 		errx(0, "Unable to get current working directory.");
+
 	mbstowcs(pwd, t, MAX_OUTPUT_LEN);
-	free(t);
 
 	/* Replace the beginning with ~ for directories within $HOME. */
 	add_alias(L"~", home, 0);

@@ -1,5 +1,3 @@
- - Check if we are in a symlink?
-
  - Allow the configuration to be overridden by command-line flags.
 
  - You should be able to use aliases within aliases. For example:
@@ -9,3 +7,6 @@
 
  - When there are multiple definitions of the same alias, check which ones
    point to an existing directory. If multiple do, use the last one.
+
+ - Make sure the return from getenv("PWD") and getcwd() is the same before
+   using for former.

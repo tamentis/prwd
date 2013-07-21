@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <sys/param.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -22,14 +23,17 @@
 #include <locale.h>
 #include <stdarg.h>
 
+#include "prwd.h"
 #include "config.h"
 #include "utils.h"
 
 
+#define ERROR_BUFFER_LEN 255
+
 extern int cfg_maxpwdlen;
 extern wchar_t cfg_filler[];
 extern int alias_count;
-char errbuffer[255] = "";
+char errbuffer[ERROR_BUFFER_LEN] = "";
 
 
 void fatal(const char *fmt,...)
@@ -37,7 +41,7 @@ void fatal(const char *fmt,...)
         va_list args;
 
 	va_start(args, fmt);
-	vsprintf(errbuffer, fmt, args);
+	vsnprintf(errbuffer, ERROR_BUFFER_LEN, fmt, args);
 	va_end(args);
 }
 
@@ -251,8 +255,9 @@ void
 test_cleancut_root_to_one()
 {
 	wchar_t s[] = L"/";
+	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 1;
-	wcscpy(cfg_filler, L"...");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L"/") == 0);
 }
@@ -261,8 +266,9 @@ void
 test_cleancut_tmp_to_one()
 {
 	wchar_t s[] = L"/tmp";
+	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 1;
-	wcscpy(cfg_filler, L"...");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L"/tmp") == 0);
 }
@@ -271,8 +277,9 @@ void
 test_cleancut_tmp_to_three()
 {
 	wchar_t s[] = L"/tmp";
+	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 3;
-	wcscpy(cfg_filler, L"...");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L"/tmp") == 0);
 }
@@ -281,8 +288,9 @@ void
 test_cleancut_tmp_to_four()
 {
 	wchar_t s[] = L"/tmp";
+	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 4;
-	wcscpy(cfg_filler, L"...");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L"/tmp") == 0);
 }
@@ -291,8 +299,9 @@ void
 test_cleancut_tmp_to_ten()
 {
 	wchar_t s[] = L"/tmp";
+	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 10;
-	wcscpy(cfg_filler, L"...");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L"/tmp") == 0);
 }
@@ -301,8 +310,9 @@ void
 test_cleancut_uld_to_one()
 {
 	wchar_t s[] = L"/usr/local/doc";
+	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 1;
-	wcscpy(cfg_filler, L"...");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L".../doc") == 0);
 }
@@ -311,8 +321,9 @@ void
 test_cleancut_uld_to_five()
 {
 	wchar_t s[] = L"/usr/local/doc";
+	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 5;
-	wcscpy(cfg_filler, L"...");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L".../doc") == 0);
 }
@@ -321,8 +332,9 @@ void
 test_cleancut_uld_to_ten()
 {
 	wchar_t s[] = L"/usr/local/doc";
+	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 10;
-	wcscpy(cfg_filler, L"...");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L".../doc") == 0);
 }
@@ -331,8 +343,9 @@ void
 test_cleancut_uld_to_eleven()
 {
 	wchar_t s[] = L"/usr/local/doc";
+	wchar_t f[] = L"_";
 	cfg_maxpwdlen = 11;
-	wcscpy(cfg_filler, L"_");
+	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
 	assert(wcscmp(s, L"_/local/doc") == 0);
 }
@@ -431,13 +444,13 @@ void
 test_aliases_too_many()
 {
 	int i;
-	int max_aliases = 64; // until the #define is accessible
+	int max_aliases = MAX_ALIASES;
 	alias_count = 0;
 	for (i = 0; i < max_aliases + 1; i++) {
 		add_alias(L"aa", L"/home/tamentis", 1);
 	}
 	assert(alias_count == max_aliases - 1);
-	assert(strstr(errbuffer, "you cannot have more") != NULL);
+	assert(strstr(errbuffer, "you have reached") != NULL);
 }
 
 void

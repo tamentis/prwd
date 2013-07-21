@@ -295,6 +295,18 @@ add_branch(wchar_t *s, enum version_control_system vcs)
 
 
 /*
+ * This wrapper around gethostname is overwritten by the test suite.
+ */
+#ifndef TESTING
+int
+get_full_hostname(char *buf, size_t size)
+{
+	return gethostname(buf, size);
+}
+#endif
+
+
+/*
  * Add the hostname in front of the path.
  */
 void
@@ -308,8 +320,8 @@ add_hostname(wchar_t *s)
 	wcslcpy(org, s, MAX_OUTPUT_LEN);
 
 	/* We failed to get the hostname. Complain and die. */
-	if (gethostname(buf, MAXHOSTNAMELEN) != 0)
-		return err(1, "gethostname");
+	if (get_full_hostname(buf, MAXHOSTNAMELEN) != 0)
+		return fatal("prwd: gethostname() failed");
 
 	/* Find the first dot and stop right here. */
 	c = strchr(buf, '.');
@@ -317,7 +329,7 @@ add_hostname(wchar_t *s)
 		*c = '\0';
 
 	if (mbstowcs(hostname, buf, MAX_HOSTNAME_LEN) == -1)
-		return err(1, "mbstowcs(hostname, ...)");
+		return fatal("prwd: mbstowcs(hostname, ...) failed");
 
 	len = wcslcpy(s, hostname, MAX_HOSTNAME_LEN);
 

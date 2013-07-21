@@ -29,11 +29,20 @@
 
 
 #define ERROR_BUFFER_LEN 255
+#define RUN_TEST(f)		\
+	printf(#f "... ");	\
+	fflush(stdout);		\
+	f();			\
+	tested++;		\
+	printf("PASS\n");
 
 extern int cfg_maxpwdlen;
 extern wchar_t cfg_filler[];
 extern int alias_count;
 char errbuffer[ERROR_BUFFER_LEN] = "";
+char test_hostname_value[MAXHOSTNAMELEN];
+int test_hostname_return = 0;
+int tested = 0;
 
 
 void fatal(const char *fmt,...)
@@ -44,6 +53,18 @@ void fatal(const char *fmt,...)
 	vsnprintf(errbuffer, ERROR_BUFFER_LEN, fmt, args);
 	va_end(args);
 }
+
+
+/*
+ * Override insuring the hostname is predictable for the purpose of testing.
+ */
+int
+get_full_hostname(char *buf, size_t size)
+{
+	strlcpy(buf, test_hostname_value, size);
+	return test_hostname_return;
+}
+
 
 /*
  * newgroupize tests
@@ -128,22 +149,6 @@ test_newsgroupize_trailingslash(void)
 	assert(wcscmp(s, L"/u/local/") == 0);
 }
 
-void
-test_newsgroupize()
-{
-	printf("newsgroupize\n");
-	test_newsgroupize_null();
-	test_newsgroupize_empty();
-	test_newsgroupize_one();
-	test_newsgroupize_slash_one();
-	test_newsgroupize_root();
-	test_newsgroupize_tmp();
-	test_newsgroupize_home();
-	test_newsgroupize_shorthome();
-	test_newsgroupize_alreadyshort();
-	test_newsgroupize_trailingslash();
-}
-
 
 /*
  * Quick Cut tests
@@ -207,19 +212,6 @@ test_quickcut_ten_to_ten(void)
 	cfg_maxpwdlen = 10;
 	quickcut(s, 10);
 	assert(wcscmp(s, L"1234567890") == 0);
-}
-
-void
-test_quickcut()
-{
-	printf("quickcut\n");
-	test_quickcut_null();
-	test_quickcut_empty();
-	test_quickcut_one_to_one();
-	test_quickcut_one_to_two();
-	test_quickcut_thirty_to_ten();
-	test_quickcut_ten_to_thirty();
-	test_quickcut_ten_to_ten();
 }
 
 
@@ -350,24 +342,6 @@ test_cleancut_uld_to_eleven()
 	assert(wcscmp(s, L"_/local/doc") == 0);
 }
 
-void
-test_cleancut()
-{
-	printf("cleancut\n");
-	test_cleancut_null();
-	test_cleancut_empty();
-	test_cleancut_root_to_ten();
-	test_cleancut_root_to_one();
-	test_cleancut_tmp_to_one();
-	test_cleancut_tmp_to_three();
-	test_cleancut_tmp_to_four();
-	test_cleancut_tmp_to_ten();
-	test_cleancut_uld_to_one();
-	test_cleancut_uld_to_five();
-	test_cleancut_uld_to_ten();
-	test_cleancut_uld_to_eleven();
-}
-
 
 /*
  * aliases tests
@@ -466,20 +440,6 @@ test_aliases_find_smallest()
 	assert(wcscmp(pwd, L"good/projects/prwd") == 0);
 }
 
-void
-test_aliases()
-{
-	printf("aliases\n");
-	test_aliases_none();
-	test_aliases_home_alone();
-	test_aliases_home_and_one();
-	test_aliases_home_and_tree();
-	test_aliases_five_unmatching_aliases();
-	test_aliases_duplicate_aliases();
-	test_aliases_too_many();
-	test_aliases_find_smallest();
-}
-
 
 /*
  * config file parser test
@@ -556,18 +516,49 @@ test_config_set_maxlength_quoted()
 	assert(cfg_maxpwdlen == 50);
 }
 
+
+/*
+ * test the hostname feature
+ */
+void add_hostname(wchar_t *);
+
 void
-test_config()
+test_hostname_full()
 {
-	printf("test_config\n");
-	test_config_set_empty();
-	test_config_alias_empty();
-	test_config_many_spaces();
-	test_config_comments();
-	test_config_set_maxlength_250();
-	test_config_set_maxlength_crap();
-	test_config_set_maxlength_overflow();
-	test_config_set_maxlength_quoted();
+	wchar_t s[256] = L"anything";
+	char h[] = "odin.tamentis.com";
+
+	test_hostname_return = 0;
+	strlcpy(test_hostname_value, h, sizeof(h));
+
+	add_hostname(s);
+	assert(wcscmp(s, L"odin:anything") == 0);
+}
+
+void
+test_hostname_short()
+{
+	wchar_t s[256] = L"anything";
+	char h[] = "odin";
+
+	test_hostname_return = 0;
+	strlcpy(test_hostname_value, h, sizeof(h));
+
+	add_hostname(s);
+	assert(wcscmp(s, L"odin:anything") == 0);
+}
+
+void
+test_hostname_error_no_hostname()
+{
+	wchar_t s[256] = L"anything";
+	char h[] = "odin";
+
+	test_hostname_return = -1;
+	strlcpy(test_hostname_value, h, sizeof(h));
+
+	add_hostname(s);
+	assert(strstr(errbuffer, "gethostname() failed") != NULL);
 }
 
 
@@ -576,13 +567,61 @@ main(int argc, const char *argv[])
 {
 	setlocale(LC_ALL, "");
 
-	test_newsgroupize();
-	test_quickcut();
-	test_cleancut();
-	test_aliases();
-	test_config();
+	RUN_TEST(test_newsgroupize_null);
+	RUN_TEST(test_newsgroupize_empty);
+	RUN_TEST(test_newsgroupize_one);
+	RUN_TEST(test_newsgroupize_slash_one);
+	RUN_TEST(test_newsgroupize_root);
+	RUN_TEST(test_newsgroupize_tmp);
+	RUN_TEST(test_newsgroupize_home);
+	RUN_TEST(test_newsgroupize_shorthome);
+	RUN_TEST(test_newsgroupize_alreadyshort);
+	RUN_TEST(test_newsgroupize_trailingslash);
 
-	printf("all done.\n");
+	RUN_TEST(test_quickcut_null);
+	RUN_TEST(test_quickcut_empty);
+	RUN_TEST(test_quickcut_one_to_one);
+	RUN_TEST(test_quickcut_one_to_two);
+	RUN_TEST(test_quickcut_thirty_to_ten);
+	RUN_TEST(test_quickcut_ten_to_thirty);
+	RUN_TEST(test_quickcut_ten_to_ten);
+
+	RUN_TEST(test_cleancut_null);
+	RUN_TEST(test_cleancut_empty);
+	RUN_TEST(test_cleancut_root_to_ten);
+	RUN_TEST(test_cleancut_root_to_one);
+	RUN_TEST(test_cleancut_tmp_to_one);
+	RUN_TEST(test_cleancut_tmp_to_three);
+	RUN_TEST(test_cleancut_tmp_to_four);
+	RUN_TEST(test_cleancut_tmp_to_ten);
+	RUN_TEST(test_cleancut_uld_to_one);
+	RUN_TEST(test_cleancut_uld_to_five);
+	RUN_TEST(test_cleancut_uld_to_ten);
+	RUN_TEST(test_cleancut_uld_to_eleven);
+
+	RUN_TEST(test_aliases_none);
+	RUN_TEST(test_aliases_home_alone);
+	RUN_TEST(test_aliases_home_and_one);
+	RUN_TEST(test_aliases_home_and_tree);
+	RUN_TEST(test_aliases_five_unmatching_aliases);
+	RUN_TEST(test_aliases_duplicate_aliases);
+	RUN_TEST(test_aliases_too_many);
+	RUN_TEST(test_aliases_find_smallest);
+
+	RUN_TEST(test_hostname_full);
+	RUN_TEST(test_hostname_short);
+	RUN_TEST(test_hostname_error_no_hostname);
+
+	RUN_TEST(test_config_set_empty);
+	RUN_TEST(test_config_alias_empty);
+	RUN_TEST(test_config_many_spaces);
+	RUN_TEST(test_config_comments);
+	RUN_TEST(test_config_set_maxlength_250);
+	RUN_TEST(test_config_set_maxlength_crap);
+	RUN_TEST(test_config_set_maxlength_overflow);
+	RUN_TEST(test_config_set_maxlength_quoted);
+
+	printf("%d tests\n", tested);
 
 	return 0;
 }

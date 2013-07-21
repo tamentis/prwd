@@ -16,3 +16,5 @@
 
 
 void fatal(const char *, ...);
+int file_exists(char *);
+int wc_file_exists(wchar_t *);

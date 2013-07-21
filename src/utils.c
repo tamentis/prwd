@@ -14,6 +14,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <sys/param.h>
+#include <sys/stat.h>
+
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,3 +41,32 @@ fatal(const char *fmt,...)
 #else
 void fatal(const char *fmt, ...);
 #endif
+
+
+/*
+ * Check if a file exists (works fine for directories too).
+ */
+int
+file_exists(char *filepath)
+{
+	struct stat sb;
+
+	if (stat(filepath, &sb) != 0) {
+		if (errno == ENOENT) {
+			return 0;
+		}
+		fatal("prwd: stat() failed on %s", filepath);
+	}
+
+	return 1;
+}
+
+int
+wc_file_exists(wchar_t *wc_filepath)
+{
+	char mb_filepath[MAXPATHLEN];
+
+	wcstombs(mb_filepath, wc_filepath, MAXPATHLEN);
+
+	return file_exists(mb_filepath);
+}

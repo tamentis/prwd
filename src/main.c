@@ -52,8 +52,10 @@ wchar_t	 home[MAXPATHLEN];
 
 
 /*
- * Take a string and replace all the full words by their first letters, except
- * the last one.
+ * Replace all the words by their first letters, except the last one.
+ *
+ * Input:  /usr/local/share/doc
+ * Output: /u/l/s/doc
  */
 void
 newsgroupize(wchar_t *s)
@@ -113,8 +115,12 @@ newsgroupize(wchar_t *s)
 		wcslcpy(org + idx - 2, last, wcslen(last) + 1);
 }
 
+
 /*
  * Reduce the given string with the global max length and filler.
+ *
+ * Input:  /usr/local/share/doc
+ * Output: ...are/doc
  */
 void
 quickcut(wchar_t *s, size_t len)
@@ -131,10 +137,14 @@ quickcut(wchar_t *s, size_t len)
 	wcslcpy(s, t, cfg_maxpwdlen + cl);
 }
 
+
 /*
  * Recurse up from $PWD to find a .hg/ directory with a valid branch file,
  * read this file, copy the branch name in dst, up to a maximum of 'size'
  * and return the amount of bytes copied.
+ *
+ * Input:  /home/bjanin/prwd
+ * Output: prwd-1.3:/home/bjanin/prwd
  */
 size_t
 get_mercurial_branch(wchar_t *dst, size_t size)
@@ -184,10 +194,14 @@ get_mercurial_branch(wchar_t *dst, size_t size)
 	return branch_size;
 }
 
+
 /*
  * Recurse up from $PWD to find a .git/ directory with a valid HEAD file,
  * read this file, copy the branch name in dst, up to a maximum of 'size'
  * and return the amount of bytes copied.
+ *
+ * Input:  /home/bjanin/prwd
+ * Output: prwd-1.3:/home/bjanin/prwd
  */
 size_t
 get_git_branch(wchar_t *dst, size_t size)
@@ -258,9 +272,13 @@ get_git_branch(wchar_t *dst, size_t size)
 	return mbstowcs(dst, buf, MAX_BRANCH_LEN);
 }
 
+
 /*
  * Add the mercurial branch at the beginning of the path. If a branch was
  * found, 1 is returned else 0.
+ *
+ * Input:  /home/bjanin/prwd
+ * Output: prwd-1.3:/home/bjanin/prwd
  */
 int
 add_branch(wchar_t *s, enum version_control_system vcs)
@@ -308,6 +326,9 @@ get_full_hostname(char *buf, size_t size)
 
 /*
  * Add the hostname in front of the path.
+ *
+ * Input:  /etc
+ * Output: odin:/etc
  */
 void
 add_hostname(wchar_t *s)
@@ -341,6 +362,10 @@ add_hostname(wchar_t *s)
 
 /*
  * Add the UID indicator.
+ *
+ * Input:              /etc
+ * Output if non-root: /etc$
+ * Output if root:     /etc#
  */
 void
 add_uid_indicator(wchar_t *s)
@@ -363,6 +388,9 @@ add_uid_indicator(wchar_t *s)
 /*
  * Reduce the given string to the smallest it could get to fit within
  * the global max length and without cutting any word.
+ *
+ * Input:  /usr/local/share/doc
+ * Output: .../share/doc
  */
 void
 cleancut(wchar_t *s)
@@ -410,6 +438,7 @@ cleancut_final:
 	wcslcpy(t, s, MAX_OUTPUT_LEN);
 	wcslcpy(org, t, MAX_OUTPUT_LEN);
 }
+
 
 /*
  * Loop through the user-defined aliases and find the best match to

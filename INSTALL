@@ -1,3 +1,31 @@
-./configure
-make
-sudo make install
+prwd - installation notes
+=========================
+
+INSTALLATION
+    ./configure
+    make
+    sudo make install
+
+
+PDKSH AND SYMLINKS
+    If you use pdksh or OpenBSD's ksh, since PWD is not exported by default,
+    prwd won't be able to display path with symlinks properly. You can fix
+    that by adding the following like to your ~/.profile or ~/.kshrc:
+
+        export PWD
+
+
+RELEASE
+    1. Change the version in ``configure``,
+    2. Update the distrib/ files,
+    3. Tag the new branch:
+
+        git tag -a vX.Y -m 'Releasing vX.Y'
+        git push --tags
+
+    4. Download the file from github (release section),
+    5. Sign it:
+
+        gpg --armor --detach-sig prwd-X-Y.tar.gz
+
+    6. Distribute!

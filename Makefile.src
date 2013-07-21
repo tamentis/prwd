@@ -1,3 +1,4 @@
+PROG=prwd
 
 all: src/prwd
 
@@ -7,17 +8,24 @@ src/prwd:
 test:
 	cd src/ && make test
 
-install: src/prwd
+install: src/${PROG}
 	install -d ${DESTDIR}${PREFIX}/bin
-	install -m 755 src/prwd ${DESTDIR}${PREFIX}/bin
+	install -m 755 src/${PROG} ${DESTDIR}${PREFIX}/bin
 	install -d ${DESTDIR}${MANDIR}/man1
-	install -m 644 prwd.1 ${DESTDIR}${MANDIR}/man1
+	install -m 644 ${PROG}.1 ${DESTDIR}${MANDIR}/man1
 
 clean:
 	cd src/ && make clean
 
 mantest:
-	nroff -man prwd.1 | less -R
+	nroff -man ${PROG}.1 | less -R
 
-README: prwd.1
-	nroff -man prwd.1 | col -b > README
+README: ${PROG}.1
+	# On Linux
+	# nroff -c -man ${PROG}.1 | col -b > README
+	# On OpenBSD 5.3+
+	mandoc -Tascii ${PROG}.1 \
+		| sed 's/.//g' \
+		| tail +3 \
+		| sed '$$d' \
+		> README

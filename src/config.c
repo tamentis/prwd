@@ -49,6 +49,9 @@ int	 alias_count = 0;
 extern wchar_t	 home[MAXPATHLEN];
 
 
+#define get_boolean(v) (v != NULL && *v == 'o') ? 1 : 0
+
+
 /*
  * Add a new alias to the list.
  */
@@ -112,27 +115,27 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 
 	/* set cleancut <bool> */
 	} else if (wcscmp(name, L"cleancut") == 0) {
-		cfg_cleancut = (value != NULL && *value == 'o') ? 1 : 0;
+		cfg_cleancut = get_boolean(value);
 
 	/* set mercurial <bool> */
 	} else if (wcscmp(name, L"mercurial") == 0) {
-		cfg_mercurial = (value != NULL && *value == 'o') ? 1 : 0;
+		cfg_mercurial = get_boolean(value);
 
 	/* set git <bool> */
 	} else if (wcscmp(name, L"git") == 0) {
-		cfg_git = (value != NULL && *value == 'o') ? 1 : 0;
+		cfg_git = get_boolean(value);
 
 	/* set hostname <bool> */
 	} else if (wcscmp(name, L"hostname") == 0) {
-		cfg_hostname = (value != NULL && *value == 'o') ? 1 : 0;
+		cfg_hostname = get_boolean(value);
 
 	/* set uid_indicator <bool> */
 	} else if (wcscmp(name, L"uid_indicator") == 0) {
-		cfg_uid_indicator = (value != NULL && *value == 'o') ? 1 : 0;
+		cfg_uid_indicator = get_boolean(value);
 
 	/* set newsgroup <bool> */
 	} else if (wcscmp(name, L"newsgroup") == 0) {
-		cfg_newsgroup = (value != NULL && *value == 'o') ? 1 : 0;
+		cfg_newsgroup = get_boolean(value);
 
 	/* ??? */
 	} else {

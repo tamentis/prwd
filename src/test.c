@@ -561,6 +561,22 @@ test_hostname_error_no_hostname()
 	assert(strstr(errbuffer, "gethostname() failed") != NULL);
 }
 
+/*
+ * test the expand alias tools
+ */
+void expand_aliases(wchar_t *, int);
+
+void
+test_config_expand_aliases()
+{
+	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
+	char h[] = "odin.tamentis.com";
+
+	add_alias(L"$what", L"/anything/giving", 1);
+	expand_aliases(s, MAX_OUTPUT_LEN);
+	assert(wcscmp(s, L"/anything/giving/the/fsck") == 0);
+}
+
 
 int
 main(int argc, const char *argv[])
@@ -620,6 +636,8 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_config_set_maxlength_crap);
 	RUN_TEST(test_config_set_maxlength_overflow);
 	RUN_TEST(test_config_set_maxlength_quoted);
+
+	RUN_TEST(test_config_expand_aliases);
 
 	printf("%d tests\n", tested);
 

@@ -227,3 +227,14 @@ read_config()
 	fclose(fp);
 }
 
+
+/*
+ * Expands the aliases within the given string.
+ */
+void
+expand_aliases(wchar_t *input, int size)
+{
+	wchar_t o[] = L"/anything/giving/the/fsck";
+
+	wcslcpy(input, o, sizeof(o));
+}

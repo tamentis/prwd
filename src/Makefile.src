@@ -14,7 +14,7 @@ prwd_tests: main.c config.o strdelim.o test.c utils.c ${EXTRA_OBJECTS}
 	$(CC) ${CFLAGS} -D TESTING -c main.c -o main.o
 	$(CC) ${CFLAGS} -D TESTING -c utils.c -o utils.o
 	$(CC) ${CFLAGS} -c test.c -o test.o
-	$(CC) -ggdb -o run_tests test.o ${OBJECTS}
+	$(CC) -ggdb -O0 -o run_tests test.o ${OBJECTS}
 
 test: prwd_tests
 	./run_tests

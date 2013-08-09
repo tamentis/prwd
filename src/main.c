@@ -15,20 +15,14 @@
  */
 
 #include <sys/param.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 
-#include <stdarg.h>
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <wchar.h>
-#include <limits.h>
-#include <errno.h>
 #include <err.h>
 #include <locale.h>
-#include <inttypes.h>
 
 #include "prwd.h"
 #include "wcslcpy.h"
@@ -62,49 +56,50 @@ wchar_t	 home[MAXPATHLEN];
 void
 newsgroupize(wchar_t *s)
 {
-	wchar_t t[MAX_OUTPUT_LEN];
+	wchar_t buffer[MAX_OUTPUT_LEN];
 	wchar_t *last = NULL, *org = s;
 	int idx = 0;
 
-	if (s == NULL || *s == '\0')
+	/* Already as short as we can get it. */
+	if (s == NULL || wcslen(s) < 3)
 		return;
 
-	/* Root (/) is as short as it can get. */
-	if (*s == L'/' && s[1] == '\0')
-		return;
+	/*
+	 * Since we join first letters with slashes by the end of this
+	 * function, make sure we keep the first character if it isn't a slash.
+	 */
+	if (*s != L'/')
+		buffer[idx++] = *s;
 
-	/* Unless we are starting from a / (slash), we can use the first one */
-	if (*s != L'/') {
-		t[idx++] = *s;
-	}
-
-	/* Keep the first part if it's an alias (start by *) */
-	if (*s == L'*') {
+	/* Keep the first part if it's an alias (start by * or $). */
+	if (*s == L'*' || *s == L'$') {
 		wchar_t *sl = wcschr(s, L'/');
 
 		if (sl) {
-			wcslcpy(t, s, sl - s + 1);
+			wcslcpy(buffer, s, sl - s + 1);
 			idx += sl - s - 1;
 			s = sl;
-			/* If we have no other /, keep the alias AND the last
-			 * part, so we return without doing anything */
+			/*
+			 * If we have no other /, keep the alias AND the last
+			 * part, so we return without doing anything.
+			 */
 			sl = wcschr(s + 1, L'/');
 			if (sl == NULL) {
 				return;
 			}
 		}
 	}
-	t[idx++] = '/';
-	t[idx] = '\0';
+	buffer[idx++] = '/';
+	buffer[idx] = L'\0';
 
-	/* For every component, add the first letter and a slash */
+	/* For every component, add the first letter and a slash. */
 	while ((s = wcschr(s, L'/')) != NULL) {
-		/* Cater for trailing slashes */
-		if (s[1] == '\0')
+		/* Cater for trailing slashes. */
+		if (s[1] == L'\0')
 			break;
 		last = ++s;
-		t[idx++] = (wchar_t)*s;
-		t[idx++] = L'/';
+		buffer[idx++] = (wchar_t)*s;
+		buffer[idx++] = L'/';
 	}
 
 	/* idx is less than 4, we only have one slash, just keep org as is */
@@ -112,7 +107,7 @@ newsgroupize(wchar_t *s)
 		return;
 
 	/* Copy letters+slash making sure the last part is left untouched. */
-	wcslcpy(org, t, idx);
+	wcslcpy(org, buffer, idx);
 	if (last != NULL)
 		wcslcpy(org + idx - 2, last, wcslen(last) + 1);
 }
@@ -130,7 +125,7 @@ quickcut(wchar_t *s, size_t len)
 	wchar_t t[MAX_OUTPUT_LEN];
 	size_t	filler_len = wcslen(cfg_filler), cl = sizeof(wchar_t);
 
-	if (s == NULL || len == 0 || *s == '\0' || len <= cfg_maxpwdlen)
+	if (s == NULL || len == 0 || *s == L'\0' || len <= cfg_maxpwdlen)
 		return;
 
 	wcslcpy(t, cfg_filler, filler_len + cl);
@@ -263,7 +258,7 @@ get_git_branch(wchar_t *dst, size_t size)
 		return mbstowcs(dst, c, MAX_BRANCH_LEN);
 	}
 
-	/* That's probably just a changeset, just show the first 6 chars */
+	/* That's probably just a changeset, just show the first 6 chars. */
 	if (s > 6) {
 		strlcpy(buf + 6, "...", 4);
 		return mbstowcs(dst, buf, MAX_BRANCH_LEN);
@@ -401,7 +396,7 @@ cleancut(wchar_t *s)
 	wchar_t *last = NULL, t[MAX_OUTPUT_LEN], *org = s;
 
 	/* NULL or empty input, nothing to touch */
-	if (s == NULL || *s == '\0')
+	if (s == NULL || *s == L'\0')
 		return;
 
 	/* Nothing needs to be cropped */
@@ -495,11 +490,16 @@ void
 dump_alias_vars(void)
 {
 	int i;
+	wchar_t path[MAX_OUTPUT_LEN];
 
 	for (i = 0; i < alias_count; i++) {
 		if (aliases[i].name[0] == '$') {
+			wcslcpy(path, aliases[i].path, MAX_OUTPUT_LEN);
+			expand_aliases(path, MAX_OUTPUT_LEN);
+			if (!wc_file_exists(path))
+				continue;
 			wprintf(L"export %ls=\"%ls\"\n", aliases[i].name + 1,
-					aliases[i].path);
+					path);
 		}
 	}
 }
@@ -601,7 +601,7 @@ main(int argc, char **argv)
 	/* Populate $HOME */
 	t = getenv("HOME");
 	mbstowcs(home, t, MAXPATHLEN);
-	if (home == NULL || *home == '\0')
+	if (home == NULL || *home == L'\0')
 		errx(0, "Unknown variable '$HOME'.");
 
 	read_config();

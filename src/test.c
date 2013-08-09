@@ -149,6 +149,14 @@ test_newsgroupize_trailingslash(void)
 	assert(wcscmp(s, L"/u/local/") == 0);
 }
 
+void
+test_newsgroupize_alias(void)
+{
+	wchar_t s[] = L"$whatever/local/usr/share";
+	newsgroupize(s);
+	assert(wcscmp(s, L"$whatever/l/u/share") == 0);
+}
+
 
 /*
  * Quick Cut tests
@@ -637,6 +645,7 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_newsgroupize_shorthome);
 	RUN_TEST(test_newsgroupize_alreadyshort);
 	RUN_TEST(test_newsgroupize_trailingslash);
+	RUN_TEST(test_newsgroupize_alias);
 
 	RUN_TEST(test_quickcut_null);
 	RUN_TEST(test_quickcut_empty);

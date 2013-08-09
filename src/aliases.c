@@ -78,12 +78,17 @@ purge_aliases()
 }
 
 
+/*
+ * At this point, we only return aliases resolving to real paths.
+ */
 wchar_t *
 get_path_for_alias(wchar_t *alias, int len)
 {
 	int i;
 
 	for (i = 0; i < alias_count; i++) {
+		if (!wc_file_exists(aliases[i].path))
+			continue;
 		if (wcsncmp(aliases[i].name, alias, len) == 0) {
 			return aliases[i].path;
 		}

@@ -14,36 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* Maximum filler length and default filler. */
-#define FILLER_LEN 16
-#define FILLER_DEF L"..."
 
-/* Default value for the maxpwdlen configuration setting. */
-#define MAXPWD_LEN 24
-
-/* Maximum number of aliases and maximum length of alias names. */
-#define MAX_ALIASES 64
-#define ALIAS_NAME_LEN 32
-
-/* Maximum character length for branch and hostname. */
-#define MAX_BRANCH_LEN 32
-#define MAX_HOSTNAME_LEN 32
-
-/* Used to split various things. */
-#define WHITESPACE	L" \t\r\n"
-#define QUOTE		L"\""
-
-/* Maximum output size. */
-#define MAX_OUTPUT_LEN 1024
-
-struct alias_t {
-	wchar_t	name[ALIAS_NAME_LEN];
-	wchar_t	path[MAXPATHLEN];
-};
-
-/* Types of source control mechanisms */
-enum version_control_system {
-	VCS_NONE,
-	VCS_MERCURIAL,
-	VCS_GIT
-};
+void	 add_alias(wchar_t *, wchar_t *, int);
+void	 purge_aliases(void);
+void	 expand_aliases(wchar_t *, int);

@@ -35,6 +35,7 @@
 #include "strlcpy.h"
 #include "config.h"
 #include "utils.h"
+#include "aliases.h"
 
 
 extern int cfg_cleancut;
@@ -47,6 +48,7 @@ extern int cfg_newsgroup;
 extern wchar_t cfg_filler[FILLER_LEN];
 
 extern int alias_count;
+extern struct alias_t aliases[MAX_ALIASES];
 
 wchar_t	 home[MAXPATHLEN];
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Configure script for 'mdp'
+# Configure script for 'prwd'
 # Copyright (c) 2012-2013 Bertrand Janin <b@janin.com>
 #
 #
@@ -27,7 +27,7 @@ generate_makefile() {
 	echo "CFLAGS+=$CFLAGS -DPRWD_VERSION=\\\"$PRWD_VERSION\\\" $X_CFLAGS"
 
 	if [ "$DEBUG_MODE" = "Y" ]; then
-		echo "CFLAGS+=-ggdb -O0"
+		echo "CFLAGS+=-Wall -ggdb -O0"
 	else
 		echo "CFLAGS+=-Wall -O2"
 	fi

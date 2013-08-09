@@ -16,5 +16,3 @@
 
 
 void	 read_config(void);
-void	 add_alias(wchar_t *, wchar_t *, int);
-void	 purge_aliases(void);

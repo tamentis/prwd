@@ -570,11 +570,55 @@ void
 test_config_expand_aliases()
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
-	char h[] = "odin.tamentis.com";
 
+	purge_aliases();
 	add_alias(L"$what", L"/anything/giving", 1);
 	expand_aliases(s, MAX_OUTPUT_LEN);
 	assert(wcscmp(s, L"/anything/giving/the/fsck") == 0);
+}
+
+void
+test_config_expand_aliases_with_slash()
+{
+	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck/";
+
+	purge_aliases();
+	add_alias(L"$what", L"/anything/giving/", 1);
+	expand_aliases(s, MAX_OUTPUT_LEN);
+	assert(wcscmp(s, L"/anything/giving//the/fsck/") == 0);
+}
+
+void
+test_config_expand_aliases_single()
+{
+	wchar_t s[MAX_OUTPUT_LEN] = L"$what";
+
+	purge_aliases();
+	add_alias(L"$what", L"/anything/giving", 1);
+	expand_aliases(s, MAX_OUTPUT_LEN);
+	assert(wcscmp(s, L"/anything/giving") == 0);
+}
+
+void
+test_config_expand_aliases_no_alias()
+{
+	wchar_t s[MAX_OUTPUT_LEN] = L"what";
+
+	purge_aliases();
+	add_alias(L"$what", L"/anything/giving", 1);
+	expand_aliases(s, MAX_OUTPUT_LEN);
+	assert(wcscmp(s, L"what") == 0);
+}
+
+void
+test_config_expand_aliases_double_dollar()
+{
+	wchar_t s[MAX_OUTPUT_LEN] = L"/meh/$$what/the/fsck";
+
+	purge_aliases();
+	add_alias(L"$what", L"anything/giving", 1);
+	expand_aliases(s, MAX_OUTPUT_LEN);
+	assert(wcscmp(s, L"/meh/$anything/giving/the/fsck") == 0);
 }
 
 
@@ -638,6 +682,10 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_config_set_maxlength_quoted);
 
 	RUN_TEST(test_config_expand_aliases);
+	RUN_TEST(test_config_expand_aliases_with_slash);
+	RUN_TEST(test_config_expand_aliases_single);
+	RUN_TEST(test_config_expand_aliases_no_alias);
+	RUN_TEST(test_config_expand_aliases_double_dollar);
 
 	printf("%d tests\n", tested);
 

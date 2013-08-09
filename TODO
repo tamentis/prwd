@@ -5,9 +5,5 @@
      alias $tp /tmp/that/directory
      alias $new $tp/new
 
- - When there are multiple definitions of the same alias, check which ones
-   point to an existing directory. That's for '-a'. The only way to do that is
-   to expand the aliases if needed.
-
  - Make sure the return from getenv("PWD") and getcwd() is the same before
    using for former.

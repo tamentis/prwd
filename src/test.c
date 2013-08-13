@@ -25,6 +25,8 @@
 
 #include "prwd.h"
 #include "config.h"
+#include "wcslcpy.h"
+#include "strlcpy.h"
 #include "utils.h"
 
 
@@ -43,6 +45,7 @@ char errbuffer[ERROR_BUFFER_LEN] = "";
 char test_hostname_value[MAXHOSTNAMELEN];
 int test_hostname_return = 0;
 int tested = 0;
+int test_file_exists = 1;
 
 
 void fatal(const char *fmt,...)
@@ -56,13 +59,23 @@ void fatal(const char *fmt,...)
 
 
 /*
- * Override insuring the hostname is predictable for the purpose of testing.
+ * Override ensuring the hostname is predictable for the purpose of testing.
  */
 int
 get_full_hostname(char *buf, size_t size)
 {
 	strlcpy(buf, test_hostname_value, size);
 	return test_hostname_return;
+}
+
+
+/*
+ * Override file_exists to ensure predictable returns.
+ */
+int
+file_exists(char *filepath)
+{
+	return test_file_exists;
 }
 
 
@@ -586,6 +599,19 @@ test_config_expand_aliases()
 }
 
 void
+test_config_expand_aliases_missing()
+{
+	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
+
+	purge_aliases();
+	test_file_exists = 0;
+	add_alias(L"$what", L"/anything/giving", 1);
+	expand_aliases(s, MAX_OUTPUT_LEN);
+	assert(wcscmp(s, L"$what/the/fsck") == 0);
+	test_file_exists = 1;
+}
+
+void
 test_config_expand_aliases_with_slash()
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck/";
@@ -691,6 +717,7 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_config_set_maxlength_quoted);
 
 	RUN_TEST(test_config_expand_aliases);
+	RUN_TEST(test_config_expand_aliases_missing);
 	RUN_TEST(test_config_expand_aliases_with_slash);
 	RUN_TEST(test_config_expand_aliases_single);
 	RUN_TEST(test_config_expand_aliases_no_alias);

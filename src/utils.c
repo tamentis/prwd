@@ -38,10 +38,6 @@ fatal(const char *fmt,...)
 	va_end(args);
 	exit(-1);
 }
-#else
-void fatal(const char *fmt, ...);
-#endif
-
 
 /*
  * Check if a file exists (works fine for directories too).
@@ -60,6 +56,12 @@ file_exists(char *filepath)
 
 	return 1;
 }
+
+#else	// ifndef TESTING
+int file_exists(char *);
+void fatal(const char *fmt, ...);
+#endif	// ifndef TESTING
+
 
 int
 wc_file_exists(wchar_t *wc_filepath)

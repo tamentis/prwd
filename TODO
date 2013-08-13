@@ -1,9 +1,10 @@
- - Allow the configuration to be overridden by command-line flags.
-
- - You should be able to use aliases within aliases. For example:
-
-     alias $tp /tmp/that/directory
-     alias $new $tp/new
-
+FOR 1.8
  - Make sure the return from getenv("PWD") and getcwd() is the same before
    using for former.
+
+FOR 1.9
+ - Allow the configuration to be overridden by command-line flags.
+ - Allow for a fully templated PS1, e.g.
+
+ 	{hostname}:{prefixed_path}{uid_indicator}
+

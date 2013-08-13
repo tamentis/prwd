@@ -1,5 +1,3 @@
- - Fix test suite on Linux.
-
  - Allow the configuration to be overridden by command-line flags.
 
  - You should be able to use aliases within aliases. For example:

@@ -17,7 +17,7 @@ prwd_tests: main.c config.o aliases.o strdelim.o test.c utils.c ${EXTRA_OBJECTS}
 	$(CC) -ggdb -O0 -o run_tests test.o ${OBJECTS}
 
 test: prwd_tests
-	./run_tests
+	./run_tests.sh
 
 clean:
 	rm -f ${BINARY} ${OBJECTS}

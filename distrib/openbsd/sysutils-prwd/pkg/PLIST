@@ -1,3 +1,0 @@
-@comment $OpenBSD$
-bin/prwd
-@man man/man1/prwd.1

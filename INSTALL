@@ -16,16 +16,15 @@ PDKSH AND SYMLINKS
 
 
 RELEASE
-    1. Change the version in ``configure``,
-    2. Update the distrib/ files,
-    3. Tag the new branch:
+    - Change the version in ``configure``,
+    - Tag the new branch:
 
         git tag -a vX.Y -m 'Releasing vX.Y'
         git push --tags
 
-    4. Download the file from github (release section),
-    5. Sign it:
+    - Download the file from github (release section),
+    - Sign it:
 
         gpg --armor --detach-sig prwd-X-Y.tar.gz
 
-    6. Distribute!
+    - Distribute!

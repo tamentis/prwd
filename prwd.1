@@ -52,13 +52,12 @@ when you enter a project under version control.
 The keywords available in the configuration are described in the sections
 below. Lines starting with '#' are ignored.
 .Sh ALIASES
-Defines a replacement name for a long path, for example, if you had the
-following line in your prwdrc:
+Defines a short name for a lengthy path, e.g.:
 .Bd -literal -offset indent
 alias *prwd /home/tamentis/projects/prwd
 .Ed
 .Pp
-Then if you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
+If you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
 return "*prwd/doc/html". If you have spaces in your directories, you can
 wrap your 'alias' parameters with double quotes:
 .Bd -literal -offset indent
@@ -71,6 +70,12 @@ example:
 .Bd -literal -offset indent
 alias $tp /home/tamentis/truveris/projects
 alias $tp /Users/tamentis/truveris/projects
+.Ed
+Aliases can be nested one level deep if you have a complicated directory
+hierarchy.
+.Bd -literal -offset indent
+alias $tp /home/tamentis/truveris/projects
+alias $constants $tp/pytruveris/truveris/constants/
 .Ed
 .Sh MAX LENGTH
 Defines the maximum length to return, the default filler string is "...",

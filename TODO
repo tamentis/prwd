@@ -1,9 +1,3 @@
-FOR 1.8
- - Remove alias expansion in the middle of a a path, it serves no purpose...
- - Allow any kind of alias to be expanded in the beginning, not just $ ones.
- - Make sure the return from getenv("PWD") and getcwd() is the same before
-   using for former.
-
 FOR 1.9
  - Load all the environment variables starting with '/' and resolving to
    existing path as aliases.

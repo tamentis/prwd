@@ -514,65 +514,76 @@ prwd(void)
 {
 	size_t len;
 	int found_repo = 0;
-	char *t = NULL;
-	char mbpwd[MAX_OUTPUT_LEN];
-	wchar_t pwd[MAX_OUTPUT_LEN];
+	char *wd = NULL;
+	char *wd_env = NULL;
+	char mbs_wd[MAX_OUTPUT_LEN];
+	wchar_t wcs_wd[MAX_OUTPUT_LEN];
+	struct stat sa, sb;
+
+	wd = getcwd(NULL, MAXPATHLEN);
+	if (wd == NULL)
+		errx(100, "unable to get current working directory");
+
+	if (stat(wd, &sa) == -1)
+		err(100, "stat(wd_real)");
 
 	/*
-	 * Attempt to read the shell's PWD environment variable to obtain the
-	 * current directory. If this fails (shell has no such variable) or if
-	 * it was configured otherwise, use the return from getcwd().
+	 * If we can get a valid PWD from the environment, that turns out to be
+	 * the same directory, then we should use it, it provides more context
+	 * if the shell is located in a symlink.
 	 */
-	t = getenv("PWD");
-	if (t == NULL || t[0] == '\0')
-		t = getcwd(NULL, MAXPATHLEN);
-	if (t == NULL)
-		errx(0, "Unable to get current working directory.");
+	wd_env = getenv("PWD");
+	if (wd_env != NULL && stat(wd_env, &sb) == 0) {
+		if (sa.st_ino == sb.st_ino && sa.st_dev == sb.st_dev) {
+			free(wd);
+			wd = wd_env;
+		}
+	}
 
-	mbstowcs(pwd, t, MAX_OUTPUT_LEN);
+	mbstowcs(wcs_wd, wd, MAX_OUTPUT_LEN);
 
 	/* Replace the beginning with ~ for directories within $HOME. */
 	add_alias(L"~", home, 0);
 
 	/* Alias handling */
-	replace_aliases(pwd);
+	replace_aliases(wcs_wd);
 
 	/* Newsgroup mode, keep only the first letters. */
 	if (cfg_newsgroup == 1)
-		newsgroupize(pwd);
+		newsgroupize(wcs_wd);
 
 	/* If the path is still too long, crop it. */
-	len = wcslen(pwd);
+	len = wcslen(wcs_wd);
 
 	if (cfg_maxpwdlen > 0 && len > cfg_maxpwdlen) {
 		if (cfg_cleancut == 1 && cfg_newsgroup != 1) {
-			cleancut(pwd);
+			cleancut(wcs_wd);
 		} else {
-			quickcut(pwd, len);
+			quickcut(wcs_wd, len);
 		}
 	}
 
 	/* If mercurial or git is enabled, show the branch */
 	if (cfg_mercurial == 1) {
-		found_repo = add_branch(pwd, VCS_MERCURIAL);
+		found_repo = add_branch(wcs_wd, VCS_MERCURIAL);
 	}
 
 	if (found_repo == 0 && cfg_git == 1) {
-		add_branch(pwd, VCS_GIT);
+		add_branch(wcs_wd, VCS_GIT);
 	}
 
 	/* Do we show the hostname? */
 	if (cfg_hostname == 1) {
-		add_hostname(pwd);
+		add_hostname(wcs_wd);
 	}
 
 	/* Add the '$' or '#' character depending if your root. */
 	if (cfg_uid_indicator == 1) {
-		add_uid_indicator(pwd);
+		add_uid_indicator(wcs_wd);
 	}
 
-	wcstombs(mbpwd, pwd, MAX_OUTPUT_LEN);
-	puts(mbpwd);
+	wcstombs(mbs_wd, wcs_wd, MAX_OUTPUT_LEN);
+	puts(mbs_wd);
 }
 
 

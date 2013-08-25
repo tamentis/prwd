@@ -9,6 +9,7 @@
 	* Where there are multiple definitions of the same alias, check which
 	  ones point to an existing directory (for -a dump). Resolve aliases
 	  one level deep if needed.
+	* Allow one level of nested aliases (only as prefix).
 
 1.7 Bertrand Janin <b@janin.com> (2013-05-25)
 

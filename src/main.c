@@ -496,7 +496,7 @@ dump_alias_vars(void)
 	for (i = 0; i < alias_count; i++) {
 		if (aliases[i].name[0] == '$') {
 			wcslcpy(path, aliases[i].path, MAX_OUTPUT_LEN);
-			expand_aliases(path, MAX_OUTPUT_LEN);
+			expand_prefix_aliases(path, MAX_OUTPUT_LEN);
 			if (!wc_file_exists(path))
 				continue;
 			wprintf(L"export %ls=\"%ls\"\n", aliases[i].name + 1,

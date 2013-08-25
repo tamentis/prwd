@@ -17,4 +17,4 @@
 
 void	 add_alias(wchar_t *, wchar_t *, int);
 void	 purge_aliases(void);
-void	 expand_aliases(wchar_t *, int);
+void	 expand_prefix_aliases(wchar_t *, int);

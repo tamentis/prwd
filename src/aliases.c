@@ -99,47 +99,38 @@ get_path_for_alias(wchar_t *alias, int len)
 
 
 /*
- * Expands the aliases within the given string.
+ * Expands aliases at the beginning of the string.
+ *
+ * Input: $tp/anything
+ * Output: /home/tamentis/truveris/projects/anything
  */
 void
-expand_aliases(wchar_t *input, int size)
+expand_prefix_aliases(wchar_t *input, int size)
 {
 	wchar_t buffer[MAX_OUTPUT_LEN] = L"";
 	wchar_t *c, *end_of_token, *path;
-	int i, len, available;
+	int i = 0, len;
 
 	/* 'c' follows the input */
 	c = input;
 
-	for (i = 0; i < MAX_OUTPUT_LEN && *c != L'\0'; i++) {
-		/* Standard copy until we find a '$'. */
-		if (*c != L'$')
-			goto standard_copy;
+	/* Find the end of the token. */
+	end_of_token = wcschr(c, L'/');
+	if (end_of_token == NULL)
+		end_of_token = wcschr(c, L'\0');
 
-		/* Find the end of the possible token. */
-		end_of_token = wcschr(c, L'/');
-		if (end_of_token == NULL)
-			end_of_token = wcschr(c, L'\0');
-
-		/* Is this a valid alias? */
-		len = end_of_token - c;
-		path = get_path_for_alias(c, len);
-		if (path == NULL)
-			goto standard_copy;
-
+	/* Is this a valid alias? */
+	len = end_of_token - c;
+	path = get_path_for_alias(c, len);
+	if (path != NULL) {
 		c += len;
-		available = MAX_OUTPUT_LEN - i;
-		len = wcslcpy(buffer + i, path, available);
-		if (available < len)
-			len = available;
+		i = wcslcpy(buffer, path, sizeof(buffer));
+		if (sizeof(buffer) < len)
+			i = sizeof(buffer);
+	}
 
-		/* Shift one char less since we don't want to keep the NUL. */
-		i += len - 1;
-		continue;
-
-standard_copy:
-		buffer[i] = *c;
-		c++;
+	for (; i < MAX_OUTPUT_LEN && *c != L'\0'; i++) {
+		buffer[i] = *(c++);
 	}
 
 	buffer[i] = L'\0';

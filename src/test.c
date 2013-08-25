@@ -585,74 +585,63 @@ test_hostname_error_no_hostname()
 /*
  * test the expand alias tools
  */
-void expand_aliases(wchar_t *, int);
+void expand_prefix_aliases(wchar_t *, int);
 
 void
-test_config_expand_aliases()
+test_config_expand_prefix_aliases()
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
 
 	purge_aliases();
 	add_alias(L"$what", L"/anything/giving", 1);
-	expand_aliases(s, MAX_OUTPUT_LEN);
+	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
 	assert(wcscmp(s, L"/anything/giving/the/fsck") == 0);
 }
 
 void
-test_config_expand_aliases_missing()
+test_config_expand_prefix_aliases_missing()
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
 
 	purge_aliases();
 	test_file_exists = 0;
 	add_alias(L"$what", L"/anything/giving", 1);
-	expand_aliases(s, MAX_OUTPUT_LEN);
+	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
 	assert(wcscmp(s, L"$what/the/fsck") == 0);
 	test_file_exists = 1;
 }
 
 void
-test_config_expand_aliases_with_slash()
+test_config_expand_prefix_aliases_with_slash()
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck/";
 
 	purge_aliases();
 	add_alias(L"$what", L"/anything/giving/", 1);
-	expand_aliases(s, MAX_OUTPUT_LEN);
+	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
 	assert(wcscmp(s, L"/anything/giving//the/fsck/") == 0);
 }
 
 void
-test_config_expand_aliases_single()
+test_config_expand_prefix_aliases_single()
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what";
 
 	purge_aliases();
 	add_alias(L"$what", L"/anything/giving", 1);
-	expand_aliases(s, MAX_OUTPUT_LEN);
+	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
 	assert(wcscmp(s, L"/anything/giving") == 0);
 }
 
 void
-test_config_expand_aliases_no_alias()
+test_config_expand_prefix_aliases_no_alias()
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"what";
 
 	purge_aliases();
 	add_alias(L"$what", L"/anything/giving", 1);
-	expand_aliases(s, MAX_OUTPUT_LEN);
+	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
 	assert(wcscmp(s, L"what") == 0);
-}
-
-void
-test_config_expand_aliases_double_dollar()
-{
-	wchar_t s[MAX_OUTPUT_LEN] = L"/meh/$$what/the/fsck";
-
-	purge_aliases();
-	add_alias(L"$what", L"anything/giving", 1);
-	expand_aliases(s, MAX_OUTPUT_LEN);
-	assert(wcscmp(s, L"/meh/$anything/giving/the/fsck") == 0);
 }
 
 
@@ -716,12 +705,11 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_config_set_maxlength_overflow);
 	RUN_TEST(test_config_set_maxlength_quoted);
 
-	RUN_TEST(test_config_expand_aliases);
-	RUN_TEST(test_config_expand_aliases_missing);
-	RUN_TEST(test_config_expand_aliases_with_slash);
-	RUN_TEST(test_config_expand_aliases_single);
-	RUN_TEST(test_config_expand_aliases_no_alias);
-	RUN_TEST(test_config_expand_aliases_double_dollar);
+	RUN_TEST(test_config_expand_prefix_aliases);
+	RUN_TEST(test_config_expand_prefix_aliases_missing);
+	RUN_TEST(test_config_expand_prefix_aliases_with_slash);
+	RUN_TEST(test_config_expand_prefix_aliases_single);
+	RUN_TEST(test_config_expand_prefix_aliases_no_alias);
 
 	printf("%d tests\n", tested);
 

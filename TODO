@@ -8,3 +8,11 @@ FOR 1.9
 
  	{hostname}:{prefixed_path}{uid_indicator}
 
+ - Maybe even better, multiple templates conditionally, conditions could be:
+
+    - UID? username?
+    - in a source control repo?
+    - by path?
+    - date/time?
+
+   Not sure if the conditions should be handled by prwd or externally.

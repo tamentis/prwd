@@ -1,4 +1,8 @@
-1.8 Bertrand Janin <b@janin.com> (..........)
+1.9 Bertrand Janin <b@janin.com> (YYYY-MM-DD)
+
+	* ?
+
+1.8 Bertrand Janin <b@janin.com> (2013-08-25)
 
 	* Added set hostname configuration flag to prefix the hostname.
 	* Added set uid_indicator configuration flag to suffix $ or #

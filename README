@@ -47,6 +47,7 @@ ALIASES
 
            alias $tp /home/tamentis/truveris/projects
            alias $tp /Users/tamentis/truveris/projects
+
      Aliases can be nested one level deep if you have a complicated directory
      hierarchy.
 

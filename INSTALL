@@ -16,7 +16,8 @@ PDKSH AND SYMLINKS
 
 
 RELEASE
-    - Change the version in ``configure``,
+    - Change the version in 'configure',
+    - Put the release date in the 'ChangeLog`,
     - Tag the new branch:
 
         git tag -a vX.Y -m 'Releasing vX.Y'

@@ -499,6 +499,7 @@ dump_alias_vars(void)
 			expand_prefix_aliases(path, MAX_OUTPUT_LEN);
 			if (!wc_file_exists(path))
 				continue;
+			/* Skip the '$' */
 			wprintf(L"export %ls=\"%ls\"\n", aliases[i].name + 1,
 					path);
 		}

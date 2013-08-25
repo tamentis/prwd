@@ -374,7 +374,7 @@ void
 test_aliases_none()
 {
 	wchar_t pwd[] = L"/usr/local/doc";
-	alias_count = 0;
+	purge_aliases();
 	replace_aliases(pwd);
 	assert(wcscmp(pwd, L"/usr/local/doc") == 0);
 }
@@ -383,7 +383,7 @@ void
 test_aliases_home_alone()
 {
 	wchar_t pwd[] = L"/home/tamentis";
-	alias_count = 0;
+	purge_aliases();
 	add_alias(L"~", L"/home/tamentis", 1);
 	replace_aliases(pwd);
 	assert(wcscmp(pwd, L"~") == 0);
@@ -393,7 +393,7 @@ void
 test_aliases_home_and_one()
 {
 	wchar_t pwd[] = L"/home/tamentis/x";
-	alias_count = 0;
+	purge_aliases();
 	add_alias(L"~", L"/home/tamentis", 1);
 	replace_aliases(pwd);
 	assert(wcscmp(pwd, L"~/x") == 0);
@@ -403,7 +403,7 @@ void
 test_aliases_home_and_tree()
 {
 	wchar_t pwd[] = L"/home/tamentis/x/projects/stuff";
-	alias_count = 0;
+	purge_aliases();
 	add_alias(L"~", L"/home/tamentis", 1);
 	replace_aliases(pwd);
 	assert(wcscmp(pwd, L"~/x/projects/stuff") == 0);
@@ -413,7 +413,7 @@ void
 test_aliases_five_unmatching_aliases()
 {
 	wchar_t pwd[] = L"/home/tamentiz/x/projects";
-	alias_count = 0;
+	purge_aliases();
 	add_alias(L"a1", L"/the/first/path", 1);
 	add_alias(L"b2", L"/path/second", 1);
 	add_alias(L"c3", L"/troisieme/chemin", 1);
@@ -427,7 +427,7 @@ void
 test_aliases_duplicate_aliases()
 {
 	wchar_t pwd[] = L"/home/tamentis/x/projects";
-	alias_count = 0;
+	purge_aliases();
 	add_alias(L"aa", L"/home/tamentis", 1);
 	add_alias(L"aa", L"/home/tamentis", 2);
 	add_alias(L"aa", L"/home/tamentis", 3);
@@ -440,7 +440,7 @@ test_aliases_too_many()
 {
 	int i;
 	int max_aliases = MAX_ALIASES;
-	alias_count = 0;
+	purge_aliases();
 	for (i = 0; i < max_aliases + 1; i++) {
 		add_alias(L"aa", L"/home/tamentis", 1);
 	}

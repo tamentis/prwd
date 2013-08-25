@@ -2,6 +2,8 @@ FOR 1.9
  - Load all the environment variables starting with '/' and resolving to
    existing path as aliases.
  - Allow the configuration to be overridden by command-line flags.
+ - Properly escape the exports in dump_alias_vars in order to work with space
+   folders.
  - Allow for a fully templated PS1, e.g.
 
  	{hostname}:{prefixed_path}{uid_indicator}

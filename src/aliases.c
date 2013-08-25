@@ -85,11 +85,15 @@ wchar_t *
 get_path_for_alias(wchar_t *alias, int len)
 {
 	int i;
+	wchar_t test_alias[MAX_OUTPUT_LEN] = L"";
+
+	/* Create a local copy to make sure we find a perfect match. */
+	wcslcpy(test_alias, alias, len + 1);
 
 	for (i = 0; i < alias_count; i++) {
 		if (!wc_file_exists(aliases[i].path))
 			continue;
-		if (wcsncmp(aliases[i].name, alias, len) == 0) {
+		if (wcscmp(aliases[i].name, test_alias) == 0) {
 			return aliases[i].path;
 		}
 	}

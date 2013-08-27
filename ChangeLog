@@ -1,6 +1,7 @@
 1.9 Bertrand Janin <b@janin.com> (YYYY-MM-DD)
 
-	* ?
+	* Fix a bug in newsgroup mode affecting one-level deep paths starting
+	  with an alias or '~' (found by Jens Schleusener).
 
 1.8 Bertrand Janin <b@janin.com> (2013-08-25)
 

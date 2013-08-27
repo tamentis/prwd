@@ -147,6 +147,14 @@ test_newsgroupize_shorthome(void)
 }
 
 void
+test_newsgroupize_shorthome_one_level(void)
+{
+	wchar_t s[] = L"~/bin";
+	newsgroupize(s);
+	assert(wcscmp(s, L"~/bin") == 0);
+}
+
+void
 test_newsgroupize_alreadyshort(void)
 {
 	wchar_t s[] = L"/a/b/c/d/e/f/g/h/i/j";
@@ -658,6 +666,7 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_newsgroupize_tmp);
 	RUN_TEST(test_newsgroupize_home);
 	RUN_TEST(test_newsgroupize_shorthome);
+	RUN_TEST(test_newsgroupize_shorthome_one_level);
 	RUN_TEST(test_newsgroupize_alreadyshort);
 	RUN_TEST(test_newsgroupize_trailingslash);
 	RUN_TEST(test_newsgroupize_alias);

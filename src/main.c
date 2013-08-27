@@ -66,51 +66,45 @@ newsgroupize(wchar_t *s)
 		return;
 
 	/*
-	 * Since we join first letters with slashes by the end of this
-	 * function, make sure we keep the first character if it isn't a slash.
+	 * The path doesn't start with a '/', could be an alias, could be '~'.
+	 * Copy everything until the first slash.
 	 */
-	if (*s != L'/')
-		buffer[idx++] = *s;
-
-	/* Keep the first part if it's an alias (start by * or $). */
-	if (*s == L'*' || *s == L'$') {
-		wchar_t *sl = wcschr(s, L'/');
-
-		if (sl) {
-			wcslcpy(buffer, s, sl - s + 1);
-			idx += sl - s - 1;
-			s = sl;
-			/*
-			 * If we have no other /, keep the alias AND the last
-			 * part, so we return without doing anything.
-			 */
-			sl = wcschr(s + 1, L'/');
-			if (sl == NULL) {
-				return;
-			}
-		}
-	}
-	buffer[idx++] = '/';
-	buffer[idx] = L'\0';
-
-	/* For every component, add the first letter and a slash. */
-	while ((s = wcschr(s, L'/')) != NULL) {
-		/* Cater for trailing slashes. */
-		if (s[1] == L'\0')
-			break;
-		last = ++s;
-		buffer[idx++] = (wchar_t)*s;
-		buffer[idx++] = L'/';
+	if (*s != L'/') {
+		do {
+			buffer[idx++] = *(s++);
+		} while (*s != L'/' && *s != L'\0');
 	}
 
-	/* idx is less than 4, we only have one slash, just keep org as is */
-	if (idx < 4)
+	/* We already reached the end, that means the string was fine as-is. */
+	if (*s == L'\0')
 		return;
 
+	// do I have a slash?
+	// yes: copy one letter, loop
+	// no: break
+
+	/* For every component, add the first letter and a slash. */
+	for (;;) {
+		/* Copy the slash and move on. */
+		buffer[idx++] = *(s++);
+		last = s;
+
+		/* Is there more to come? */
+		if ((s = wcschr(s, L'/')) == NULL)
+			break;
+
+		/* Trailing slash? */
+		if (*(s + 1) == L'\0')
+			break;
+
+		buffer[idx++] = (wchar_t)*last;
+	}
+
+	/* Copy whatever is left (override the trailing NUL byte on buffer) */
+	wcslcpy(buffer + idx, last, sizeof(buffer) - idx);
+
 	/* Copy letters+slash making sure the last part is left untouched. */
-	wcslcpy(org, buffer, idx);
-	if (last != NULL)
-		wcslcpy(org + idx - 2, last, wcslen(last) + 1);
+	wcslcpy(org, buffer, sizeof(buffer));
 }
 
 

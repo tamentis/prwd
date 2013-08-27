@@ -167,9 +167,10 @@ set uid_indicator on
 You will obtain something like "myhostname:project/folder$" which is as close
 as you could get to your typical default PS1 on your average shell.
 .Sh SETUP
-This will depend on your shell, but the following will usually do:
+This will depend on your shell, but the following will usually do (ksh and
+bash):
 .Bd -literal -offset indent
-export PS1='\\h:`prwd`\\p '
+export PS1='\\h:`prwd`\\$ '
 .Ed
 .Pp
 Note that the single quote matters since you want to keep the command

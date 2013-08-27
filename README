@@ -137,9 +137,10 @@ PS1 REPLACEMENT
      close as you could get to your typical default PS1 on your average shell.
 
 SETUP
-     This will depend on your shell, but the following will usually do:
+     This will depend on your shell, but the following will usually do (ksh
+     and bash):
 
-           export PS1='\h:`prwd`\p '
+           export PS1='\h:`prwd`\$ '
 
      Note that the single quote matters since you want to keep the command
      within the variable as-is (unresolved). If you use both the hostname and

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Bertrand Janin <tamentis@neopulsar.org>
+ * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -29,7 +29,6 @@
 #include "strlcpy.h"
 #include "utils.h"
 
-
 #define ERROR_BUFFER_LEN 255
 #define RUN_TEST(f)		\
 	printf(#f "... ");	\
@@ -47,7 +46,6 @@ int test_hostname_return = 0;
 int tested = 0;
 int test_file_exists = 1;
 
-
 void fatal(const char *fmt,...)
 {
         va_list args;
@@ -57,7 +55,6 @@ void fatal(const char *fmt,...)
 	va_end(args);
 }
 
-
 /*
  * Override ensuring the hostname is predictable for the purpose of testing.
  */
@@ -65,9 +62,8 @@ int
 get_full_hostname(char *buf, size_t size)
 {
 	strlcpy(buf, test_hostname_value, size);
-	return test_hostname_return;
+	return (test_hostname_return);
 }
-
 
 /*
  * Override file_exists to ensure predictable returns.
@@ -75,9 +71,8 @@ get_full_hostname(char *buf, size_t size)
 int
 file_exists(char *filepath)
 {
-	return test_file_exists;
+	return (test_file_exists);
 }
-
 
 /*
  * newgroupize tests
@@ -243,7 +238,6 @@ test_quickcut_ten_to_ten(void)
 	assert(wcscmp(s, L"1234567890") == 0);
 }
 
-
 /*
  * Clean cut tests
  */
@@ -371,7 +365,6 @@ test_cleancut_uld_to_eleven()
 	assert(wcscmp(s, L"_/local/doc") == 0);
 }
 
-
 /*
  * aliases tests
  */
@@ -469,7 +462,6 @@ test_aliases_find_smallest()
 	assert(wcscmp(pwd, L"good/projects/prwd") == 0);
 }
 
-
 /*
  * config file parser test
  */
@@ -544,7 +536,6 @@ test_config_set_maxlength_quoted()
 	process_config_line(line, 1);
 	assert(cfg_maxpwdlen == 50);
 }
-
 
 /*
  * test the hostname feature
@@ -722,5 +713,5 @@ main(int argc, const char *argv[])
 
 	printf("%d tests\n", tested);
 
-	return 0;
+	return (0);
 }

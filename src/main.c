@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -32,7 +32,6 @@
 #include "utils.h"
 #include "aliases.h"
 
-
 extern int cfg_cleancut;
 extern int cfg_maxpwdlen;
 extern int cfg_mercurial;
@@ -46,7 +45,6 @@ extern int alias_count;
 extern struct alias_t aliases[MAX_ALIASES];
 
 wchar_t	 home[MAXPATHLEN];
-
 
 /*
  * Replace all the words by their first letters, except the last one.
@@ -183,9 +181,8 @@ get_mercurial_branch(wchar_t *dst, size_t size)
 
 	branch_size = mbstowcs(dst, buf, MAX_BRANCH_LEN);
 
-	return branch_size;
+	return (branch_size);
 }
-
 
 /*
  * Recurse up from $PWD to find a .git/ directory with a valid HEAD file,
@@ -261,9 +258,8 @@ get_git_branch(wchar_t *dst, size_t size)
 
 	/* We shouldn't get there, but we mind as well no crash. */
 	strlcpy(buf, "???", 4);
-	return mbstowcs(dst, buf, MAX_BRANCH_LEN);
+	return (mbstowcs(dst, buf, MAX_BRANCH_LEN));
 }
-
 
 /*
  * Add the mercurial branch at the beginning of the path. If a branch was
@@ -300,9 +296,8 @@ add_branch(wchar_t *s, enum version_control_system vcs)
 	*(s++) = ':';
 	wcslcpy(s, org, MAX_OUTPUT_LEN - len - 1);
 
-	return 1;
+	return (1);
 }
-
 
 /*
  * This wrapper around gethostname is overwritten by the test suite.
@@ -314,7 +309,6 @@ get_full_hostname(char *buf, size_t size)
 	return gethostname(buf, size);
 }
 #endif
-
 
 /*
  * Add the hostname in front of the path.
@@ -351,7 +345,6 @@ add_hostname(wchar_t *s)
 	wcslcpy(s, org, MAX_OUTPUT_LEN - len - 1);
 }
 
-
 /*
  * Add the UID indicator.
  *
@@ -375,7 +368,6 @@ add_uid_indicator(wchar_t *s)
 
 	wcslcpy(s, buf, MAX_OUTPUT_LEN);
 }
-
 
 /*
  * Reduce the given string to the smallest it could get to fit within
@@ -417,7 +409,7 @@ cleancut(wchar_t *s)
 		 */
 		if (last == NULL) {
 			s = org;
-			goto cleancut_final;
+			goto finish;
 		} else {
 			s = last;
 		}
@@ -426,11 +418,10 @@ cleancut(wchar_t *s)
 	s -= flen;
 	wcsncpy(s, cfg_filler, flen);
 
-cleancut_final:
+finish:
 	wcslcpy(t, s, MAX_OUTPUT_LEN);
 	wcslcpy(org, t, MAX_OUTPUT_LEN);
 }
-
 
 /*
  * Loop through the user-defined aliases and find the best match to
@@ -465,13 +456,11 @@ replace_aliases(wchar_t *s)
 	wcslcpy(org, t, MAX_OUTPUT_LEN);
 }
 
-
 void
 show_version(void)
 {
 	puts("prwd-" PRWD_VERSION);
 }
-
 
 /*
  * Dump all the aliases starting with $ as shell variable. This output is meant
@@ -499,7 +488,6 @@ dump_alias_vars(void)
 		}
 	}
 }
-
 
 /*
  * Main prwd functionality, prints a reduced working directory.
@@ -581,7 +569,6 @@ prwd(void)
 	puts(mbs_wd);
 }
 
-
 #ifndef TESTING
 int
 main(int argc, char **argv)
@@ -619,6 +606,6 @@ main(int argc, char **argv)
 		prwd();
 	}
 
-	return 0;
+	return (0);
 }
 #endif

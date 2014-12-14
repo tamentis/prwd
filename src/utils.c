@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,13 +22,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 /*
  * Panic exit, preferably screaming, running into walls with your arms in the
  * air.
  */
 #ifndef TESTING
-void
+__dead void
 fatal(const char *fmt,...)
 {
         va_list args;
@@ -54,14 +53,13 @@ file_exists(char *filepath)
 		fatal("prwd: stat() failed on %s", filepath);
 	}
 
-	return 1;
+	return (1);
 }
 
 #else	// ifndef TESTING
 int file_exists(char *);
 void fatal(const char *fmt, ...);
 #endif	// ifndef TESTING
-
 
 int
 wc_file_exists(wchar_t *wc_filepath)
@@ -70,5 +68,5 @@ wc_file_exists(wchar_t *wc_filepath)
 
 	wcstombs(mb_filepath, wc_filepath, MAXPATHLEN);
 
-	return file_exists(mb_filepath);
+	return (file_exists(mb_filepath));
 }

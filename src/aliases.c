@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2013-2014 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,12 +22,10 @@
 #include "wcslcpy.h"
 #include "utils.h"
 
-
 int alias_count = 0;
 struct alias_t aliases[MAX_ALIASES];
 
 extern wchar_t home[MAXPATHLEN];
-
 
 /*
  * Add a new alias to the list.
@@ -64,19 +62,17 @@ add_alias(wchar_t *name, wchar_t *value, int linenum)
 	alias_count++;
 }
 
-
 /*
  * Remove all the aliases in the list.
  *
- * This is mostly used by the test suite at this point. Since the list is all
- * pre-allocated there is no need to free() anything.
+ * This is used by the test suite.  The list is all pre-allocated and there is
+ * no need to free() anything.
  */
 void
 purge_aliases()
 {
 	alias_count = 0;
 }
-
 
 /*
  * At this point, we only return aliases resolving to real paths.
@@ -98,9 +94,8 @@ get_path_for_alias(wchar_t *alias, int len)
 		}
 	}
 
-	return NULL;
+	return (NULL);
 }
-
 
 /*
  * Expands aliases at the beginning of the string.

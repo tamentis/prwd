@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -27,7 +27,6 @@
 #include "utils.h"
 #include "aliases.h"
 
-
 int 	 cfg_cleancut = 0;
 int	 cfg_maxpwdlen = MAXPWD_LEN;
 int	 cfg_mercurial = 0;
@@ -42,9 +41,7 @@ extern int alias_count;
 
 extern wchar_t	 home[MAXPATHLEN];
 
-
 #define get_boolean(v) (v != NULL && *v == 'o') ? 1 : 0
-
 
 /*
  * Sets the value of the given variable, also do some type check
@@ -155,9 +152,8 @@ process_config_line(wchar_t *line, int linenum)
 		return -1;
 	}
 
-	return 0;
+	return (0);
 }
-
 
 /*
  * Open the file and feed each line one by one to process_config_line.

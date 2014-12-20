@@ -23,35 +23,52 @@
 #include <locale.h>
 #include <stdarg.h>
 
-#include "prwd.h"
-#include "config.h"
-#include "wcslcpy.h"
-#include "strlcpy.h"
-#include "utils.h"
+#include "main.c"
 
-#define ERROR_BUFFER_LEN 255
-#define RUN_TEST(f)		\
-	printf(#f "... ");	\
-	fflush(stdout);		\
-	f();			\
-	tested++;		\
-	printf("PASS\n");
+#define RUN_TEST(f)				\
+	printf(#f "... ");			\
+	fflush(stdout);				\
+	if (f()) {				\
+		printf("PASS\n");		\
+		passed++;			\
+	} else {				\
+		printf("FAIL\n");		\
+		if (strlen(details)) {		\
+			puts(details);		\
+			details[0] = '\0';	\
+		}				\
+		failed++;			\
+	};					\
+	tested++;				\
 
-extern int cfg_maxpwdlen;
-extern wchar_t cfg_filler[];
+#define ALIAS_ADD(a, b)				\
+	alias_add(a, b, &aaerrstr);		\
+	if (aaerrstr != NULL) {			\
+		return (1);			\
+	}					\
+
+
 extern int alias_count;
-char errbuffer[ERROR_BUFFER_LEN] = "";
+const char *aaerrstr;
+char details[256] = "";
+char errstr[256] = "";
 char test_hostname_value[MAXHOSTNAMELEN];
 int test_hostname_return = 0;
 int tested = 0;
+int passed = 0;
+int failed = 0;
 int test_file_exists = 1;
 
-void fatal(const char *fmt,...)
+
+/* Override errx during tests to capture the errors. */
+void
+errx(int eval, const char *fmt,...)
 {
+	(void)eval;
         va_list args;
 
 	va_start(args, fmt);
-	vsnprintf(errbuffer, ERROR_BUFFER_LEN, fmt, args);
+	vsnprintf(errstr, sizeof(errstr), fmt, args);
 	va_end(args);
 }
 
@@ -71,7 +88,73 @@ get_full_hostname(char *buf, size_t size)
 int
 file_exists(char *filepath)
 {
+	(void)filepath;
 	return (test_file_exists);
+}
+
+/*
+ * Testing assertions
+ */
+static int
+assert_string_equals(const char *a, const char *b)
+{
+	if (a == NULL && b != NULL)
+		goto bad;
+	if (a != NULL && b == NULL)
+		goto bad;
+
+	if (strcmp(a, b) == 0)
+		return (1);
+
+bad:
+	snprintf(details, sizeof(details),
+	    "strings do not match:\n"
+	    "	a=%s\n"
+	    "	b=%s\n", a, b);
+	return (0);
+}
+
+static int
+assert_wstring_equals(const wchar_t *a, const wchar_t *b)
+{
+	if (a == NULL && b != NULL)
+		goto bad;
+	if (a != NULL && b == NULL)
+		goto bad;
+
+	if (wcscmp(a, b) == 0)
+		return (1);
+
+bad:
+	snprintf(details, sizeof(details),
+	    "wide strings do not match:\n"
+	    "	a=%ls\n"
+	    "	b=%ls\n", a, b);
+	return (0);
+}
+
+static int
+assert_int_equals(int a, int b)
+{
+	if (a == b)
+		return (1);
+
+	snprintf(details, sizeof(details),
+	    "ints do not match:\n"
+	    "	a=%d\n"
+	    "	b=%d\n", a, b);
+
+	return (0);
+}
+
+static int
+assert_null(const void *p)
+{
+	if (p == NULL)
+		return (1);
+
+	snprintf(details, sizeof(details), "pointer is not NULL");
+	return (0);
 }
 
 /*
@@ -79,98 +162,99 @@ file_exists(char *filepath)
  */
 void newsgroupize(wchar_t *);
 
-void
+static int
 test_newsgroupize_null(void)
 {
 	newsgroupize(NULL);
+	return (1);
 }
 
-void
+static int
 test_newsgroupize_empty(void)
 {
 	wchar_t s[] = L"";
 	newsgroupize(s);
-	assert(*s == '\0');
+	return (*s == '\0');
 }
 
-void
+static int
 test_newsgroupize_one(void)
 {
 	wchar_t s[] = L"a";
 	newsgroupize(s);
-	assert(wcscmp(s, L"a") == 0);
+	return (assert_wstring_equals(s, L"a"));
 }
 
-void
+static int
 test_newsgroupize_root(void)
 {
 	wchar_t s[] = L"/";
 	newsgroupize(s);
-	assert(wcscmp(s, L"/") == 0);
+	return (assert_wstring_equals(s, L"/"));
 }
 
-void
+static int
 test_newsgroupize_slash_one(void)
 {
 	wchar_t s[] = L"/a";
 	newsgroupize(s);
-	assert(wcscmp(s, L"/a") == 0);
+	return (assert_wstring_equals(s, L"/a"));
 }
 
-void
+static int
 test_newsgroupize_tmp(void)
 {
 	wchar_t s[] = L"/tmp";
 	newsgroupize(s);
-	assert(wcscmp(s, L"/tmp") == 0);
+	return (assert_wstring_equals(s, L"/tmp"));
 }
 
-void
+static int
 test_newsgroupize_home(void)
 {
 	wchar_t s[] = L"/home/tamentis";
 	newsgroupize(s);
-	assert(wcscmp(s, L"/h/tamentis") == 0);
+	return (assert_wstring_equals(s, L"/h/tamentis"));
 }
 
-void
+static int
 test_newsgroupize_shorthome(void)
 {
 	wchar_t s[] = L"~/projects/prwd";
 	newsgroupize(s);
-	assert(wcscmp(s, L"~/p/prwd") == 0);
+	return (assert_wstring_equals(s, L"~/p/prwd"));
 }
 
-void
+static int
 test_newsgroupize_shorthome_one_level(void)
 {
 	wchar_t s[] = L"~/bin";
 	newsgroupize(s);
-	assert(wcscmp(s, L"~/bin") == 0);
+	return (assert_wstring_equals(s, L"~/bin"));
 }
 
-void
+static int
 test_newsgroupize_alreadyshort(void)
 {
 	wchar_t s[] = L"/a/b/c/d/e/f/g/h/i/j";
 	newsgroupize(s);
-	assert(wcscmp(s, L"/a/b/c/d/e/f/g/h/i/j") == 0);
+	return (assert_wstring_equals(s, L"/a/b/c/d/e/f/g/h/i/j"));
 }
 
-void
+static int
 test_newsgroupize_trailingslash(void)
 {
 	wchar_t s[] = L"/usr/local/";
 	newsgroupize(s);
-	assert(wcscmp(s, L"/u/local/") == 0);
+	return (assert_wstring_equals(s, L"/u/local/"));
 }
 
-void
+static int
 test_newsgroupize_alias(void)
 {
 	wchar_t s[] = L"$whatever/local/usr/share";
 	newsgroupize(s);
-	assert(wcscmp(s, L"$whatever/l/u/share") == 0);
+	return (assert_wstring_equals(s, L"$whatever/l/u/share"));
 }
 
 
@@ -179,63 +263,64 @@ test_newsgroupize_alias(void)
  */
 void	quickcut(wchar_t *, size_t);
 
-void
+static int
 test_quickcut_null(void)
 {
 	quickcut(NULL, 0);
+	return (1);
 }
 
-void
+static int
 test_quickcut_empty(void)
 {
 	wchar_t s[] = L"";
 	quickcut(s, 0);
-	assert(wcscmp(s, L"") == 0);
+	return (assert_wstring_equals(s, L""));
 }
 
-void
+static int
 test_quickcut_one_to_one(void)
 {
 	wchar_t s[] = L"o";
 	cfg_maxpwdlen = 1;
 	quickcut(s, 1);
-	assert(wcscmp(s, L"o") == 0);
+	return (assert_wstring_equals(s, L"o"));
 }
 
-void
+static int
 test_quickcut_one_to_two(void)
 {
 	wchar_t s[] = L"o";
 	cfg_maxpwdlen = 2;
 	quickcut(s, 1);
-	assert(wcscmp(s, L"o") == 0);
+	return (assert_wstring_equals(s, L"o"));
 }
 
-void
+static int
 test_quickcut_thirty_to_ten(void)
 {
 	wchar_t s[] = L"qwertyuiopasdfghjklzxcvbnmqwer";
 	cfg_maxpwdlen = 10;
 	quickcut(s, 30);
-	assert(wcscmp(s, L"...bnmqwer") == 0);
+	return (assert_wstring_equals(s, L"...bnmqwer"));
 }
 
-void
+static int
 test_quickcut_ten_to_thirty(void)
 {
 	wchar_t s[] = L"1234567890";
 	cfg_maxpwdlen = 30;
 	quickcut(s, 10);
-	assert(wcscmp(s, L"1234567890") == 0);
+	return (assert_wstring_equals(s, L"1234567890"));
 }
 
-void
+static int
 test_quickcut_ten_to_ten(void)
 {
 	wchar_t s[] = L"1234567890";
 	cfg_maxpwdlen = 10;
 	quickcut(s, 10);
-	assert(wcscmp(s, L"1234567890") == 0);
+	return (assert_wstring_equals(s, L"1234567890"));
 }
 
 /*
@@ -243,298 +328,308 @@ test_quickcut_ten_to_ten(void)
  */
 void cleancut(wchar_t *s);
 
-void
-test_cleancut_null()
+static int
+test_cleancut_null(void)
 {
 	cleancut(NULL);
+	return (1);
 }
 
-void
-test_cleancut_empty()
+static int
+test_cleancut_empty(void)
 {
 	wchar_t s[] = L"";
 	cleancut(s);
-	assert(s[0] == L'\0');
+	return (s[0] == L'\0');
 }
 
-void
-test_cleancut_root_to_ten()
+static int
+test_cleancut_root_to_ten(void)
 {
 	wchar_t s[] = L"/";
 	cfg_maxpwdlen = 10;
 	cleancut(s);
-	assert(wcscmp(s, L"/") == 0);
+	return (assert_wstring_equals(s, L"/"));
 }
 
-void
-test_cleancut_root_to_one()
+static int
+test_cleancut_root_to_one(void)
 {
 	wchar_t s[] = L"/";
 	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 1;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L"/") == 0);
+	return (assert_wstring_equals(s, L"/"));
 }
 
-void
-test_cleancut_tmp_to_one()
+static int
+test_cleancut_tmp_to_one(void)
 {
 	wchar_t s[] = L"/tmp";
 	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 1;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L"/tmp") == 0);
+	return (assert_wstring_equals(s, L"/tmp"));
 }
 
-void
-test_cleancut_tmp_to_three()
+static int
+test_cleancut_tmp_to_three(void)
 {
 	wchar_t s[] = L"/tmp";
 	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 3;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L"/tmp") == 0);
+	return (assert_wstring_equals(s, L"/tmp"));
 }
 
-void
-test_cleancut_tmp_to_four()
+static int
+test_cleancut_tmp_to_four(void)
 {
 	wchar_t s[] = L"/tmp";
 	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 4;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L"/tmp") == 0);
+	return (assert_wstring_equals(s, L"/tmp"));
 }
 
-void
-test_cleancut_tmp_to_ten()
+static int
+test_cleancut_tmp_to_ten(void)
 {
 	wchar_t s[] = L"/tmp";
 	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 10;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L"/tmp") == 0);
+	return (assert_wstring_equals(s, L"/tmp"));
 }
 
-void
-test_cleancut_uld_to_one()
+static int
+test_cleancut_uld_to_one(void)
 {
 	wchar_t s[] = L"/usr/local/doc";
 	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 1;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L".../doc") == 0);
+	return (assert_wstring_equals(s, L".../doc"));
 }
 
-void
-test_cleancut_uld_to_five()
+static int
+test_cleancut_uld_to_five(void)
 {
 	wchar_t s[] = L"/usr/local/doc";
 	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 5;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L".../doc") == 0);
+	return (assert_wstring_equals(s, L".../doc"));
 }
 
-void
-test_cleancut_uld_to_ten()
+static int
+test_cleancut_uld_to_ten(void)
 {
 	wchar_t s[] = L"/usr/local/doc";
 	wchar_t f[] = L"...";
 	cfg_maxpwdlen = 10;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L".../doc") == 0);
+	return (assert_wstring_equals(s, L".../doc"));
 }
 
-void
-test_cleancut_uld_to_eleven()
+static int
+test_cleancut_uld_to_eleven(void)
 {
 	wchar_t s[] = L"/usr/local/doc";
 	wchar_t f[] = L"_";
 	cfg_maxpwdlen = 11;
 	wcslcpy(cfg_filler, f, sizeof(f));
 	cleancut(s);
-	assert(wcscmp(s, L"_/local/doc") == 0);
+	return (assert_wstring_equals(s, L"_/local/doc"));
 }
 
 /*
  * aliases tests
  */
-void add_alias(wchar_t *, wchar_t *, int);
 void replace_aliases(wchar_t *);
 
-void
-test_aliases_none()
+static int
+test_aliases_none(void)
 {
 	wchar_t pwd[] = L"/usr/local/doc";
-	purge_aliases();
+	alias_purge_all();
 	replace_aliases(pwd);
-	assert(wcscmp(pwd, L"/usr/local/doc") == 0);
+	return (assert_wstring_equals(pwd, L"/usr/local/doc"));
 }
 
-void
-test_aliases_home_alone()
+static int
+test_aliases_home_alone(void)
 {
 	wchar_t pwd[] = L"/home/tamentis";
-	purge_aliases();
-	add_alias(L"~", L"/home/tamentis", 1);
+	alias_purge_all();
+	ALIAS_ADD(L"~", L"/home/tamentis");
 	replace_aliases(pwd);
-	assert(wcscmp(pwd, L"~") == 0);
+	return (assert_wstring_equals(pwd, L"~"));
 }
 
-void
-test_aliases_home_and_one()
+static int
+test_aliases_home_and_one(void)
 {
 	wchar_t pwd[] = L"/home/tamentis/x";
-	purge_aliases();
-	add_alias(L"~", L"/home/tamentis", 1);
+	alias_purge_all();
+	ALIAS_ADD(L"~", L"/home/tamentis");
 	replace_aliases(pwd);
-	assert(wcscmp(pwd, L"~/x") == 0);
+	return (assert_wstring_equals(pwd, L"~/x"));
 }
 
-void
-test_aliases_home_and_tree()
+static int
+test_aliases_home_and_tree(void)
 {
 	wchar_t pwd[] = L"/home/tamentis/x/projects/stuff";
-	purge_aliases();
-	add_alias(L"~", L"/home/tamentis", 1);
+	alias_purge_all();
+	ALIAS_ADD(L"~", L"/home/tamentis");
 	replace_aliases(pwd);
-	assert(wcscmp(pwd, L"~/x/projects/stuff") == 0);
+	return (assert_wstring_equals(pwd, L"~/x/projects/stuff"));
 }
 
-void
-test_aliases_five_unmatching_aliases()
+static int
+test_aliases_five_unmatching_aliases(void)
 {
 	wchar_t pwd[] = L"/home/tamentiz/x/projects";
-	purge_aliases();
-	add_alias(L"a1", L"/the/first/path", 1);
-	add_alias(L"b2", L"/path/second", 1);
-	add_alias(L"c3", L"/troisieme/chemin", 1);
-	add_alias(L"d4", L"drole/de/chemin/quatre", 1);
-	add_alias(L"e5", L"/home/tamentïs", 1);
+	alias_purge_all();
+	ALIAS_ADD(L"a1", L"/the/first/path");
+	ALIAS_ADD(L"b2", L"/path/second");
+	ALIAS_ADD(L"c3", L"/troisieme/chemin");
+	ALIAS_ADD(L"d4", L"drole/de/chemin/quatre");
+	ALIAS_ADD(L"e5", L"/home/tamentïs");
 	replace_aliases(pwd);
-	assert(wcscmp(pwd, L"/home/tamentiz/x/projects") == 0);
+	return (assert_wstring_equals(pwd, L"/home/tamentiz/x/projects"));
 }
 
-void
-test_aliases_duplicate_aliases()
+static int
+test_aliases_duplicate_aliases(void)
 {
 	wchar_t pwd[] = L"/home/tamentis/x/projects";
-	purge_aliases();
-	add_alias(L"aa", L"/home/tamentis", 1);
-	add_alias(L"aa", L"/home/tamentis", 2);
-	add_alias(L"aa", L"/home/tamentis", 3);
+	alias_purge_all();
+	ALIAS_ADD(L"aa", L"/home/tamentis");
+	ALIAS_ADD(L"aa", L"/home/tamentis");
+	ALIAS_ADD(L"aa", L"/home/tamentis");
 	replace_aliases(pwd);
-	assert(wcscmp(pwd, L"aa/x/projects") == 0);
+	return (assert_wstring_equals(pwd, L"aa/x/projects"));
 }
 
-void
-test_aliases_too_many()
+static int
+test_aliases_too_many(void)
 {
 	int i;
-	int max_aliases = MAX_ALIASES;
-	purge_aliases();
-	for (i = 0; i < max_aliases + 1; i++) {
-		add_alias(L"aa", L"/home/tamentis", 1);
+	alias_purge_all();
+	for (i = 0; i < MAX_ALIASES * 2; i++) {
+		ALIAS_ADD(L"aa", L"/home/tamentis");
 	}
-	assert(alias_count == max_aliases - 1);
-	assert(strstr(errbuffer, "you have reached") != NULL);
+
+	alias_add(L"aa", L"/home/tamentis", &aaerrstr);
+	if (aaerrstr == NULL) {
+		snprintf(details, sizeof(details),
+		    "alias_add should have returned an error");
+		return (0);
+	}
+
+	return (assert_string_equals(aaerrstr, "too many aliases"));
 }
 
-void
-test_aliases_find_smallest()
+static int
+test_aliases_find_smallest(void)
 {
 	wchar_t pwd[] = L"/home/tamentis/x/y/z/projects/prwd";
 	alias_count = 0;
-	add_alias(L"bad1", L"/home/tamentis", 2);
-	add_alias(L"bad2", L"/home", 2);
-	add_alias(L"bad3", L"/home/tamentis/x", 3);
-	add_alias(L"good", L"/home/tamentis/x/y/z", 3);
+	ALIAS_ADD(L"bad1", L"/home/tamentis");
+	ALIAS_ADD(L"bad2", L"/home");
+	ALIAS_ADD(L"bad3", L"/home/tamentis/x");
+	ALIAS_ADD(L"good", L"/home/tamentis/x/y/z");
 	replace_aliases(pwd);
-	assert(wcscmp(pwd, L"good/projects/prwd") == 0);
+	return (assert_wstring_equals(pwd, L"good/projects/prwd"));
 }
 
 /*
  * config file parser test
  */
-int process_config_line(wchar_t *line, int linenum);
+// void process_config_line(wchar_t *line, int linenum, const char **);
 
-void
-test_config_set_empty()
+static int
+test_config__process_config_line__set_no_var(void)
 {
 	wchar_t line[] = L"set";
-	*errbuffer = '\0';
-	process_config_line(line, 0);
-	assert(strstr(errbuffer, "without variable name") != NULL);
+	aaerrstr = "";
+	process_config_line(line, &aaerrstr);
+	return (assert_string_equals(aaerrstr, "set without variable name"));
 }
 
-void
-test_config_alias_empty()
+static int
+test_config__process_config_line__alias_no_name(void)
 {
 	wchar_t line[] = L"alias";
-	*errbuffer = '\0';
-	process_config_line(line, 0);
-	assert(strstr(errbuffer, "alias without name") != NULL);
+	aaerrstr = "";
+	process_config_line(line, &aaerrstr);
+	return (assert_string_equals(aaerrstr, "alias without name"));
 }
 
-void
-test_config_many_spaces()
+static int
+test_config__process_config_line__just_spaces(void)
 {
 	wchar_t line[] = L"        ";
-	*errbuffer = '\0';
-	process_config_line(line, 1);
+	aaerrstr = "";
+	process_config_line(line, &aaerrstr);
+	return (assert_null(aaerrstr));
 }
 
-void
-test_config_comments()
+static int
+test_config__process_config_line__comments(void)
 {
 	wchar_t line[] = L"# comments";
-	*errbuffer = '\0';
-	process_config_line(line, 1);
+	aaerrstr = "";
+	process_config_line(line, &aaerrstr);
+	return (assert_null(aaerrstr));
 }
 
-void
-test_config_set_maxlength_250()
+static int
+test_config__process_config_line__set_maxlength_250(void)
 {
 	wchar_t line[] = L"set maxlength 250";
-	*errbuffer = '\0';
-	process_config_line(line, 1);
-	assert(cfg_maxpwdlen == 250);
+	aaerrstr = "";
+	process_config_line(line, &aaerrstr);
+	return (assert_null(aaerrstr)
+	    && assert_int_equals(cfg_maxpwdlen, 250));
 }
 
-void
-test_config_set_maxlength_crap()
+static int
+test_config__process_config_line__set_maxlength_bad(void)
 {
 	wchar_t line[] = L"set maxlength $F@#$";
-	*errbuffer = '\0';
-	process_config_line(line, 1);
-	assert(cfg_maxpwdlen == 0);
+	aaerrstr = "";
+	process_config_line(line, &aaerrstr);
+	return (assert_string_equals(aaerrstr, "invalid number for set maxlength"));
 }
 
-void
-test_config_set_maxlength_overflow()
+static int
+test_config__process_config_line__set_maxlength_overflow(void)
 {
 	wchar_t line[] = L"set maxlength 5000";
-	*errbuffer = '\0';
-	process_config_line(line, 1);
-	assert(strstr(errbuffer, "invalid number") != NULL);
+	aaerrstr = "";
+	process_config_line(line, &aaerrstr);
+	return (assert_string_equals(aaerrstr, "invalid number for set maxlength"));
 }
 
-void
-test_config_set_maxlength_quoted()
+static int
+test_config__process_config_line__set_maxlength_quoted(void)
 {
 	wchar_t line[] = L"set maxlength \"50\"";
-	*errbuffer = '\0';
-	process_config_line(line, 1);
-	assert(cfg_maxpwdlen == 50);
+	aaerrstr = "";
+	process_config_line(line, &aaerrstr);
+	return (assert_null(aaerrstr)
+	    && assert_int_equals(cfg_maxpwdlen, 50));
 }
 
 /*
@@ -542,8 +637,8 @@ test_config_set_maxlength_quoted()
  */
 void add_hostname(wchar_t *);
 
-void
-test_hostname_full()
+static int
+test_hostname_full(void)
 {
 	wchar_t s[256] = L"anything";
 	char h[] = "odin.tamentis.com";
@@ -552,11 +647,11 @@ test_hostname_full()
 	strlcpy(test_hostname_value, h, sizeof(h));
 
 	add_hostname(s);
-	assert(wcscmp(s, L"odin:anything") == 0);
+	return (assert_wstring_equals(s, L"odin:anything"));
 }
 
-void
-test_hostname_short()
+static int
+test_hostname_short(void)
 {
 	wchar_t s[256] = L"anything";
 	char h[] = "odin";
@@ -565,11 +660,11 @@ test_hostname_short()
 	strlcpy(test_hostname_value, h, sizeof(h));
 
 	add_hostname(s);
-	assert(wcscmp(s, L"odin:anything") == 0);
+	return (assert_wstring_equals(s, L"odin:anything"));
 }
 
-void
-test_hostname_error_no_hostname()
+static int
+test_hostname_error_no_hostname(void)
 {
 	wchar_t s[256] = L"anything";
 	char h[] = "odin";
@@ -578,75 +673,109 @@ test_hostname_error_no_hostname()
 	strlcpy(test_hostname_value, h, sizeof(h));
 
 	add_hostname(s);
-	assert(strstr(errbuffer, "gethostname() failed") != NULL);
+	return (assert_string_equals(errstr, "gethostname() failed"));
 }
 
 /*
  * test the expand alias tools
  */
-void expand_prefix_aliases(wchar_t *, int);
-
-void
-test_config_expand_prefix_aliases()
+static int
+test_config_alias_expand_prefix(void)
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
+	wchar_t output[MAX_OUTPUT_LEN];
 
-	purge_aliases();
-	add_alias(L"$what", L"/anything/giving", 1);
-	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
-	assert(wcscmp(s, L"/anything/giving/the/fsck") == 0);
+	alias_purge_all();
+	ALIAS_ADD(L"$what", L"/anything/giving");
+	alias_expand_prefix(s, output);
+	return (assert_wstring_equals(output, L"/anything/giving/the/fsck"));
 }
 
-void
-test_config_expand_prefix_aliases_missing()
-{
-	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
-
-	purge_aliases();
-	test_file_exists = 0;
-	add_alias(L"$what", L"/anything/giving", 1);
-	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
-	assert(wcscmp(s, L"$what/the/fsck") == 0);
-	test_file_exists = 1;
-}
-
-void
-test_config_expand_prefix_aliases_with_slash()
+static int
+test_config_alias_expand_prefix_with_slash(void)
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck/";
+	wchar_t output[MAX_OUTPUT_LEN];
 
-	purge_aliases();
-	add_alias(L"$what", L"/anything/giving/", 1);
-	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
-	assert(wcscmp(s, L"/anything/giving//the/fsck/") == 0);
+	alias_purge_all();
+	ALIAS_ADD(L"$what", L"/anything/giving/");
+	alias_expand_prefix(s, output);
+	return (assert_wstring_equals(output, L"/anything/giving//the/fsck/"));
 }
 
-void
-test_config_expand_prefix_aliases_single()
+static int
+test_config_alias_expand_prefix_single(void)
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what";
+	wchar_t output[MAX_OUTPUT_LEN];
 
-	purge_aliases();
-	add_alias(L"$what", L"/anything/giving", 1);
-	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
-	assert(wcscmp(s, L"/anything/giving") == 0);
+	alias_purge_all();
+	ALIAS_ADD(L"$what", L"/anything/giving");
+	alias_expand_prefix(s, output);
+	return (assert_wstring_equals(output, L"/anything/giving"));
 }
 
-void
-test_config_expand_prefix_aliases_no_alias()
+/*
+ * The configured alias does not match anything in the path and the output
+ * should be identical to the input.
+ */
+static int
+test_config_alias_expand_prefix_no_alias(void)
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"what";
+	wchar_t output[MAX_OUTPUT_LEN];
 
-	purge_aliases();
-	add_alias(L"$what", L"/anything/giving", 1);
-	expand_prefix_aliases(s, MAX_OUTPUT_LEN);
-	assert(wcscmp(s, L"what") == 0);
+	alias_purge_all();
+	ALIAS_ADD(L"$what", L"/anything/giving");
+	alias_expand_prefix(s, output);
+	return (assert_wstring_equals(output, L"what"));
 }
 
+static int
+test_utils__tokcpy__unchanged(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"foo";
+	wchar_t output[MAX_OUTPUT_LEN];
+	tokcpy(input, output);
+	return (assert_wstring_equals(input, L"foo")
+	    && assert_wstring_equals(output, L"foo"));
+}
+
+static int
+test_utils__tokcpy__with_slash(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"foo/bar";
+	wchar_t output[MAX_OUTPUT_LEN];
+	tokcpy(input, output);
+	return (assert_wstring_equals(input, L"foo/bar")
+	    && assert_wstring_equals(output, L"foo"));
+}
+
+static int
+test_utils__tokcpy__empty_string(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"";
+	wchar_t output[MAX_OUTPUT_LEN];
+	tokcpy(input, output);
+	return (assert_wstring_equals(input, L"")
+	    && assert_wstring_equals(output, L""));
+}
+
+static int
+test_utils__tokcpy__just_a_slash(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"/";
+	wchar_t output[MAX_OUTPUT_LEN];
+	tokcpy(input, output);
+	return (assert_wstring_equals(input, L"/")
+	    && assert_wstring_equals(output, L""));
+}
 
 int
 main(int argc, const char *argv[])
 {
+	(void)argc;
+	(void)argv;
 	setlocale(LC_ALL, "");
 
 	RUN_TEST(test_newsgroupize_null);
@@ -696,22 +825,30 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_hostname_short);
 	RUN_TEST(test_hostname_error_no_hostname);
 
-	RUN_TEST(test_config_set_empty);
-	RUN_TEST(test_config_alias_empty);
-	RUN_TEST(test_config_many_spaces);
-	RUN_TEST(test_config_comments);
-	RUN_TEST(test_config_set_maxlength_250);
-	RUN_TEST(test_config_set_maxlength_crap);
-	RUN_TEST(test_config_set_maxlength_overflow);
-	RUN_TEST(test_config_set_maxlength_quoted);
+	RUN_TEST(test_config__process_config_line__set_no_var);
+	RUN_TEST(test_config__process_config_line__alias_no_name);
+	RUN_TEST(test_config__process_config_line__just_spaces);
+	RUN_TEST(test_config__process_config_line__comments);
+	RUN_TEST(test_config__process_config_line__set_maxlength_250);
+	RUN_TEST(test_config__process_config_line__set_maxlength_bad);
+	RUN_TEST(test_config__process_config_line__set_maxlength_overflow);
+	RUN_TEST(test_config__process_config_line__set_maxlength_quoted);
 
-	RUN_TEST(test_config_expand_prefix_aliases);
-	RUN_TEST(test_config_expand_prefix_aliases_missing);
-	RUN_TEST(test_config_expand_prefix_aliases_with_slash);
-	RUN_TEST(test_config_expand_prefix_aliases_single);
-	RUN_TEST(test_config_expand_prefix_aliases_no_alias);
+	RUN_TEST(test_config_alias_expand_prefix);
+	RUN_TEST(test_config_alias_expand_prefix_with_slash);
+	RUN_TEST(test_config_alias_expand_prefix_single);
+	RUN_TEST(test_config_alias_expand_prefix_no_alias);
 
-	printf("%d tests\n", tested);
+	RUN_TEST(test_utils__tokcpy__unchanged);
+	RUN_TEST(test_utils__tokcpy__with_slash);
+	RUN_TEST(test_utils__tokcpy__empty_string);
+	RUN_TEST(test_utils__tokcpy__just_a_slash);
 
-	return (0);
+	printf("%d tests (%d PASS, %d FAIL)\n", tested, passed, failed);
+
+	if (failed) {
+		return (1);
+	} else {
+		return (0);
+	}
 }

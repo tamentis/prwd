@@ -17,27 +17,19 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 
+#include <err.h>
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "utils.h"
 
 /*
  * Panic exit, preferably screaming, running into walls with your arms in the
  * air.
  */
 #ifndef TESTING
-__dead void
-fatal(const char *fmt,...)
-{
-        va_list args;
-
-	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
-	va_end(args);
-	exit(-1);
-}
-
 /*
  * Check if a file exists (works fine for directories too).
  */
@@ -50,7 +42,7 @@ file_exists(char *filepath)
 		if (errno == ENOENT) {
 			return 0;
 		}
-		fatal("prwd: stat() failed on %s", filepath);
+		errx(1, "stat() failed on %s", filepath);
 	}
 
 	return (1);
@@ -58,7 +50,6 @@ file_exists(char *filepath)
 
 #else	// ifndef TESTING
 int file_exists(char *);
-void fatal(const char *fmt, ...);
 #endif	// ifndef TESTING
 
 int
@@ -69,4 +60,19 @@ wc_file_exists(wchar_t *wc_filepath)
 	wcstombs(mb_filepath, wc_filepath, MAXPATHLEN);
 
 	return (file_exists(mb_filepath));
+}
+
+/*
+ * Copy all the characters from input to token until we find a '/' or NUL-byte.
+ */
+void
+tokcpy(wchar_t *input, wchar_t *token)
+{
+	int i;
+
+	for (i = 0; input[i] != '/' && input[i] != '\0'; i++) {
+		token[i] = input[i];
+	}
+
+	token[i] = '\0';
 }

@@ -16,28 +16,27 @@
 
 #include <sys/param.h>
 
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
 #include <inttypes.h>
 
+#include "alias.h"
+#include "config.h"
 #include "prwd.h"
-#include "wcslcpy.h"
 #include "strdelim.h"
 #include "utils.h"
-#include "aliases.h"
+#include "wcslcpy.h"
 
 int 	 cfg_cleancut = 0;
-int	 cfg_maxpwdlen = MAXPWD_LEN;
+size_t	 cfg_maxpwdlen = MAXPWD_LEN;
 int	 cfg_mercurial = 0;
 int	 cfg_git = 0;
 int	 cfg_hostname = 0;
 int	 cfg_uid_indicator = 0;
 int	 cfg_newsgroup = 0;
 wchar_t	 cfg_filler[FILLER_LEN] = FILLER_DEF;
-
-extern struct alias_t aliases[MAX_ALIASES];
-extern int alias_count;
 
 extern wchar_t	 home[MAXPATHLEN];
 
@@ -47,18 +46,21 @@ extern wchar_t	 home[MAXPATHLEN];
  * Sets the value of the given variable, also do some type check
  * just in case.
  */
-void
-set_variable(wchar_t *name, wchar_t *value, int linenum)
+static void
+set_variable(wchar_t *name, wchar_t *value, const char **errstrp)
 {
 	/* set maxlength <int> */
 	if (wcscmp(name, L"maxlength") == 0) {
 		if (value == NULL || *value == '\0') {
-			cfg_maxpwdlen = 0;
+			*errstrp = "no value for set maxlength";
 			return;
 		}
-		cfg_maxpwdlen = wcstoumax(value, NULL, 10);
-		if (cfg_maxpwdlen > 255)
-			fatal("prwdrc: invalid number for set maxlength.\n");
+
+		cfg_maxpwdlen = wcstonum(value, 1, 255, errstrp);
+		if (cfg_maxpwdlen == 0) {
+			*errstrp = "invalid number for set maxlength";
+			return;
+		}
 
 	/* set filler <string> */
 	} else if (wcscmp(name, L"filler") == 0) {
@@ -92,23 +94,23 @@ set_variable(wchar_t *name, wchar_t *value, int linenum)
 	} else if (wcscmp(name, L"newsgroup") == 0) {
 		cfg_newsgroup = get_boolean(value);
 
-	/* ??? */
+	/* Unknown variable */
 	} else {
-		fatal("prwdrc: unknown variable for set on line %d.\n", linenum);
+		*errstrp = "unknown variable for set";
 	}
 }
 
-
 /*
- * Parse a single line of the configuration file. Returns 0 on success or
- * anything else if an error occurred, it will be rare since most fatal errors
- * will quit the program with an error message anyways.
+ * Parse a single line of the configuration file.  If any error occurs, the
+ * errstrp pointer is set to the error message, else it is set to NULL.
  */
-int
-process_config_line(wchar_t *line, int linenum)
+void
+process_config_line(wchar_t *line, const char **errstrp)
 {
 	int len;
 	wchar_t *keyword, *name, *value;
+
+	*errstrp = NULL;
 
         /* Strip trailing whitespace */
 	for (len = wcslen(line) - 1; len > 0; len--) {
@@ -119,40 +121,42 @@ process_config_line(wchar_t *line, int linenum)
 
 	/* Get the keyword. (Each line is supposed to begin with a keyword). */
 	if ((keyword = strdelim(&line)) == NULL)
-		return 0;
+		return;
 
 	/* Ignore leading whitespace. */
 	if (*keyword == '\0')
 		keyword = strdelim(&line);
 
 	if (keyword == NULL || !*keyword || *keyword == '\n' || *keyword == '#')
-		return 0;
+		return;
 
 	/* set varname value */
 	if (wcscmp(keyword, L"set") == 0) {
 		if ((name = strdelim(&line)) == NULL) {
-			fatal("prwdrc: set without variable name on line %d.\n", linenum);
-			return -1;
+			*errstrp = "set without variable name";
+			return;
 		}
 		value = strdelim(&line);
-		set_variable(name, value, linenum);
+		set_variable(name, value, errstrp);
+		return;
 
 	/* alias short long */
 	} else if (wcscmp(keyword, L"alias") == 0) {
 		if ((name = strdelim(&line)) == NULL) {
-			fatal("prwdrc: alias without name on line %d.\n", linenum);
-			return -1;
+			*errstrp = "alias without name";
+			return;
 		}
 		value = strdelim(&line);
-		add_alias(name, value, linenum);
+		if (!wc_file_exists(value))
+			return;
+		alias_add(name, value, errstrp);
+		if (*errstrp != NULL) {
+			return;
+		}
 
-	/* Unknown operation... God help us. */
 	} else {
-		fatal("prwdrc: unknown command on line %d.\n", linenum);
-		return -1;
+		*errstrp = "unknown command";
 	}
-
-	return (0);
 }
 
 /*
@@ -162,10 +166,10 @@ void
 read_config()
 {
 	FILE *fp;
-	char line[128];
+	char line[128], path[MAXPATHLEN];
+	const char *errstr;
 	wchar_t wline[128];
 	int linenum = 1;
-	char path[MAXPATHLEN];
 
 	snprintf(path, MAXPATHLEN, "%ls/.prwdrc", home);
 
@@ -175,7 +179,11 @@ read_config()
 
 	while (fgets(line, sizeof(line), fp)) {
 		mbstowcs(wline, line, 128);
-		process_config_line(wline, linenum++);
+		process_config_line(wline, &errstr);
+		if (errstr != NULL) {
+			errx(1, "prwdrc:%d: %s", linenum, errstr);
+		}
+		linenum++;
 	}
 
 	fclose(fp);

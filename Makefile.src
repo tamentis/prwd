@@ -29,3 +29,5 @@ README: ${PROG}.1
 		| tail +3 \
 		| sed '$$d' \
 		> README
+
+.PHONY: clean test all mantest

@@ -30,10 +30,10 @@
 #include "strlcpy.h"
 #include "config.h"
 #include "utils.h"
-#include "aliases.h"
+#include "alias.h"
 
 extern int cfg_cleancut;
-extern int cfg_maxpwdlen;
+extern size_t cfg_maxpwdlen;
 extern int cfg_mercurial;
 extern int cfg_git;
 extern int cfg_hostname;
@@ -41,8 +41,8 @@ extern int cfg_uid_indicator;
 extern int cfg_newsgroup;
 extern wchar_t cfg_filler[FILLER_LEN];
 
-extern int alias_count;
-extern struct alias_t aliases[MAX_ALIASES];
+// extern int alias_count;
+extern struct alias aliases[MAX_ALIASES];
 
 wchar_t	 home[MAXPATHLEN];
 
@@ -52,10 +52,10 @@ wchar_t	 home[MAXPATHLEN];
  * Input:  /usr/local/share/doc
  * Output: /u/l/s/doc
  */
-void
+static void
 newsgroupize(wchar_t *s)
 {
-	wchar_t buffer[MAX_OUTPUT_LEN];
+	wchar_t buf[MAX_OUTPUT_LEN];
 	wchar_t *last = NULL, *org = s;
 	int idx = 0;
 
@@ -69,7 +69,7 @@ newsgroupize(wchar_t *s)
 	 */
 	if (*s != L'/') {
 		do {
-			buffer[idx++] = *(s++);
+			buf[idx++] = *(s++);
 		} while (*s != L'/' && *s != L'\0');
 	}
 
@@ -77,14 +77,10 @@ newsgroupize(wchar_t *s)
 	if (*s == L'\0')
 		return;
 
-	// do I have a slash?
-	// yes: copy one letter, loop
-	// no: break
-
 	/* For every component, add the first letter and a slash. */
 	for (;;) {
 		/* Copy the slash and move on. */
-		buffer[idx++] = *(s++);
+		buf[idx++] = *(s++);
 		last = s;
 
 		/* Is there more to come? */
@@ -95,14 +91,14 @@ newsgroupize(wchar_t *s)
 		if (*(s + 1) == L'\0')
 			break;
 
-		buffer[idx++] = (wchar_t)*last;
+		buf[idx++] = (wchar_t)*last;
 	}
 
-	/* Copy whatever is left (override the trailing NUL byte on buffer) */
-	wcslcpy(buffer + idx, last, sizeof(buffer) - idx);
+	/* Copy whatever is left (override the trailing NUL-byte on buffer) */
+	wcslcpy(buf + idx, last, sizeof(buf) - idx);
 
 	/* Copy letters+slash making sure the last part is left untouched. */
-	wcslcpy(org, buffer, sizeof(buffer));
+	wcslcpy(org, buf, sizeof(buf));
 }
 
 
@@ -112,7 +108,7 @@ newsgroupize(wchar_t *s)
  * Input:  /usr/local/share/doc
  * Output: ...are/doc
  */
-void
+static void
 quickcut(wchar_t *s, size_t len)
 {
 	wchar_t t[MAX_OUTPUT_LEN];
@@ -136,43 +132,40 @@ quickcut(wchar_t *s, size_t len)
  * Input:  /home/bjanin/prwd
  * Output: prwd-1.3:/home/bjanin/prwd
  */
-size_t
+static size_t
 get_mercurial_branch(wchar_t *dst, size_t size)
 {
 	FILE *fp;
-	char *c;
-	char pwd[MAX_OUTPUT_LEN];
-	char candidate[MAXPATHLEN];
-	char buf[MAX_BRANCH_LEN];
+	char *c, pwd[MAX_OUTPUT_LEN], path[MAXPATHLEN], buf[MAX_BRANCH_LEN];
 	size_t branch_size;
 	struct stat bufstat;
-	int found_repo = -1;
+	int found = -1;
 
 	/* start from the working dir */
 	strlcpy(pwd, getcwd(NULL, MAX_OUTPUT_LEN), MAX_OUTPUT_LEN);
 
 	do {
-		snprintf(candidate, MAXPATHLEN, "%s/.hg/branch", pwd);
+		snprintf(path, MAXPATHLEN, "%s/.hg/branch", pwd);
 
-		found_repo = stat(candidate, &bufstat);
+		found = stat(path, &bufstat);
 
 		if ((c = strrchr(pwd, '/')) == NULL)
 			break;
 
 		*c = '\0';
-	} while (found_repo != 0 && candidate[1] != '\0');
+	} while (found != 0 && path[1] != '\0');
 
-	if (found_repo == -1)
-		return 0;
+	if (found == -1)
+		return (0);
 
-	fp = fopen(candidate, "r");
+	fp = fopen(path, "r");
 	if (fp == NULL) {
 		strlcpy(buf, "###", 4);
-		return mbstowcs(dst, buf, MAX_BRANCH_LEN);
+		return (mbstowcs(dst, buf, MAX_BRANCH_LEN));
 	}
 
 	if (fread(buf, 1, size, fp) == 0)
-		fatal("prwd: failed to read the .hg/branch file.\n");
+		err(1, "failed to read the .hg/branch file");
 	fclose(fp);
 
 	/* remove the trailing new line if any */
@@ -192,39 +185,37 @@ get_mercurial_branch(wchar_t *dst, size_t size)
  * Input:  /home/bjanin/prwd
  * Output: prwd-1.3:/home/bjanin/prwd
  */
-size_t
+static size_t
 get_git_branch(wchar_t *dst, size_t size)
 {
 	FILE *fp;
-	char *c;
-	char pwd[MAX_OUTPUT_LEN];
-	char candidate[MAXPATHLEN];
-	char buf[MAX_BRANCH_LEN];
+	char *c, path[MAXPATHLEN], buf[MAX_BRANCH_LEN], pwd[MAX_OUTPUT_LEN];
 	size_t s;
 	struct stat bufstat;
-	int found_repo = -1;
+	int found = -1;
 
 	/* start from the working dir */
 	strlcpy(pwd, getcwd(NULL, MAX_OUTPUT_LEN), MAX_OUTPUT_LEN);
 
 	do {
-		snprintf(candidate, MAXPATHLEN, "%s/.git/HEAD", pwd);
+		snprintf(path, MAXPATHLEN, "%s/.git/HEAD", pwd);
 
-		found_repo = stat(candidate, &bufstat);
+		found = stat(path, &bufstat);
 
 		if ((c = strrchr(pwd, '/')) == NULL)
 			break;
 
 		*c = '\0';
-	} while (found_repo != 0 && candidate[1] != '\0');
+	} while (found != 0 && path[1] != '\0');
 
-	if (found_repo == -1)
-		return 0;
+	if (found == -1)
+		return (0);
 
-	fp = fopen(candidate, "r");
+	fp = fopen(path, "r");
 	if (fp == NULL) {
 		strlcpy(buf, "###", 4);
-		return mbstowcs(dst, buf, MAX_BRANCH_LEN);
+		c = buf;
+		goto finish;
 	}
 
 	s = fread(buf, 1, size, fp);
@@ -234,31 +225,35 @@ get_git_branch(wchar_t *dst, size_t size)
 
 	/* This is a branch head, just print the branch. */
 	if (strncmp(buf, "ref: refs/heads/", 16) == 0) {
-		char *nl = strchr(buf, '\n');
-		if (nl)
-			*(nl) = '\0';
+		c = strchr(buf, '\n');
+		if (c)
+			*(c) = '\0';
 		c = buf + 16;
-		return mbstowcs(dst, c, MAX_BRANCH_LEN);
+		goto finish;
 	}
 
 	/* Show all other kinds of ref as-is (does it even exist?) */
 	if (strncmp(buf, "ref:", 4) == 0) {
-		char *nl = strchr(buf, '\n');
-		if (nl) 
-			*(nl) = '\0';
+		c = strchr(buf, '\n');
+		if (c)
+			*(c) = '\0';
 		c = buf + 5;
-		return mbstowcs(dst, c, MAX_BRANCH_LEN);
+		goto finish;
 	}
 
 	/* That's probably just a changeset, just show the first 6 chars. */
 	if (s > 6) {
 		strlcpy(buf + 6, "...", 4);
-		return mbstowcs(dst, buf, MAX_BRANCH_LEN);
+		c = buf;
+		goto finish;
 	}
 
 	/* We shouldn't get there, but we mind as well no crash. */
 	strlcpy(buf, "???", 4);
-	return (mbstowcs(dst, buf, MAX_BRANCH_LEN));
+	c = buf;
+
+finish:
+	return (mbstowcs(dst, c, MAX_BRANCH_LEN));
 }
 
 /*
@@ -268,8 +263,8 @@ get_git_branch(wchar_t *dst, size_t size)
  * Input:  /home/bjanin/prwd
  * Output: prwd-1.3:/home/bjanin/prwd
  */
-int
-add_branch(wchar_t *s, enum version_control_system vcs)
+static int
+add_branch(wchar_t *s, enum vcs_types vcs)
 {
 	wchar_t org[MAX_OUTPUT_LEN];
 	wchar_t branch[MAX_BRANCH_LEN];
@@ -280,14 +275,14 @@ add_branch(wchar_t *s, enum version_control_system vcs)
 	switch (vcs) {
 		case VCS_MERCURIAL:
 			if (get_mercurial_branch(branch, MAX_BRANCH_LEN) == 0)
-				return 0;
+				return (0);
 			break;
 		case VCS_GIT:
 			if (get_git_branch(branch, MAX_BRANCH_LEN) == 0)
-				return 0;
+				return (0);
 			break;
 		default:
-			return 0;
+			return (0);
 	}
 
 	len = wcslcpy(s, branch, MAX_BRANCH_LEN);
@@ -302,11 +297,13 @@ add_branch(wchar_t *s, enum version_control_system vcs)
 /*
  * This wrapper around gethostname is overwritten by the test suite.
  */
-#ifndef TESTING
-int
+#ifdef TESTING
+int get_full_hostname(char *, size_t);
+#else
+static int
 get_full_hostname(char *buf, size_t size)
 {
-	return gethostname(buf, size);
+	return (gethostname(buf, size));
 }
 #endif
 
@@ -316,7 +313,7 @@ get_full_hostname(char *buf, size_t size)
  * Input:  /etc
  * Output: odin:/etc
  */
-void
+static void
 add_hostname(wchar_t *s)
 {
 	char buf[MAXHOSTNAMELEN], *c;
@@ -327,16 +324,18 @@ add_hostname(wchar_t *s)
 	wcslcpy(org, s, MAX_OUTPUT_LEN);
 
 	/* We failed to get the hostname. Complain and die. */
-	if (get_full_hostname(buf, MAXHOSTNAMELEN) != 0)
-		return fatal("prwd: gethostname() failed");
+	if (get_full_hostname(buf, MAXHOSTNAMELEN) != 0) {
+		errx(1, "gethostname() failed");
+	}
 
 	/* Find the first dot and stop right here. */
 	c = strchr(buf, '.');
 	if (c != NULL)
 		*c = '\0';
 
-	if (mbstowcs(hostname, buf, MAX_HOSTNAME_LEN) == -1)
-		return fatal("prwd: mbstowcs(hostname, ...) failed");
+	if (mbstowcs(hostname, buf, MAX_HOSTNAME_LEN) == (size_t)-1) {
+		err(1, "mbstowcs(hostname, ...) failed");
+	}
 
 	len = wcslcpy(s, hostname, MAX_HOSTNAME_LEN);
 
@@ -352,7 +351,7 @@ add_hostname(wchar_t *s)
  * Output if non-root: /etc$
  * Output if root:     /etc#
  */
-void
+static void
 add_uid_indicator(wchar_t *s)
 {
 	wchar_t buf[MAX_OUTPUT_LEN];
@@ -376,10 +375,10 @@ add_uid_indicator(wchar_t *s)
  * Input:  /usr/local/share/doc
  * Output: .../share/doc
  */
-void
+static void
 cleancut(wchar_t *s)
 {
-	int flen;
+	size_t flen;
 	wchar_t *last = NULL, t[MAX_OUTPUT_LEN], *org = s;
 
 	/* NULL or empty input, nothing to touch */
@@ -392,7 +391,7 @@ cleancut(wchar_t *s)
 
 	/* As long as we can't fit 's' within the maxpwdlen, keep trimming */
 	flen = wcslen(cfg_filler);
-	while ((int)wcslen(s) > (cfg_maxpwdlen - flen)) {
+	while ((long)wcslen(s) > ((long)cfg_maxpwdlen - (long)flen)) {
 		s++;
 		s = wcschr(s, '/');
 		if (s == NULL)
@@ -402,7 +401,7 @@ cleancut(wchar_t *s)
 
 	/* The last element was too long, keep it */
 	if (s == NULL) {
-		/* 
+		/*
 		 * last has never been touched, this means we only have
 		 * one slash, revert s to its original value, there is
 		 * nothing we can crop.
@@ -427,79 +426,33 @@ finish:
  * Loop through the user-defined aliases and find the best match to
  * get the shortest path as possible.
  */
-void
-replace_aliases(wchar_t *s)
+static void
+replace_aliases(wchar_t *path)
 {
-	int i, chosen = -1;
-	size_t len, nlen, max = 0;
-	wchar_t t[MAX_OUTPUT_LEN], *org = s;
+	size_t nlen, plen;
+	wchar_t buf[MAX_OUTPUT_LEN];
+	struct alias *alias;
 
-	for (i = 0; i < alias_count; i++) {
-		len = wcslen(aliases[i].path);
-		if (wcsncmp(aliases[i].path, s, len) == 0) {
-			if (len > max) {
-				chosen = i;
-				max = len;
-			}
-		}
-	}
-
-	/* No alias found, you can leave now */
-	if (chosen == -1)
+	alias = alias_get_by_path(path);
+	if (alias == NULL)
 		return;
 
-	nlen = wcslen(aliases[chosen].name);
-	s += (max - nlen);
-	wcsncpy(s, aliases[chosen].name, nlen);
-
-	wcslcpy(t, s, MAX_OUTPUT_LEN);
-	wcslcpy(org, t, MAX_OUTPUT_LEN);
-}
-
-void
-show_version(void)
-{
-	puts("prwd-" PRWD_VERSION);
-}
-
-/*
- * Dump all the aliases starting with $ as shell variable. This output is meant
- * to be used with eval in your profile file.
- *
- * This thing could be doing some shell escaping on the path, but I'd be
- * surprised anyone using this software would have such monstrosities on their
- * computers.
- */
-void
-dump_alias_vars(void)
-{
-	int i;
-	wchar_t path[MAX_OUTPUT_LEN];
-
-	for (i = 0; i < alias_count; i++) {
-		if (aliases[i].name[0] == '$') {
-			wcslcpy(path, aliases[i].path, MAX_OUTPUT_LEN);
-			expand_prefix_aliases(path, MAX_OUTPUT_LEN);
-			if (!wc_file_exists(path))
-				continue;
-			/* Skip the '$' */
-			wprintf(L"export %ls=\"%ls\"\n", aliases[i].name + 1,
-					path);
-		}
-	}
+	plen = wcslen(alias->path);
+	nlen = wcslcpy(buf, alias->name, MAX_OUTPUT_LEN);
+	wcslcpy(buf + nlen, path + plen, MAX_OUTPUT_LEN - nlen);
+	wcslcpy(path, buf, MAX_OUTPUT_LEN);
 }
 
 /*
  * Main prwd functionality, prints a reduced working directory.
  */
-void
+static void
 prwd(void)
 {
 	size_t len;
-	int found_repo = 0;
-	char *wd = NULL;
-	char *wd_env = NULL;
-	char mbs_wd[MAX_OUTPUT_LEN];
+	int foundvcs = 0;
+	const char *errstr;
+	char *wd = NULL, *wd_env = NULL, mbs_wd[MAX_OUTPUT_LEN];
 	wchar_t wcs_wd[MAX_OUTPUT_LEN];
 	struct stat sa, sb;
 
@@ -526,20 +479,22 @@ prwd(void)
 	mbstowcs(wcs_wd, wd, MAX_OUTPUT_LEN);
 
 	/* Replace the beginning with ~ for directories within $HOME. */
-	add_alias(L"~", home, 0);
+	alias_add(L"~", home, &errstr);
+	if (errstr != NULL)
+		errx(1, "failed to add default \"~\" alias: %s", errstr);
 
 	/* Alias handling */
 	replace_aliases(wcs_wd);
 
 	/* Newsgroup mode, keep only the first letters. */
-	if (cfg_newsgroup == 1)
+	if (cfg_newsgroup)
 		newsgroupize(wcs_wd);
 
 	/* If the path is still too long, crop it. */
 	len = wcslen(wcs_wd);
 
 	if (cfg_maxpwdlen > 0 && len > cfg_maxpwdlen) {
-		if (cfg_cleancut == 1 && cfg_newsgroup != 1) {
+		if (cfg_cleancut && !cfg_newsgroup) {
 			cleancut(wcs_wd);
 		} else {
 			quickcut(wcs_wd, len);
@@ -547,21 +502,21 @@ prwd(void)
 	}
 
 	/* If mercurial or git is enabled, show the branch */
-	if (cfg_mercurial == 1) {
-		found_repo = add_branch(wcs_wd, VCS_MERCURIAL);
+	if (cfg_mercurial) {
+		foundvcs = add_branch(wcs_wd, VCS_MERCURIAL);
 	}
 
-	if (found_repo == 0 && cfg_git == 1) {
+	if (!foundvcs && cfg_git) {
 		add_branch(wcs_wd, VCS_GIT);
 	}
 
 	/* Do we show the hostname? */
-	if (cfg_hostname == 1) {
+	if (cfg_hostname) {
 		add_hostname(wcs_wd);
 	}
 
 	/* Add the '$' or '#' character depending if your root. */
-	if (cfg_uid_indicator == 1) {
+	if (cfg_uid_indicator) {
 		add_uid_indicator(wcs_wd);
 	}
 
@@ -582,7 +537,7 @@ main(int argc, char **argv)
 			run_dump_alias_vars = 1;
 			break;
 		case 'V':
-			show_version();
+			puts("prwd-"VERSION);
 			exit(-1);
 		default:
 			printf("usage: prwd [-aVh]\n");
@@ -601,7 +556,7 @@ main(int argc, char **argv)
 	read_config();
 
 	if (run_dump_alias_vars) {
-		dump_alias_vars();
+		alias_dump_vars();
 	} else {
 		prwd();
 	}

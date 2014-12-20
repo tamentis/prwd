@@ -26,6 +26,8 @@
 #include <string.h>
 #include <wchar.h>
 
+#include "strdelim.h"
+
 /* Characters considered whitespace in strsep calls. */
 #define WHITESPACE	L" \t\r\n"
 #define QUOTE		L"\""

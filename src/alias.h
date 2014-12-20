@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2013-2014 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,17 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#define MAX_ALIASES 64
+#define ALIAS_NAME_LEN 32
 
-void	 add_alias(wchar_t *, wchar_t *, int);
-void	 purge_aliases(void);
-void	 expand_prefix_aliases(wchar_t *, int);
+struct alias {
+	wchar_t	name[ALIAS_NAME_LEN];
+	wchar_t	path[MAXPATHLEN];
+};
+
+void		 alias_add(wchar_t *, wchar_t *, const char **);
+void		 alias_purge_all(void);
+void		 alias_expand_prefix(wchar_t *, wchar_t *);
+void		 alias_dump_vars(void);
+struct alias 	*alias_get(wchar_t *);
+struct alias	*alias_get_by_path(wchar_t *);

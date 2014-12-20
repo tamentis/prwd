@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2004 Ted Unangst and Todd Miller
+ * All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +16,4 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-int	 file_exists(char *);
-int	 wc_file_exists(wchar_t *);
-void	 tokcpy(wchar_t *, wchar_t *);
+long long wcstonum(const wchar_t *, long long, long long, const char **);

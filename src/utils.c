@@ -22,6 +22,7 @@
 #include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "utils.h"
 
@@ -75,5 +76,9 @@ tokcpy(wchar_t *input, wchar_t *token)
  * Overridable gethostname().
  */
 #ifndef REGRESS
-#define lgethostname(buf, size) gethostname(buf, size)
+int
+lgethostname(char *buf, size_t size)
+{
+	return (gethostname(buf, size));
+}
 #endif

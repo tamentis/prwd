@@ -14,7 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
 int	 file_exists(char *);
 int	 wc_file_exists(wchar_t *);
 void	 tokcpy(wchar_t *, wchar_t *);

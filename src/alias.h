@@ -14,6 +14,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <sys/param.h>
+
+#include <wchar.h>
+
 #define MAX_ALIASES 64
 #define ALIAS_NAME_LEN 32
 
@@ -28,3 +32,4 @@ void		 alias_expand_prefix(wchar_t *, wchar_t *);
 void		 alias_dump_vars(void);
 struct alias 	*alias_get(wchar_t *);
 struct alias	*alias_get_by_path(wchar_t *);
+void		 alias_replace(wchar_t *);

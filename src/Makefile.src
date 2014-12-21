@@ -1,6 +1,7 @@
 BINARY=prwd
 
-OBJECTS=main.o config.o strdelim.o utils.o alias.o
+OBJECTS=main.o config.o strdelim.o utils.o alias.o cut.o newsgroupize.o \
+	hostname.o uid.o vcs.o
 OBJECTS+=${EXTRA_OBJECTS}
 
 CFLAGS?=--std=c99 -Wall
@@ -10,12 +11,12 @@ all: ${BINARY}
 ${BINARY}: ${OBJECTS}
 	$(CC) -o ${BINARY} ${OBJECTS}
 
-prwd_tests: config.o alias.o strdelim.o test.c utils.c ${EXTRA_OBJECTS}
-	$(CC) ${CFLAGS} -D TESTING -c utils.c -o utils.o
-	$(CC) ${CFLAGS} -D TESTING -c test.c -o main.o
+run_tests: ${OBJECTS}
+	$(CC) ${CFLAGS} -D REGRESS -c utils.c -o utils.o
+	$(CC) ${CFLAGS} -D REGRESS -c test.c -o main.o
 	$(CC) -ggdb -O0 -o run_tests ${OBJECTS}
 
-test: prwd_tests
+test: run_tests run_tests.sh
 	./run_tests.sh
 
 clean:

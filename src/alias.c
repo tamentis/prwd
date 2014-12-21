@@ -16,14 +16,10 @@
 
 #include <sys/param.h>
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <wchar.h>
 
 #include "alias.h"
 #include "prwd.h"
-#include "wcslcpy.h"
 #include "utils.h"
 
 
@@ -176,4 +172,24 @@ alias_dump_vars(void)
 					output);
 		}
 	}
+}
+
+/*
+ * Find the best match to get the shortest path as possible.
+ */
+void
+alias_replace(wchar_t *path)
+{
+	size_t nlen, plen;
+	wchar_t buf[MAX_OUTPUT_LEN];
+	struct alias *alias;
+
+	alias = alias_get_by_path(path);
+	if (alias == NULL)
+		return;
+
+	plen = wcslen(alias->path);
+	nlen = wcslcpy(buf, alias->name, MAX_OUTPUT_LEN);
+	wcslcpy(buf + nlen, path + plen, MAX_OUTPUT_LEN - nlen);
+	wcslcpy(path, buf, MAX_OUTPUT_LEN);
 }

@@ -16,4 +16,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <wchar.h>
+
 long long wcstonum(const wchar_t *, long long, long long, const char **);

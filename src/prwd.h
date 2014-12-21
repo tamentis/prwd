@@ -21,9 +21,8 @@
 /* Default value for the maxpwdlen configuration setting */
 #define MAXPWD_LEN 24
 
-/* Maximum character length for branch and hostname */
+/* Maximum character length for branch */
 #define MAX_BRANCH_LEN 32
-#define MAX_HOSTNAME_LEN 32
 
 /* Used to split various things */
 #define WHITESPACE	L" \t\r\n"
@@ -31,6 +30,3 @@
 
 /* Maximum output size */
 #define MAX_OUTPUT_LEN 1024
-
-/* Types of version control systems */
-enum vcs_types { VCS_NONE, VCS_MERCURIAL, VCS_GIT };

@@ -24,6 +24,7 @@
 #include <stdarg.h>
 
 #include "main.c"
+#include "utils.h"
 
 #define RUN_TEST(f)				\
 	printf(#f "... ");			\
@@ -48,6 +49,7 @@
 	}					\
 
 
+extern wchar_t cfg_filler[FILLER_LEN];
 extern int alias_count;
 const char *aaerrstr;
 char details[256] = "";
@@ -72,13 +74,24 @@ errx(int eval, const char *fmt,...)
 	va_end(args);
 }
 
+void
+err(int eval, const char *fmt,...)
+{
+	(void)eval;
+        va_list args;
+
+	va_start(args, fmt);
+	vsnprintf(errstr, sizeof(errstr), fmt, args);
+	va_end(args);
+}
+
 /*
- * Override ensuring the hostname is predictable for the purpose of testing.
+ * Override gethostname(3) to make the hostname predictable.
  */
 int
-get_full_hostname(char *buf, size_t size)
+gethostname(char *name, size_t namelen)
 {
-	strlcpy(buf, test_hostname_value, size);
+	strlcpy(name, test_hostname_value, namelen);
 	return (test_hostname_return);
 }
 
@@ -93,7 +106,7 @@ file_exists(char *filepath)
 }
 
 /*
- * Testing assertions
+ * Testing assertions with detailed output.
  */
 static int
 assert_string_equals(const char *a, const char *b)
@@ -454,14 +467,14 @@ test_cleancut_uld_to_eleven(void)
 /*
  * aliases tests
  */
-void replace_aliases(wchar_t *);
+void alias_replace(wchar_t *);
 
 static int
 test_aliases_none(void)
 {
 	wchar_t pwd[] = L"/usr/local/doc";
 	alias_purge_all();
-	replace_aliases(pwd);
+	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"/usr/local/doc"));
 }
 
@@ -471,7 +484,7 @@ test_aliases_home_alone(void)
 	wchar_t pwd[] = L"/home/tamentis";
 	alias_purge_all();
 	ALIAS_ADD(L"~", L"/home/tamentis");
-	replace_aliases(pwd);
+	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"~"));
 }
 
@@ -481,7 +494,7 @@ test_aliases_home_and_one(void)
 	wchar_t pwd[] = L"/home/tamentis/x";
 	alias_purge_all();
 	ALIAS_ADD(L"~", L"/home/tamentis");
-	replace_aliases(pwd);
+	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"~/x"));
 }
 
@@ -491,7 +504,7 @@ test_aliases_home_and_tree(void)
 	wchar_t pwd[] = L"/home/tamentis/x/projects/stuff";
 	alias_purge_all();
 	ALIAS_ADD(L"~", L"/home/tamentis");
-	replace_aliases(pwd);
+	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"~/x/projects/stuff"));
 }
 
@@ -505,7 +518,7 @@ test_aliases_five_unmatching_aliases(void)
 	ALIAS_ADD(L"c3", L"/troisieme/chemin");
 	ALIAS_ADD(L"d4", L"drole/de/chemin/quatre");
 	ALIAS_ADD(L"e5", L"/home/tamentïs");
-	replace_aliases(pwd);
+	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"/home/tamentiz/x/projects"));
 }
 
@@ -517,7 +530,7 @@ test_aliases_duplicate_aliases(void)
 	ALIAS_ADD(L"aa", L"/home/tamentis");
 	ALIAS_ADD(L"aa", L"/home/tamentis");
 	ALIAS_ADD(L"aa", L"/home/tamentis");
-	replace_aliases(pwd);
+	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"aa/x/projects"));
 }
 
@@ -549,7 +562,7 @@ test_aliases_find_smallest(void)
 	ALIAS_ADD(L"bad2", L"/home");
 	ALIAS_ADD(L"bad3", L"/home/tamentis/x");
 	ALIAS_ADD(L"good", L"/home/tamentis/x/y/z");
-	replace_aliases(pwd);
+	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"good/projects/prwd"));
 }
 
@@ -600,8 +613,8 @@ test_config__process_config_line__set_maxlength_250(void)
 	wchar_t line[] = L"set maxlength 250";
 	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
-	return (assert_null(aaerrstr)
-	    && assert_int_equals(cfg_maxpwdlen, 250));
+	return (assert_null(aaerrstr) &&
+	    assert_int_equals(cfg_maxpwdlen, 250));
 }
 
 static int
@@ -628,8 +641,8 @@ test_config__process_config_line__set_maxlength_quoted(void)
 	wchar_t line[] = L"set maxlength \"50\"";
 	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
-	return (assert_null(aaerrstr)
-	    && assert_int_equals(cfg_maxpwdlen, 50));
+	return (assert_null(aaerrstr) &&
+	    assert_int_equals(cfg_maxpwdlen, 50));
 }
 
 /*
@@ -737,8 +750,8 @@ test_utils__tokcpy__unchanged(void)
 	wchar_t input[MAX_OUTPUT_LEN] = L"foo";
 	wchar_t output[MAX_OUTPUT_LEN];
 	tokcpy(input, output);
-	return (assert_wstring_equals(input, L"foo")
-	    && assert_wstring_equals(output, L"foo"));
+	return (assert_wstring_equals(input, L"foo") &&
+	    assert_wstring_equals(output, L"foo"));
 }
 
 static int
@@ -747,8 +760,8 @@ test_utils__tokcpy__with_slash(void)
 	wchar_t input[MAX_OUTPUT_LEN] = L"foo/bar";
 	wchar_t output[MAX_OUTPUT_LEN];
 	tokcpy(input, output);
-	return (assert_wstring_equals(input, L"foo/bar")
-	    && assert_wstring_equals(output, L"foo"));
+	return (assert_wstring_equals(input, L"foo/bar") &&
+	    assert_wstring_equals(output, L"foo"));
 }
 
 static int
@@ -757,8 +770,8 @@ test_utils__tokcpy__empty_string(void)
 	wchar_t input[MAX_OUTPUT_LEN] = L"";
 	wchar_t output[MAX_OUTPUT_LEN];
 	tokcpy(input, output);
-	return (assert_wstring_equals(input, L"")
-	    && assert_wstring_equals(output, L""));
+	return (assert_wstring_equals(input, L"") &&
+	    assert_wstring_equals(output, L""));
 }
 
 static int
@@ -767,8 +780,8 @@ test_utils__tokcpy__just_a_slash(void)
 	wchar_t input[MAX_OUTPUT_LEN] = L"/";
 	wchar_t output[MAX_OUTPUT_LEN];
 	tokcpy(input, output);
-	return (assert_wstring_equals(input, L"/")
-	    && assert_wstring_equals(output, L""));
+	return (assert_wstring_equals(input, L"/") &&
+	    assert_wstring_equals(output, L""));
 }
 
 int

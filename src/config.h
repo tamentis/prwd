@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <wchar.h>
 
 void	 read_config(void);
 void	 process_config_line(wchar_t *, const char **);

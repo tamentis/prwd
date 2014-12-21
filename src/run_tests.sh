@@ -9,12 +9,12 @@ count_of_runtests=`grep RUN_TEST.test ./test.c | wc -l`
 
 if [ "$count_of_tests" != "$count_of_runtests" ]; then
 	echo "error: found $count_of_tests tests but only $count_of_runtests seem to be queued for execution."
-	exit 100
+	exit 1
 fi
 
 if [ ! -x ./run_tests ]; then
-	echo "error: couldn't find run_tests executable, please use 'make test' instead."
-	exit 100
+	echo "error: couldn't find run_tests, run \"make clean test\" instead."
+	exit 1
 fi
 
 ./run_tests

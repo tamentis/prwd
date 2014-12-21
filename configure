@@ -215,7 +215,7 @@ EOF
 if ! ${CC} fake_wcstonum.c -o /dev/null 1>/dev/null 2>/dev/null; then
 	echo "not found (we'll use ours)"
 	X_OBJECTS="$X_OBJECTS wcstonum.o"
-	CFLAGS="$CFLAGS -DHAS_NO_wcstoNUM"
+	CFLAGS="$CFLAGS -DHAS_NO_WCSTONUM"
 else
 	echo yes
 fi

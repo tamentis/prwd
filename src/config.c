@@ -17,17 +17,14 @@
 #include <sys/param.h>
 
 #include <err.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <wchar.h>
-#include <inttypes.h>
 
 #include "alias.h"
 #include "config.h"
 #include "prwd.h"
 #include "strdelim.h"
 #include "utils.h"
-#include "wcslcpy.h"
+#include "wcstonum.h"
 
 int 	 cfg_cleancut = 0;
 size_t	 cfg_maxpwdlen = MAXPWD_LEN;
@@ -40,15 +37,18 @@ wchar_t	 cfg_filler[FILLER_LEN] = FILLER_DEF;
 
 extern wchar_t	 home[MAXPATHLEN];
 
-#define get_boolean(v) (v != NULL && *v == 'o') ? 1 : 0
+#define GET_BOOLEAN(v) (v != NULL && *v == 'o') ? 1 : 0
 
 /*
- * Sets the value of the given variable, also do some type check
- * just in case.
+ * Sets the value of the given variable in our global variables doing some
+ * minimal type check. If any error occurs, the *errstrp pointer is set to
+ * an error string, it is set to NULL otherwise.
  */
 static void
 set_variable(wchar_t *name, wchar_t *value, const char **errstrp)
 {
+	*errstrp = NULL;
+
 	/* set maxlength <int> */
 	if (wcscmp(name, L"maxlength") == 0) {
 		if (value == NULL || *value == '\0') {
@@ -72,27 +72,27 @@ set_variable(wchar_t *name, wchar_t *value, const char **errstrp)
 
 	/* set cleancut <bool> */
 	} else if (wcscmp(name, L"cleancut") == 0) {
-		cfg_cleancut = get_boolean(value);
+		cfg_cleancut = GET_BOOLEAN(value);
 
 	/* set mercurial <bool> */
 	} else if (wcscmp(name, L"mercurial") == 0) {
-		cfg_mercurial = get_boolean(value);
+		cfg_mercurial = GET_BOOLEAN(value);
 
 	/* set git <bool> */
 	} else if (wcscmp(name, L"git") == 0) {
-		cfg_git = get_boolean(value);
+		cfg_git = GET_BOOLEAN(value);
 
 	/* set hostname <bool> */
 	} else if (wcscmp(name, L"hostname") == 0) {
-		cfg_hostname = get_boolean(value);
+		cfg_hostname = GET_BOOLEAN(value);
 
 	/* set uid_indicator <bool> */
 	} else if (wcscmp(name, L"uid_indicator") == 0) {
-		cfg_uid_indicator = get_boolean(value);
+		cfg_uid_indicator = GET_BOOLEAN(value);
 
 	/* set newsgroup <bool> */
 	} else if (wcscmp(name, L"newsgroup") == 0) {
-		cfg_newsgroup = get_boolean(value);
+		cfg_newsgroup = GET_BOOLEAN(value);
 
 	/* Unknown variable */
 	} else {
@@ -127,7 +127,9 @@ process_config_line(wchar_t *line, const char **errstrp)
 	if (*keyword == '\0')
 		keyword = strdelim(&line);
 
-	if (keyword == NULL || !*keyword || *keyword == '\n' || *keyword == '#')
+	/* Skip blank lines and commented lines. */
+	if (keyword == NULL || *keyword == '\0' ||
+	    *keyword == '\n' || *keyword == '#')
 		return;
 
 	/* set varname value */

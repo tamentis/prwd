@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2014 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +14,31 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifdef HAS_NO_STRLCPY
-size_t wcslcpy(wchar_t *, const wchar_t *, size_t);
-#endif
+#include <unistd.h>
+#include <wchar.h>
+#include <err.h>
+
+#include "prwd.h"
+#include "uid.h"
+
+/*
+ * Add the UID indicator to the given path.  For example "/etc" turns into
+ * "/etc$" if your user is non-root and "/etc#" if she/he is root.
+ */
+void
+add_uid_indicator(wchar_t *path)
+{
+	wchar_t buf[MAX_OUTPUT_LEN];
+	wchar_t c;
+
+	if (getuid() == 0) {
+		c = L'#';
+	} else {
+		c = L'$';
+	}
+
+	if (swprintf(buf, MAX_OUTPUT_LEN, L"%ls%lc", path, c) == -1)
+		errx(1, "failed to add uid indicator");
+
+	wcslcpy(path, buf, MAX_OUTPUT_LEN);
+}

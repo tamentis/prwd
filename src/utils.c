@@ -19,47 +19,41 @@
 
 #include <err.h>
 #include <errno.h>
-#include <stdarg.h>
+#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "utils.h"
 
 /*
- * Panic exit, preferably screaming, running into walls with your arms in the
- * air.
- */
-#ifndef TESTING
-/*
  * Check if a file exists (works fine for directories too).
  */
+#ifndef REGRESS
 int
-file_exists(char *filepath)
+file_exists(char *path)
 {
 	struct stat sb;
 
-	if (stat(filepath, &sb) != 0) {
+	if (stat(path, &sb) != 0) {
 		if (errno == ENOENT) {
-			return 0;
+			return (0);
 		}
-		errx(1, "stat() failed on %s", filepath);
+		err(1, "stat() failed on %s", path);
 	}
 
 	return (1);
 }
+#endif	// ifndef REGRESS
 
-#else	// ifndef TESTING
-int file_exists(char *);
-#endif	// ifndef TESTING
-
+/*
+ * Checks if a file exists given a wchar path.
+ */
 int
-wc_file_exists(wchar_t *wc_filepath)
+wc_file_exists(wchar_t *wpath)
 {
-	char mb_filepath[MAXPATHLEN];
-
-	wcstombs(mb_filepath, wc_filepath, MAXPATHLEN);
-
-	return (file_exists(mb_filepath));
+	char path[MAXPATHLEN];
+	wcstombs(path, wpath, MAXPATHLEN);
+	return (file_exists(path));
 }
 
 /*

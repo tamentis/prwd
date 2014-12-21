@@ -91,7 +91,7 @@ err(int eval, const char *fmt,...)
  * Override gethostname(3) to make the hostname predictable.
  */
 int
-gethostname(char *name, size_t namelen)
+lgethostname(char *name, size_t namelen)
 {
 	strlcpy(name, test_hostname_value, namelen);
 	return (test_hostname_return);
@@ -123,9 +123,9 @@ assert_string_equals(const char *a, const char *b)
 
 bad:
 	snprintf(details, sizeof(details),
-	    "strings do not match:\n"
-	    "	a=%s\n"
-	    "	b=%s\n", a, b);
+	    "    strings do not match:\n"
+	    "    	a=%s\n"
+	    "    	b=%s", a, b);
 	return (0);
 }
 
@@ -142,9 +142,9 @@ assert_wstring_equals(const wchar_t *a, const wchar_t *b)
 
 bad:
 	snprintf(details, sizeof(details),
-	    "wide strings do not match:\n"
-	    "	a=%ls\n"
-	    "	b=%ls\n", a, b);
+	    "    wide strings do not match:\n"
+	    "    	a=%ls\n"
+	    "    	b=%ls", a, b);
 	return (0);
 }
 
@@ -155,9 +155,9 @@ assert_int_equals(int a, int b)
 		return (1);
 
 	snprintf(details, sizeof(details),
-	    "ints do not match:\n"
-	    "	a=%d\n"
-	    "	b=%d\n", a, b);
+	    "    ints do not match:\n"
+	    "    	a=%d\n"
+	    "    	b=%d", a, b);
 
 	return (0);
 }
@@ -168,7 +168,7 @@ assert_null(const void *p)
 	if (p == NULL)
 		return (1);
 
-	snprintf(details, sizeof(details), "pointer is not NULL");
+	snprintf(details, sizeof(details), "    pointer is not NULL");
 	return (0);
 }
 

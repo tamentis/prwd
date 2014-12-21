@@ -70,3 +70,10 @@ tokcpy(wchar_t *input, wchar_t *token)
 
 	token[i] = '\0';
 }
+
+/*
+ * Overridable gethostname().
+ */
+#ifndef REGRESS
+#define lgethostname(buf, size) gethostname(buf, size)
+#endif

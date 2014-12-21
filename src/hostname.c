@@ -25,6 +25,7 @@
 #include "prwd.h"
 #include "hostname.h"
 #include "wcslcpy.h"
+#include "utils.h"
 
 /*
  * Add the hostname in front of the path, turning "/etc" into "odin:/etc".
@@ -49,7 +50,7 @@ void
 get_short_hostname(wchar_t *host, size_t size)
 {
 	char buf[MAXHOSTNAMELEN], *c;
-	if (gethostname(buf, size) != 0) {
+	if (lgethostname(buf, size) != 0) {
 		err(1, "gethostname() failed");
 	}
 

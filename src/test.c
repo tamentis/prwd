@@ -65,7 +65,7 @@ int test_file_exists = 1;
 
 
 /* Override errx during tests to capture the errors. */
-__dead void
+void
 errx(int eval, const char *fmt,...)
 {
 	(void)eval;
@@ -76,7 +76,7 @@ errx(int eval, const char *fmt,...)
 	va_end(args);
 }
 
-__dead void
+void
 err(int eval, const char *fmt,...)
 {
 	(void)eval;

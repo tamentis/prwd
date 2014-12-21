@@ -31,6 +31,8 @@
 #define RUN_TEST(f)				\
 	printf("%-60s", #f);			\
 	fflush(stdout);				\
+	*errstr = '\0';				\
+	aaerrstr = "";				\
 	if (f()) {				\
 		printf("PASS\n");		\
 		passed++;			\
@@ -577,7 +579,6 @@ static int
 test_config__process_config_line__set_no_var(void)
 {
 	wchar_t line[] = L"set";
-	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
 	return (assert_string_equals(aaerrstr, "set without variable name"));
 }
@@ -586,7 +587,6 @@ static int
 test_config__process_config_line__alias_no_name(void)
 {
 	wchar_t line[] = L"alias";
-	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
 	return (assert_string_equals(aaerrstr, "alias without name"));
 }
@@ -595,7 +595,6 @@ static int
 test_config__process_config_line__just_spaces(void)
 {
 	wchar_t line[] = L"        ";
-	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
 	return (assert_null(aaerrstr));
 }
@@ -604,7 +603,6 @@ static int
 test_config__process_config_line__comments(void)
 {
 	wchar_t line[] = L"# comments";
-	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
 	return (assert_null(aaerrstr));
 }
@@ -613,7 +611,6 @@ static int
 test_config__process_config_line__set_maxlength_250(void)
 {
 	wchar_t line[] = L"set maxlength 250";
-	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
 	return (assert_null(aaerrstr) &&
 	    assert_int_equals(cfg_maxpwdlen, 250));
@@ -623,7 +620,6 @@ static int
 test_config__process_config_line__set_maxlength_bad(void)
 {
 	wchar_t line[] = L"set maxlength $F@#$";
-	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
 	return (assert_string_equals(aaerrstr, "invalid number for set maxlength"));
 }
@@ -632,7 +628,6 @@ static int
 test_config__process_config_line__set_maxlength_overflow(void)
 {
 	wchar_t line[] = L"set maxlength 5000";
-	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
 	return (assert_string_equals(aaerrstr, "invalid number for set maxlength"));
 }
@@ -641,7 +636,6 @@ static int
 test_config__process_config_line__set_maxlength_quoted(void)
 {
 	wchar_t line[] = L"set maxlength \"50\"";
-	aaerrstr = "";
 	process_config_line(line, &aaerrstr);
 	return (assert_null(aaerrstr) &&
 	    assert_int_equals(cfg_maxpwdlen, 50));

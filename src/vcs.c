@@ -65,7 +65,7 @@ get_mercurial_branch(wchar_t *dst, size_t size)
 
 	fp = fopen(path, "r");
 	if (fp == NULL) {
-		strlcpy(buf, "###", 4);
+		strlcpy(buf, "###", MAX_BRANCH_LEN);
 		return (mbstowcs(dst, buf, MAX_BRANCH_LEN));
 	}
 
@@ -148,13 +148,13 @@ get_git_branch(wchar_t *dst, size_t size)
 
 	/* That's probably just a changeset, just show the first 6 chars. */
 	if (s > 6) {
-		strlcpy(buf + 6, "...", 4);
+		strlcpy(buf + 6, "...", MAX_BRANCH_LEN - 6);
 		c = buf;
 		goto finish;
 	}
 
 	/* We shouldn't get there, but we mind as well no crash. */
-	strlcpy(buf, "???", 4);
+	strlcpy(buf, "???", MAX_BRANCH_LEN);
 	c = buf;
 
 finish:
@@ -169,13 +169,10 @@ finish:
  * Output: prwd-1.3:/home/bjanin/prwd
  */
 int
-add_branch(wchar_t *s, enum vcs_types vcs)
+add_branch(wchar_t *path, enum vcs_types vcs)
 {
-	wchar_t org[MAX_OUTPUT_LEN];
+	wchar_t buf[MAX_OUTPUT_LEN];
 	wchar_t branch[MAX_BRANCH_LEN];
-	size_t len;
-
-	wcslcpy(org, s, MAX_OUTPUT_LEN);
 
 	switch (vcs) {
 		case VCS_MERCURIAL:
@@ -190,11 +187,8 @@ add_branch(wchar_t *s, enum vcs_types vcs)
 			return (0);
 	}
 
-	len = wcslcpy(s, branch, MAX_BRANCH_LEN);
-
-	s += len;
-	*(s++) = ':';
-	wcslcpy(s, org, MAX_OUTPUT_LEN - len - 1);
+	swprintf(buf, MAX_OUTPUT_LEN, L"%ls:%ls", branch, path);
+	wcslcpy(path, buf, MAX_OUTPUT_LEN);
 
 	return (1);
 }

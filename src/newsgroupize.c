@@ -25,50 +25,50 @@
  * example "/usr/local/share/doc" is turned into "/u/l/s/doc".
  */
 void
-newsgroupize(wchar_t *s)
+newsgroupize(wchar_t *path)
 {
-	wchar_t buf[MAX_OUTPUT_LEN];
-	wchar_t *last = NULL, *org = s;
+	wchar_t buf[MAX_OUTPUT_LEN], *last = NULL, *c = path;
 	int idx = 0;
 
 	/* Already as short as we can get it. */
-	if (s == NULL || wcslen(s) < 3)
+	if (path == NULL || wcslen(path) < 3)
 		return;
 
 	/*
 	 * The path doesn't start with a '/', could be an alias, could be '~'.
 	 * Copy everything until the first slash.
 	 */
-	if (*s != L'/') {
+	if (*path != L'/') {
 		do {
-			buf[idx++] = *(s++);
-		} while (*s != L'/' && *s != L'\0');
+			buf[idx++] = *(c++);
+		} while (*c != L'/' && *c != L'\0');
 	}
 
 	/* We already reached the end, that means the string was fine as-is. */
-	if (*s == L'\0')
+	if (*c == L'\0')
 		return;
 
 	/* For every component, add the first letter and a slash. */
 	for (;;) {
-		/* Copy the slash and move on. */
-		buf[idx++] = *(s++);
-		last = s;
+		/* Copy the slash */
+		buf[idx++] = *(c++);
+		last = c;
 
-		/* Is there more to come? */
-		if ((s = wcschr(s, L'/')) == NULL)
+		/* Try to move to the next path part */
+		if ((c = wcschr(c, L'/')) == NULL)
 			break;
 
-		/* Trailing slash? */
-		if (*(s + 1) == L'\0')
+		/* This last slash is a trailing one, stop here. */
+		if (*(c + 1) == L'\0')
 			break;
 
-		buf[idx++] = (wchar_t)*last;
+		/* Copy the character right after the slash. */
+		buf[idx++] = *last;
 	}
 
 	/* Copy whatever is left (override the trailing NUL-byte on buffer) */
-	wcslcpy(buf + idx, last, sizeof(buf) - idx);
+	wcslcpy(buf + idx, last, MAX_OUTPUT_LEN - idx);
 
 	/* Copy letters+slash making sure the last part is left untouched. */
-	wcslcpy(org, buf, sizeof(buf));
+	wcslcpy(path, buf, MAX_OUTPUT_LEN);
 }

@@ -15,6 +15,7 @@
  */
 
 #include <wchar.h>
+#include <err.h>
 
 #include "cut.h"
 #include "prwd.h"
@@ -76,22 +77,27 @@ finish:
 }
 
 /*
- * Reduce the given string with the global max length and filler.
- *
- * Input:  /usr/local/share/doc
- * Output: ...are/doc
+ * Reduce the given string with the global max length and filler.  Given a
+ * maxpwdlen of 7, filler of ".." and an input of "/usr/local/share/doc",
+ * the path would be transformed to "..e/doc"
  */
 void
-quickcut(wchar_t *s, size_t len)
+quickcut(wchar_t *path, size_t plen)
 {
-	wchar_t t[MAX_OUTPUT_LEN];
-	size_t	filler_len = wcslen(cfg_filler), cl = sizeof(wchar_t);
+	wchar_t *tail, buf[MAX_OUTPUT_LEN];
 
-	if (s == NULL || len == 0 || *s == L'\0' || len <= cfg_maxpwdlen)
+	if (path == NULL || plen == 0 || *path == L'\0' ||
+	    plen <= cfg_maxpwdlen)
 		return;
 
-	wcslcpy(t, cfg_filler, filler_len + cl);
-	wcslcpy(t + filler_len, s + len - cfg_maxpwdlen + filler_len,
-			cfg_maxpwdlen - filler_len + cl);
-	wcslcpy(s, t, cfg_maxpwdlen + cl);
+	/*
+	 * Remaining piece of path after trimming down to the maxpwdlen and
+	 * adding our filler.
+	 */
+	tail = path + (plen - cfg_maxpwdlen + wcslen(cfg_filler));
+
+	if (swprintf(buf, MAX_OUTPUT_LEN, L"%ls%ls", cfg_filler, tail) == -1)
+		err(1, "failed to assemble quickcut path");
+
+	wcslcpy(path, buf, MAX_OUTPUT_LEN);
 }

@@ -16,11 +16,10 @@
 
 /* OPENBSD ORIGINAL: lib/libc/string/strlcpy.c */
 
-// #include "includes.h"
-#ifndef HAVE_STRLCPY
-
 #include <sys/types.h>
 #include <wchar.h>
+
+#include "wcslcpy.h"
 
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters
@@ -52,5 +51,3 @@ wcslcpy(wchar_t *dst, const wchar_t *src, size_t siz)
 
 	return (s - src - 1);	/* count does not include NUL */
 }
-
-#endif /* !HAVE_STRLCPY */

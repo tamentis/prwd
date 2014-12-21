@@ -18,6 +18,7 @@
 
 #include "prwd.h"
 #include "newsgroupize.h"
+#include "wcslcpy.h"
 
 /*
  * Replace all the path parts by their first letters, except the last one. For

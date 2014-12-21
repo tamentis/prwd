@@ -16,8 +16,9 @@
 
 #include <wchar.h>
 
-#include "prwd.h"
 #include "cut.h"
+#include "prwd.h"
+#include "wcslcpy.h"
 
 extern size_t cfg_maxpwdlen;
 extern wchar_t cfg_filler[FILLER_LEN];

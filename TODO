@@ -1,4 +1,6 @@
 FOR 1.9
+ - Split prwd and prwdrc configuration man pages.
+ - Convert the man pages to mandoc?
  - Load all the environment variables starting with '/' and resolving to
    existing path as aliases.
  - Allow the configuration to be overridden by command-line flags.

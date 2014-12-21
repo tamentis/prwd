@@ -21,6 +21,7 @@
 #include "alias.h"
 #include "prwd.h"
 #include "utils.h"
+#include "wcslcpy.h"
 
 
 struct alias aliases[MAX_ALIASES];

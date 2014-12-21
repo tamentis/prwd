@@ -17,6 +17,7 @@
 #include <sys/param.h>
 
 #include <err.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "alias.h"
@@ -24,6 +25,7 @@
 #include "prwd.h"
 #include "strdelim.h"
 #include "utils.h"
+#include "wcslcpy.h"
 #include "wcstonum.h"
 
 int 	 cfg_cleancut = 0;

@@ -20,6 +20,7 @@
 
 #include "prwd.h"
 #include "uid.h"
+#include "wcslcpy.h"
 
 /*
  * Add the UID indicator to the given path.  For example "/etc" turns into

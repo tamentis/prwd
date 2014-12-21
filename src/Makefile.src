@@ -14,7 +14,7 @@ ${BINARY}: ${OBJECTS}
 run_tests: ${OBJECTS}
 	$(CC) ${CFLAGS} -D REGRESS -c utils.c -o utils.o
 	$(CC) ${CFLAGS} -D REGRESS -c test.c -o main.o
-	$(CC) -ggdb -O0 -o run_tests ${OBJECTS}
+	$(CC) ${CFLAGS} ${LDFLAGS} -o run_tests ${OBJECTS}
 
 test: run_tests run_tests.sh
 	./run_tests.sh

@@ -24,6 +24,7 @@
 
 #include "prwd.h"
 #include "hostname.h"
+#include "wcslcpy.h"
 
 /*
  * Add the hostname in front of the path, turning "/etc" into "odin:/etc".

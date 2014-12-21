@@ -25,9 +25,11 @@
 
 #include "main.c"
 #include "utils.h"
+#include "strlcpy.h"
+#include "wcslcpy.h"
 
 #define RUN_TEST(f)				\
-	printf(#f "... ");			\
+	printf("%-60s", #f);			\
 	fflush(stdout);				\
 	if (f()) {				\
 		printf("PASS\n");		\
@@ -63,7 +65,7 @@ int test_file_exists = 1;
 
 
 /* Override errx during tests to capture the errors. */
-void
+__dead void
 errx(int eval, const char *fmt,...)
 {
 	(void)eval;
@@ -74,7 +76,7 @@ errx(int eval, const char *fmt,...)
 	va_end(args);
 }
 
-void
+__dead void
 err(int eval, const char *fmt,...)
 {
 	(void)eval;
@@ -176,14 +178,14 @@ assert_null(const void *p)
 void newsgroupize(wchar_t *);
 
 static int
-test_newsgroupize_null(void)
+test_newsgroupize__null(void)
 {
 	newsgroupize(NULL);
 	return (1);
 }
 
 static int
-test_newsgroupize_empty(void)
+test_newsgroupize__empty(void)
 {
 	wchar_t s[] = L"";
 	newsgroupize(s);
@@ -191,7 +193,7 @@ test_newsgroupize_empty(void)
 }
 
 static int
-test_newsgroupize_one(void)
+test_newsgroupize__one(void)
 {
 	wchar_t s[] = L"a";
 	newsgroupize(s);
@@ -199,7 +201,7 @@ test_newsgroupize_one(void)
 }
 
 static int
-test_newsgroupize_root(void)
+test_newsgroupize__root(void)
 {
 	wchar_t s[] = L"/";
 	newsgroupize(s);
@@ -207,7 +209,7 @@ test_newsgroupize_root(void)
 }
 
 static int
-test_newsgroupize_slash_one(void)
+test_newsgroupize__slash_one(void)
 {
 	wchar_t s[] = L"/a";
 	newsgroupize(s);
@@ -215,7 +217,7 @@ test_newsgroupize_slash_one(void)
 }
 
 static int
-test_newsgroupize_tmp(void)
+test_newsgroupize__tmp(void)
 {
 	wchar_t s[] = L"/tmp";
 	newsgroupize(s);
@@ -223,7 +225,7 @@ test_newsgroupize_tmp(void)
 }
 
 static int
-test_newsgroupize_home(void)
+test_newsgroupize__home(void)
 {
 	wchar_t s[] = L"/home/tamentis";
 	newsgroupize(s);
@@ -231,7 +233,7 @@ test_newsgroupize_home(void)
 }
 
 static int
-test_newsgroupize_shorthome(void)
+test_newsgroupize__shorthome(void)
 {
 	wchar_t s[] = L"~/projects/prwd";
 	newsgroupize(s);
@@ -239,7 +241,7 @@ test_newsgroupize_shorthome(void)
 }
 
 static int
-test_newsgroupize_shorthome_one_level(void)
+test_newsgroupize__shorthome_one_level(void)
 {
 	wchar_t s[] = L"~/bin";
 	newsgroupize(s);
@@ -247,7 +249,7 @@ test_newsgroupize_shorthome_one_level(void)
 }
 
 static int
-test_newsgroupize_alreadyshort(void)
+test_newsgroupize__alreadyshort(void)
 {
 	wchar_t s[] = L"/a/b/c/d/e/f/g/h/i/j";
 	newsgroupize(s);
@@ -255,7 +257,7 @@ test_newsgroupize_alreadyshort(void)
 }
 
 static int
-test_newsgroupize_trailingslash(void)
+test_newsgroupize__trailingslash(void)
 {
 	wchar_t s[] = L"/usr/local/";
 	newsgroupize(s);
@@ -263,7 +265,7 @@ test_newsgroupize_trailingslash(void)
 }
 
 static int
-test_newsgroupize_alias(void)
+test_newsgroupize__alias(void)
 {
 	wchar_t s[] = L"$whatever/local/usr/share";
 	newsgroupize(s);
@@ -277,14 +279,14 @@ test_newsgroupize_alias(void)
 void	quickcut(wchar_t *, size_t);
 
 static int
-test_quickcut_null(void)
+test_quickcut__null(void)
 {
 	quickcut(NULL, 0);
 	return (1);
 }
 
 static int
-test_quickcut_empty(void)
+test_quickcut__empty(void)
 {
 	wchar_t s[] = L"";
 	quickcut(s, 0);
@@ -292,7 +294,7 @@ test_quickcut_empty(void)
 }
 
 static int
-test_quickcut_one_to_one(void)
+test_quickcut__one_to_one(void)
 {
 	wchar_t s[] = L"o";
 	cfg_maxpwdlen = 1;
@@ -301,7 +303,7 @@ test_quickcut_one_to_one(void)
 }
 
 static int
-test_quickcut_one_to_two(void)
+test_quickcut__one_to_two(void)
 {
 	wchar_t s[] = L"o";
 	cfg_maxpwdlen = 2;
@@ -310,7 +312,7 @@ test_quickcut_one_to_two(void)
 }
 
 static int
-test_quickcut_thirty_to_ten(void)
+test_quickcut__thirty_to_ten(void)
 {
 	wchar_t s[] = L"qwertyuiopasdfghjklzxcvbnmqwer";
 	cfg_maxpwdlen = 10;
@@ -319,7 +321,7 @@ test_quickcut_thirty_to_ten(void)
 }
 
 static int
-test_quickcut_ten_to_thirty(void)
+test_quickcut__ten_to_thirty(void)
 {
 	wchar_t s[] = L"1234567890";
 	cfg_maxpwdlen = 30;
@@ -328,7 +330,7 @@ test_quickcut_ten_to_thirty(void)
 }
 
 static int
-test_quickcut_ten_to_ten(void)
+test_quickcut__ten_to_ten(void)
 {
 	wchar_t s[] = L"1234567890";
 	cfg_maxpwdlen = 10;
@@ -342,14 +344,14 @@ test_quickcut_ten_to_ten(void)
 void cleancut(wchar_t *s);
 
 static int
-test_cleancut_null(void)
+test_cleancut__null(void)
 {
 	cleancut(NULL);
 	return (1);
 }
 
 static int
-test_cleancut_empty(void)
+test_cleancut__empty(void)
 {
 	wchar_t s[] = L"";
 	cleancut(s);
@@ -357,7 +359,7 @@ test_cleancut_empty(void)
 }
 
 static int
-test_cleancut_root_to_ten(void)
+test_cleancut__root_to_ten(void)
 {
 	wchar_t s[] = L"/";
 	cfg_maxpwdlen = 10;
@@ -366,7 +368,7 @@ test_cleancut_root_to_ten(void)
 }
 
 static int
-test_cleancut_root_to_one(void)
+test_cleancut__root_to_one(void)
 {
 	wchar_t s[] = L"/";
 	wchar_t f[] = L"...";
@@ -377,7 +379,7 @@ test_cleancut_root_to_one(void)
 }
 
 static int
-test_cleancut_tmp_to_one(void)
+test_cleancut__tmp_to_one(void)
 {
 	wchar_t s[] = L"/tmp";
 	wchar_t f[] = L"...";
@@ -388,7 +390,7 @@ test_cleancut_tmp_to_one(void)
 }
 
 static int
-test_cleancut_tmp_to_three(void)
+test_cleancut__tmp_to_three(void)
 {
 	wchar_t s[] = L"/tmp";
 	wchar_t f[] = L"...";
@@ -399,7 +401,7 @@ test_cleancut_tmp_to_three(void)
 }
 
 static int
-test_cleancut_tmp_to_four(void)
+test_cleancut__tmp_to_four(void)
 {
 	wchar_t s[] = L"/tmp";
 	wchar_t f[] = L"...";
@@ -410,7 +412,7 @@ test_cleancut_tmp_to_four(void)
 }
 
 static int
-test_cleancut_tmp_to_ten(void)
+test_cleancut__tmp_to_ten(void)
 {
 	wchar_t s[] = L"/tmp";
 	wchar_t f[] = L"...";
@@ -421,7 +423,7 @@ test_cleancut_tmp_to_ten(void)
 }
 
 static int
-test_cleancut_uld_to_one(void)
+test_cleancut__uld_to_one(void)
 {
 	wchar_t s[] = L"/usr/local/doc";
 	wchar_t f[] = L"...";
@@ -432,7 +434,7 @@ test_cleancut_uld_to_one(void)
 }
 
 static int
-test_cleancut_uld_to_five(void)
+test_cleancut__uld_to_five(void)
 {
 	wchar_t s[] = L"/usr/local/doc";
 	wchar_t f[] = L"...";
@@ -443,7 +445,7 @@ test_cleancut_uld_to_five(void)
 }
 
 static int
-test_cleancut_uld_to_ten(void)
+test_cleancut__uld_to_ten(void)
 {
 	wchar_t s[] = L"/usr/local/doc";
 	wchar_t f[] = L"...";
@@ -454,7 +456,7 @@ test_cleancut_uld_to_ten(void)
 }
 
 static int
-test_cleancut_uld_to_eleven(void)
+test_cleancut__uld_to_eleven(void)
 {
 	wchar_t s[] = L"/usr/local/doc";
 	wchar_t f[] = L"_";
@@ -470,7 +472,7 @@ test_cleancut_uld_to_eleven(void)
 void alias_replace(wchar_t *);
 
 static int
-test_aliases_none(void)
+test_alias__replace__none(void)
 {
 	wchar_t pwd[] = L"/usr/local/doc";
 	alias_purge_all();
@@ -479,7 +481,7 @@ test_aliases_none(void)
 }
 
 static int
-test_aliases_home_alone(void)
+test_alias__replace__home_alone(void)
 {
 	wchar_t pwd[] = L"/home/tamentis";
 	alias_purge_all();
@@ -489,7 +491,7 @@ test_aliases_home_alone(void)
 }
 
 static int
-test_aliases_home_and_one(void)
+test_alias__replace__home_and_one(void)
 {
 	wchar_t pwd[] = L"/home/tamentis/x";
 	alias_purge_all();
@@ -499,7 +501,7 @@ test_aliases_home_and_one(void)
 }
 
 static int
-test_aliases_home_and_tree(void)
+test_alias__replace__home_and_tree(void)
 {
 	wchar_t pwd[] = L"/home/tamentis/x/projects/stuff";
 	alias_purge_all();
@@ -509,7 +511,7 @@ test_aliases_home_and_tree(void)
 }
 
 static int
-test_aliases_five_unmatching_aliases(void)
+test_alias__replace__five_unmatching_aliases(void)
 {
 	wchar_t pwd[] = L"/home/tamentiz/x/projects";
 	alias_purge_all();
@@ -523,7 +525,7 @@ test_aliases_five_unmatching_aliases(void)
 }
 
 static int
-test_aliases_duplicate_aliases(void)
+test_alias__replace__duplicate_aliases(void)
 {
 	wchar_t pwd[] = L"/home/tamentis/x/projects";
 	alias_purge_all();
@@ -535,7 +537,20 @@ test_aliases_duplicate_aliases(void)
 }
 
 static int
-test_aliases_too_many(void)
+test_alias__replace__find_smallest(void)
+{
+	wchar_t pwd[] = L"/home/tamentis/x/y/z/projects/prwd";
+	alias_count = 0;
+	ALIAS_ADD(L"bad1", L"/home/tamentis");
+	ALIAS_ADD(L"bad2", L"/home");
+	ALIAS_ADD(L"bad3", L"/home/tamentis/x");
+	ALIAS_ADD(L"good", L"/home/tamentis/x/y/z");
+	alias_replace(pwd);
+	return (assert_wstring_equals(pwd, L"good/projects/prwd"));
+}
+
+static int
+test_alias__add__too_many(void)
 {
 	int i;
 	alias_purge_all();
@@ -551,19 +566,6 @@ test_aliases_too_many(void)
 	}
 
 	return (assert_string_equals(aaerrstr, "too many aliases"));
-}
-
-static int
-test_aliases_find_smallest(void)
-{
-	wchar_t pwd[] = L"/home/tamentis/x/y/z/projects/prwd";
-	alias_count = 0;
-	ALIAS_ADD(L"bad1", L"/home/tamentis");
-	ALIAS_ADD(L"bad2", L"/home");
-	ALIAS_ADD(L"bad3", L"/home/tamentis/x");
-	ALIAS_ADD(L"good", L"/home/tamentis/x/y/z");
-	alias_replace(pwd);
-	return (assert_wstring_equals(pwd, L"good/projects/prwd"));
 }
 
 /*
@@ -651,7 +653,7 @@ test_config__process_config_line__set_maxlength_quoted(void)
 void add_hostname(wchar_t *);
 
 static int
-test_hostname_full(void)
+test_hostname__full(void)
 {
 	wchar_t s[256] = L"anything";
 	char h[] = "odin.tamentis.com";
@@ -664,7 +666,7 @@ test_hostname_full(void)
 }
 
 static int
-test_hostname_short(void)
+test_hostname__short(void)
 {
 	wchar_t s[256] = L"anything";
 	char h[] = "odin";
@@ -677,7 +679,7 @@ test_hostname_short(void)
 }
 
 static int
-test_hostname_error_no_hostname(void)
+test_hostname__error_no_hostname(void)
 {
 	wchar_t s[256] = L"anything";
 	char h[] = "odin";
@@ -690,10 +692,10 @@ test_hostname_error_no_hostname(void)
 }
 
 /*
- * test the expand alias tools
+ * alias_expand_prefix tests
  */
 static int
-test_config_alias_expand_prefix(void)
+test_alias__expand_prefix__normal(void)
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
 	wchar_t output[MAX_OUTPUT_LEN];
@@ -705,7 +707,7 @@ test_config_alias_expand_prefix(void)
 }
 
 static int
-test_config_alias_expand_prefix_with_slash(void)
+test_alias__expand_prefix__with_slash(void)
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck/";
 	wchar_t output[MAX_OUTPUT_LEN];
@@ -717,7 +719,7 @@ test_config_alias_expand_prefix_with_slash(void)
 }
 
 static int
-test_config_alias_expand_prefix_single(void)
+test_alias__expand_prefix__single(void)
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"$what";
 	wchar_t output[MAX_OUTPUT_LEN];
@@ -733,7 +735,7 @@ test_config_alias_expand_prefix_single(void)
  * should be identical to the input.
  */
 static int
-test_config_alias_expand_prefix_no_alias(void)
+test_alias__expand_prefix__no_alias(void)
 {
 	wchar_t s[MAX_OUTPUT_LEN] = L"what";
 	wchar_t output[MAX_OUTPUT_LEN];
@@ -744,6 +746,7 @@ test_config_alias_expand_prefix_no_alias(void)
 	return (assert_wstring_equals(output, L"what"));
 }
 
+/* utils.c - tokcpy() tests */
 static int
 test_utils__tokcpy__unchanged(void)
 {
@@ -791,52 +794,58 @@ main(int argc, const char *argv[])
 	(void)argv;
 	setlocale(LC_ALL, "");
 
-	RUN_TEST(test_newsgroupize_null);
-	RUN_TEST(test_newsgroupize_empty);
-	RUN_TEST(test_newsgroupize_one);
-	RUN_TEST(test_newsgroupize_slash_one);
-	RUN_TEST(test_newsgroupize_root);
-	RUN_TEST(test_newsgroupize_tmp);
-	RUN_TEST(test_newsgroupize_home);
-	RUN_TEST(test_newsgroupize_shorthome);
-	RUN_TEST(test_newsgroupize_shorthome_one_level);
-	RUN_TEST(test_newsgroupize_alreadyshort);
-	RUN_TEST(test_newsgroupize_trailingslash);
-	RUN_TEST(test_newsgroupize_alias);
+	RUN_TEST(test_newsgroupize__null);
+	RUN_TEST(test_newsgroupize__empty);
+	RUN_TEST(test_newsgroupize__one);
+	RUN_TEST(test_newsgroupize__slash_one);
+	RUN_TEST(test_newsgroupize__root);
+	RUN_TEST(test_newsgroupize__tmp);
+	RUN_TEST(test_newsgroupize__home);
+	RUN_TEST(test_newsgroupize__shorthome);
+	RUN_TEST(test_newsgroupize__shorthome_one_level);
+	RUN_TEST(test_newsgroupize__alreadyshort);
+	RUN_TEST(test_newsgroupize__trailingslash);
+	RUN_TEST(test_newsgroupize__alias);
 
-	RUN_TEST(test_quickcut_null);
-	RUN_TEST(test_quickcut_empty);
-	RUN_TEST(test_quickcut_one_to_one);
-	RUN_TEST(test_quickcut_one_to_two);
-	RUN_TEST(test_quickcut_thirty_to_ten);
-	RUN_TEST(test_quickcut_ten_to_thirty);
-	RUN_TEST(test_quickcut_ten_to_ten);
+	RUN_TEST(test_quickcut__null);
+	RUN_TEST(test_quickcut__empty);
+	RUN_TEST(test_quickcut__one_to_one);
+	RUN_TEST(test_quickcut__one_to_two);
+	RUN_TEST(test_quickcut__thirty_to_ten);
+	RUN_TEST(test_quickcut__ten_to_thirty);
+	RUN_TEST(test_quickcut__ten_to_ten);
 
-	RUN_TEST(test_cleancut_null);
-	RUN_TEST(test_cleancut_empty);
-	RUN_TEST(test_cleancut_root_to_ten);
-	RUN_TEST(test_cleancut_root_to_one);
-	RUN_TEST(test_cleancut_tmp_to_one);
-	RUN_TEST(test_cleancut_tmp_to_three);
-	RUN_TEST(test_cleancut_tmp_to_four);
-	RUN_TEST(test_cleancut_tmp_to_ten);
-	RUN_TEST(test_cleancut_uld_to_one);
-	RUN_TEST(test_cleancut_uld_to_five);
-	RUN_TEST(test_cleancut_uld_to_ten);
-	RUN_TEST(test_cleancut_uld_to_eleven);
+	RUN_TEST(test_cleancut__null);
+	RUN_TEST(test_cleancut__empty);
+	RUN_TEST(test_cleancut__root_to_ten);
+	RUN_TEST(test_cleancut__root_to_one);
+	RUN_TEST(test_cleancut__tmp_to_one);
+	RUN_TEST(test_cleancut__tmp_to_three);
+	RUN_TEST(test_cleancut__tmp_to_four);
+	RUN_TEST(test_cleancut__tmp_to_ten);
+	RUN_TEST(test_cleancut__uld_to_one);
+	RUN_TEST(test_cleancut__uld_to_five);
+	RUN_TEST(test_cleancut__uld_to_ten);
+	RUN_TEST(test_cleancut__uld_to_eleven);
 
-	RUN_TEST(test_aliases_none);
-	RUN_TEST(test_aliases_home_alone);
-	RUN_TEST(test_aliases_home_and_one);
-	RUN_TEST(test_aliases_home_and_tree);
-	RUN_TEST(test_aliases_five_unmatching_aliases);
-	RUN_TEST(test_aliases_duplicate_aliases);
-	RUN_TEST(test_aliases_too_many);
-	RUN_TEST(test_aliases_find_smallest);
+	RUN_TEST(test_alias__replace__none);
+	RUN_TEST(test_alias__replace__home_alone);
+	RUN_TEST(test_alias__replace__home_and_one);
+	RUN_TEST(test_alias__replace__home_and_tree);
+	RUN_TEST(test_alias__replace__five_unmatching_aliases);
+	RUN_TEST(test_alias__replace__duplicate_aliases);
+	RUN_TEST(test_alias__replace__find_smallest);
 
-	RUN_TEST(test_hostname_full);
-	RUN_TEST(test_hostname_short);
-	RUN_TEST(test_hostname_error_no_hostname);
+	RUN_TEST(test_alias__add__too_many);
+
+	RUN_TEST(test_alias__expand_prefix__normal);
+	RUN_TEST(test_alias__expand_prefix__with_slash);
+	RUN_TEST(test_alias__expand_prefix__single);
+	RUN_TEST(test_alias__expand_prefix__no_alias);
+
+	RUN_TEST(test_hostname__full);
+	RUN_TEST(test_hostname__short);
+	RUN_TEST(test_hostname__error_no_hostname);
 
 	RUN_TEST(test_config__process_config_line__set_no_var);
 	RUN_TEST(test_config__process_config_line__alias_no_name);
@@ -846,11 +855,6 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_config__process_config_line__set_maxlength_bad);
 	RUN_TEST(test_config__process_config_line__set_maxlength_overflow);
 	RUN_TEST(test_config__process_config_line__set_maxlength_quoted);
-
-	RUN_TEST(test_config_alias_expand_prefix);
-	RUN_TEST(test_config_alias_expand_prefix_with_slash);
-	RUN_TEST(test_config_alias_expand_prefix_single);
-	RUN_TEST(test_config_alias_expand_prefix_no_alias);
 
 	RUN_TEST(test_utils__tokcpy__unchanged);
 	RUN_TEST(test_utils__tokcpy__with_slash);

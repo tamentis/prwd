@@ -6,9 +6,13 @@ SYNOPSIS
 
 DESCRIPTION
      prwd prints the absolute pathname of the current working directory to the
-     standard output. It is similar to pwd but has a configuration file
-     (~/.prwdrc) allowing a number of ways to shorten your current path. The
-     command-line options are as follows:
+     standard output. It is similar to pwd but has command-line flags and a
+     configuration file (~/.prwdrc) giving you the option to shorten your
+     displayed path in a number of ways and add more informative bits of
+     information (git branch, uid, etc.). This is particularly useful if you
+     plan to have a consistent and informative shell prompt (e.g. PS1) across
+     multiple shells but don't want to maintain it using different syntaxes.
+     The command-line options are as follows:
 
      -V      Show current version.
 
@@ -69,7 +73,7 @@ MAX LENGTH
 
      Or if your font/terminal/shell supports UTF:
 
-           set filler "???"
+           set filler "…"
 
      If you want prwd to keep complete path elements instead of cutting as
      much as possible, you can use this setting:

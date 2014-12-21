@@ -17,6 +17,7 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -25,6 +26,8 @@
 
 #include "prwd.h"
 #include "vcs.h"
+#include "strlcpy.h"
+#include "wcslcpy.h"
 
 /*
  * Recurse up from $PWD to find a .hg/ directory with a valid branch file,

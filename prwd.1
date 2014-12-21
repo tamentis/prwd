@@ -1,4 +1,4 @@
-.\" Copyright (c) 2009-2013 Bertrand Janin <b@janin.com>
+.\" Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
 .\" 
 .\" Permission to use, copy, modify, and distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
@@ -26,8 +26,12 @@
 prints the absolute pathname of the current working directory to the standard
 output. It is similar to
 .Nm pwd
-but has a configuration file (~/.prwdrc) allowing a number of ways to shorten
-your current path. The command-line options are as follows:
+but has command-line flags and a configuration file (~/.prwdrc) giving you the
+option to shorten your displayed path in a number of ways and add more
+informative bits of information (git branch, uid, etc.). This is particularly
+useful if you plan to have a consistent and informative shell prompt (e.g. PS1)
+across multiple shells but don't want to maintain it using different syntaxes.
+The command-line options are as follows:
 .Bl -tag -width Ds
 .It Fl V
 Show current version.

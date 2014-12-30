@@ -28,6 +28,7 @@
 #include "utils.h"
 #include "strlcpy.h"
 #include "wcslcpy.h"
+#include "tokenize.h"
 
 #define RUN_TEST(f)						\
 	printf("%-60s", #f);					\
@@ -751,6 +752,97 @@ test_utils__tokcpy__just_a_slash(void)
 	    assert_wstring_equals(output, L""));
 }
 
+static int
+test_tokenize__empty(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"";
+	struct token tokens[10];
+	int i;
+
+	i = tokenize(input, tokens, 10, &errstr);
+
+	return (assert_int_equals(i, 0));
+}
+
+static int
+test_tokenize__one_static(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"foo";
+	struct token tokens[10];
+	int i;
+
+	i = tokenize(input, tokens, 10, &errstr);
+
+	return (assert_int_equals(i, 1) &&
+	    assert_wstring_equals(tokens[0].value, L"foo") &&
+	    assert_int_equals(tokens[0].type, TOKEN_STATIC) &&
+	    assert_null(errstr));
+}
+
+static int
+test_tokenize__one_dynamic(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"${bar}";
+	struct token tokens[10];
+	int i;
+
+	i = tokenize(input, tokens, 10, &errstr);
+
+	return (assert_int_equals(i, 1) &&
+	    assert_wstring_equals(tokens[0].value, L"bar") &&
+	    assert_int_equals(tokens[0].type, TOKEN_DYNAMIC) &&
+	    assert_null(errstr));
+}
+
+static int
+test_tokenize__complex(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"foo ${bar} and fooba${r}";
+	struct token tokens[10];
+	int i;
+
+	i = tokenize(input, tokens, 10, &errstr);
+
+	return (assert_int_equals(i, 4) &&
+	    assert_wstring_equals(tokens[0].value, L"foo ") &&
+	    assert_wstring_equals(tokens[1].value, L"bar") &&
+	    assert_wstring_equals(tokens[2].value, L" and fooba") &&
+	    assert_wstring_equals(tokens[3].value, L"r") &&
+	    assert_int_equals(tokens[0].type, TOKEN_STATIC) &&
+	    assert_int_equals(tokens[1].type, TOKEN_DYNAMIC) &&
+	    assert_int_equals(tokens[2].type, TOKEN_STATIC) &&
+	    assert_int_equals(tokens[3].type, TOKEN_DYNAMIC) &&
+	    assert_null(errstr));
+}
+
+static int
+test_tokenize__too_many_tokens(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"foo ${bar} and fooba${r}";
+	struct token tokens[2];
+	int i;
+
+	i = tokenize(input, tokens, 2, &errstr);
+
+	return (assert_int_equals(i, -1) &&
+	    assert_string_equals(errstr, "too many tokens"));
+}
+
+static int
+test_tokenize__token_too_long(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"foobarfoobarfoobarfoobarfoobarfo"\
+					L"obarfoobarfoobarfoobarfoobarfoob"\
+					L"arfoobarfoobarfoobarfoobarfoobar";
+	struct token tokens[2];
+	int i;
+
+	i = tokenize(input, tokens, 2, &errstr);
+
+	return (assert_int_equals(i, -1) &&
+	    assert_string_equals(errstr, "invalid token size"));
+}
+
 int
 main(int argc, const char *argv[])
 {
@@ -823,6 +915,13 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_utils__tokcpy__with_slash);
 	RUN_TEST(test_utils__tokcpy__empty_string);
 	RUN_TEST(test_utils__tokcpy__just_a_slash);
+
+	RUN_TEST(test_tokenize__empty);
+	RUN_TEST(test_tokenize__one_static);
+	RUN_TEST(test_tokenize__one_dynamic);
+	RUN_TEST(test_tokenize__complex);
+	RUN_TEST(test_tokenize__too_many_tokens);
+	RUN_TEST(test_tokenize__token_too_long);
 
 	printf("%d tests (%d PASS, %d FAIL)\n", tested, passed, failed);
 

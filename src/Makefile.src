@@ -1,7 +1,22 @@
 BINARY=prwd
 
-OBJECTS=main.o config.o strdelim.o utils.o alias.o cut.o newsgroupize.o \
-	hostname.o uid.o vcs.o tokenize.o
+OBJECTS=alias.o \
+	config.o \
+	cut.o \
+	hostname.o \
+	main.o \
+	path.o \
+	path-newsgroupize.o \
+	strdelim.o \
+	uid.o \
+	utils.o \
+	vcs.o \
+	template-arglist.o \
+	template-exec.o \
+	template-render.o \
+	template-tokenize.o \
+	template-variable.o \
+	wgetopt.o
 OBJECTS+=${EXTRA_OBJECTS}
 
 CFLAGS?=--std=c99 -Wall
@@ -12,6 +27,7 @@ ${BINARY}: ${OBJECTS}
 	$(CC) -o ${BINARY} ${OBJECTS}
 
 run_tests: ${OBJECTS}
+	$(CC) ${CFLAGS} -D REGRESS -c path.c -o path.o
 	$(CC) ${CFLAGS} -D REGRESS -c utils.c -o utils.o
 	$(CC) ${CFLAGS} -D REGRESS -c test.c -o main.o
 	$(CC) ${CFLAGS} ${LDFLAGS} -o run_tests ${OBJECTS}

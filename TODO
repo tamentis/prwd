@@ -1,5 +1,10 @@
 FOR 1.9
+ - review all the uses of sizeof on wchar buffers (need to be divided).
+ - all the calls to mbstowcs and vice-versa should be audited, maybe wrappers
+   should be written...
  - Split prwd and prwdrc configuration man pages.
+ - if prwd's argv[0] is different, call the internal funcs.
+ - allow for prwd -t "path -n"
  - Convert the man pages to mandoc?
  - Load all the environment variables starting with '/' and resolving to
    existing path as aliases.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,21 +17,23 @@
 #include <wchar.h>
 
 #include "prwd.h"
-#include "newsgroupize.h"
+#include "path.h"
 #include "wcslcpy.h"
 
 /*
  * Replace all the path parts by their first letters, except the last one. For
- * example "/usr/local/share/doc" is turned into "/u/l/s/doc".
+ * example "/usr/local/share/doc" is turned into "/u/l/s/doc".  Write the
+ * result to output.
  */
 void
-newsgroupize(wchar_t *path)
+path_newsgroupize(wchar_t *output, const wchar_t *path, size_t len)
 {
-	wchar_t buf[MAX_OUTPUT_LEN], *last = NULL, *c = path;
-	int idx = 0;
+	const wchar_t *last = NULL, *c = path;
+	size_t idx = 0;
 
-	/* Already as short as we can get it. */
-	if (path == NULL || wcslen(path) < 3)
+	if (len < 1)
+		return;
+	if (path == NULL)
 		return;
 
 	/*
@@ -40,18 +42,25 @@ newsgroupize(wchar_t *path)
 	 */
 	if (*path != L'/') {
 		do {
-			buf[idx++] = *(c++);
+			if (idx >= len) {
+				output[idx] = L'\0';
+				return;
+			}
+			output[idx] = *(c++);
+			idx++;
 		} while (*c != L'/' && *c != L'\0');
 	}
 
-	/* We already reached the end, that means the string was fine as-is. */
-	if (*c == L'\0')
+	/* Nothing to shorten, we reached the end without finding a '/'. */
+	if (*c == L'\0') {
+		output[idx] = L'\0';
 		return;
+	}
 
 	/* For every component, add the first letter and a slash. */
 	for (;;) {
-		/* Copy the slash */
-		buf[idx++] = *(c++);
+		/* Copy the slash and keep the first letter in 'last' */
+		output[idx++] = *(c++);
 		last = c;
 
 		/* Try to move to the next path part */
@@ -63,12 +72,9 @@ newsgroupize(wchar_t *path)
 			break;
 
 		/* Copy the character right after the slash. */
-		buf[idx++] = *last;
+		output[idx++] = *last;
 	}
 
 	/* Copy whatever is left (override the trailing NUL-byte on buffer) */
-	wcslcpy(buf + idx, last, MAX_OUTPUT_LEN - idx);
-
-	/* Copy letters+slash making sure the last part is left untouched. */
-	wcslcpy(path, buf, MAX_OUTPUT_LEN);
+	wcslcpy(output + idx, last, len - idx);
 }

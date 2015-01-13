@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include "wcslcpy.h"
-#include "tokenize.h"
+#include "template.h"
 
 enum fsm_state {
 	STATE_DOLLAR,
@@ -28,6 +28,9 @@ enum fsm_state {
 	STATE_DYNAMIC_END,
 	STATE_APPEND_TOKEN
 };
+
+#define ERRSTR_TOKEN_SIZE "tokenize error: invalid token size"
+#define ERRSTR_TOO_MANY "tokenize error: too many tokens"
 
 /*
  * Given a template wide-char string 's', split all the tokens within and set
@@ -46,7 +49,8 @@ enum fsm_state {
  * The return value would be 4.
  */
 int
-tokenize(wchar_t *s, struct token *tokens, size_t len, const char **errstrp)
+template_tokenize(wchar_t *s, struct token *tokens, size_t len,
+    const char **errstrp)
 {
 	enum fsm_state state, next_state;
 	wchar_t buf[MAX_TOKEN_LEN];
@@ -105,12 +109,12 @@ tokenize(wchar_t *s, struct token *tokens, size_t len, const char **errstrp)
 				buf[cur] = L'\0';
 				if (wcslcpy(tokens[count].value, buf,
 				    MAX_TOKEN_LEN) > MAX_TOKEN_LEN) {
-					*errstrp = "invalid token size";
+					*errstrp = ERRSTR_TOKEN_SIZE;
 					return -1;
 				}
 				count++;
 				if ((size_t)count >= len) {
-					*errstrp = "too many tokens";
+					*errstrp = ERRSTR_TOO_MANY;
 					return -1;
 				}
 				cur = 0;

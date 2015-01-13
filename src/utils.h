@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -18,3 +18,5 @@ int	 file_exists(char *);
 int	 wc_file_exists(wchar_t *);
 void	 tokcpy(wchar_t *, wchar_t *);
 int	 lgethostname(char *, size_t);
+int	 iswspace(wchar_t);
+int	 wcswd(wchar_t *, size_t);

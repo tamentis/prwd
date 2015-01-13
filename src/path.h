@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,16 +16,14 @@
 
 #include <wchar.h>
 
-#define MAX_TOKEN_LEN 64
-
-enum tokentype {
-	TOKEN_STATIC,
-	TOKEN_DYNAMIC
+enum {
+	ERR_NO_ACCESS = 1,
+	ERR_NOT_FOUND,
+	ERR_BAD_CHARSET,
+	ERR_BAD_ARG,
+	ERR_GENERIC
 };
 
-struct token {
-	enum tokentype type;
-	wchar_t value[MAX_TOKEN_LEN];
-};
-
-int	 tokenize(wchar_t *, struct token *, size_t, const char **);
+void	 path_wcswd(wchar_t *, size_t, wchar_t **);
+int	 path_exec(int, wchar_t **, wchar_t *, size_t);
+void	 path_newsgroupize(wchar_t *, const wchar_t *, size_t);

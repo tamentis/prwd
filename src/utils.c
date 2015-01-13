@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -82,3 +82,16 @@ lgethostname(char *buf, size_t size)
 	return (gethostname(buf, size));
 }
 #endif
+
+/*
+ * Check if a wide-char is a space (same definition as isspace).
+ */
+int
+iswspace(wchar_t c)
+{
+	if (wcschr(L" \f\n\r\t\v", c) == NULL) {
+		return (0);
+	} else {
+		return (1);
+	}
+}

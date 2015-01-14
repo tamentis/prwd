@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2013-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -13,6 +13,9 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
+#ifndef _ALIAS_H_
+#define _ALIAS_H_
 
 #include <sys/param.h>
 
@@ -33,3 +36,5 @@ void		 alias_dump_vars(void);
 struct alias 	*alias_get(wchar_t *);
 struct alias	*alias_get_by_path(wchar_t *);
 void		 alias_replace(wchar_t *);
+
+#endif /* ifndef _ALIAS_H_ */

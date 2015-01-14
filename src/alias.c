@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2013-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -166,7 +166,7 @@ alias_dump_vars(void)
 		if (aliases[i].name[0] == '$') {
 			wcslcpy(path, aliases[i].path, MAX_OUTPUT_LEN);
 			alias_expand_prefix(path, output);
-			if (!wc_file_exists(output))
+			if (!wc_path_is_valid(output))
 				continue;
 			/* Skip the '$' */
 			wprintf(L"export %ls=\"%ls\"\n", aliases[i].name + 1,

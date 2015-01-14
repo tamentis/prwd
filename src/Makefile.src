@@ -10,7 +10,7 @@ OBJECTS=alias.o \
 	strdelim.o \
 	uid.o \
 	utils.o \
-	vcs.o \
+	branch.o \
 	template-arglist.o \
 	template-exec.o \
 	template-render.o \

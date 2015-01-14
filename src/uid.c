@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2014-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,32 +14,46 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <sys/param.h>
+
 #include <unistd.h>
 #include <wchar.h>
-#include <err.h>
 
-#include "prwd.h"
+#include "wgetopt.h"
 #include "uid.h"
-#include "wcslcpy.h"
+
+#define ERR_BAD_ARG L"<uid-bad-arg>"
 
 /*
- * Add the UID indicator to the given path.  For example "/etc" turns into
- * "/etc$" if your user is non-root and "/etc#" if she/he is root.
+ * Return a string of wide-characters representing the current UID.  The
+ * default settings show a hash sign '#' when the user is root (uid=0) and a
+ * dollar sign for all other users.
+ *
+ * This module should never crash and will always return a value on *out.  If
+ * any error occur during its runtime, it should be represented in a user
+ * readable format on *out.
  */
 void
-add_uid_indicator(wchar_t *path)
+uid_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
-	wchar_t buf[MAX_OUTPUT_LEN];
-	wchar_t c;
+	wchar_t ch;
 
-	if (getuid() == 0) {
-		c = L'#';
-	} else {
-		c = L'$';
+	woptreset = 1;
+	woptind = 0;
+	while ((ch = wgetopt(argc, argv, L"")) != -1) {
+		switch (ch) {
+		default:
+			wcslcpy(out, ERR_BAD_ARG, len);
+			return;
+		}
 	}
 
-	if (swprintf(buf, MAX_OUTPUT_LEN, L"%ls%lc", path, c) == -1)
-		errx(1, "failed to add uid indicator");
+	if (getuid() == 0) {
+		ch = L'#';
+	} else {
+		ch = L'$';
+	}
 
-	wcslcpy(path, buf, MAX_OUTPUT_LEN);
+	out[0] = ch;
+	out[1] = L'\0';
 }

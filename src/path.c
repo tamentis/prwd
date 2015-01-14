@@ -40,7 +40,7 @@
  */
 #ifndef REGRESS
 void
-path_wcswd(wchar_t *wcswd, size_t len, wchar_t **errstr)
+path_wcswd(wchar_t *wcswd, size_t len, const wchar_t **errstr)
 {
 	char wd[MAXPATHLEN], *wd_env;
 	struct stat sa, sb;
@@ -98,18 +98,21 @@ path_wcswd(wchar_t *wcswd, size_t len, wchar_t **errstr)
  * user to understand what's going on (instead of a fatal error which trashes
  * the prompt output).
  */
-int
+void
 path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
 	int newsgroupize = 0;
-	wchar_t *errstr = NULL, ch, wcswd[MAXPATHLEN];
+	const wchar_t *errstr = NULL;
+	wchar_t ch, wcswd[MAXPATHLEN];
 
 	path_wcswd(wcswd, MAXPATHLEN, &errstr);
 	if (errstr != NULL) {
 		wcslcpy(out, errstr, len);
-		return (-1);
+		return;
 	}
 
+	woptreset = 1;
+	woptind = 0;
 	while ((ch = wgetopt(argc, argv, L"n")) != -1) {
 		switch (ch) {
 		case L'n':
@@ -117,15 +120,13 @@ path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 			break;
 		default:
 			wcslcpy(out, ERR_BAD_ARG, len);
-			return (0);
+			return;
 		}
 	}
 
 	if (newsgroupize) {
-		path_newsgroupize(out, wcswd, MAX_OUTPUT_LEN);
+		path_newsgroupize(out, wcswd, len);
 	} else {
-		wcslcpy(out, wcswd, MAX_OUTPUT_LEN);
+		wcslcpy(out, wcswd, len);
 	}
-
-	return (0);
 }

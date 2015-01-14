@@ -26,19 +26,15 @@
 #include "prwd.h"
 #include "config.h"
 #include "alias.h"
-#include "uid.h"
 #include "cut.h"
 #include "path.h"
-#include "vcs.h"
+#include "branch.h"
 #include "hostname.h"
 #include "template.h"
+#include "wcslcpy.h"
 
 extern int cfg_cleancut;
 extern size_t cfg_maxpwdlen;
-extern int cfg_mercurial;
-extern int cfg_git;
-extern int cfg_hostname;
-extern int cfg_uid_indicator;
 extern int cfg_newsgroup;
 
 extern int wopterr;
@@ -53,33 +49,15 @@ static void
 prwd(void)
 {
 	size_t len;
-	int foundvcs = 0;
 	const char *errstr;
-	char *wd = NULL, *wd_env = NULL, mbs_wd[MAX_OUTPUT_LEN];
-	wchar_t wcs_wd[MAX_OUTPUT_LEN], buf[MAX_OUTPUT_LEN];
-	struct stat sa, sb;
+	const wchar_t *werrstr;
+	wchar_t wcswd[MAX_OUTPUT_LEN], buf[MAX_OUTPUT_LEN];
 
-	wd = getcwd(NULL, MAXPATHLEN);
-	if (wd == NULL)
-		errx(100, "unable to get current working directory");
-
-	if (stat(wd, &sa) == -1)
-		err(100, "stat(wd_real)");
-
-	/*
-	 * If we can get a valid PWD from the environment, that turns out to be
-	 * the same directory, then we should use it, it provides more context
-	 * if the shell is located in a symlink.
-	 */
-	wd_env = getenv("PWD");
-	if (wd_env != NULL && stat(wd_env, &sb) == 0) {
-		if (sa.st_ino == sb.st_ino && sa.st_dev == sb.st_dev) {
-			free(wd);
-			wd = wd_env;
-		}
+	path_wcswd(wcswd, MAX_OUTPUT_LEN, &werrstr);
+	if (werrstr != NULL) {
+		wcslcpy(wcswd, werrstr, MAX_OUTPUT_LEN);
+		goto done;
 	}
-
-	mbstowcs(wcs_wd, wd, MAX_OUTPUT_LEN);
 
 	/* Replace the beginning with ~ for directories within $HOME. */
 	alias_add(L"~", home, &errstr);
@@ -87,46 +65,21 @@ prwd(void)
 		errx(1, "failed to add default \"~\" alias: %s", errstr);
 
 	/* Alias handling */
-	alias_replace(wcs_wd);
-
-	/* Newsgroup mode, keep only the first letters. */
-	if (cfg_newsgroup) {
-		path_newsgroupize(wcs_wd, buf, MAX_OUTPUT_LEN);
-		wcslcpy(wcs_wd, buf, MAX_OUTPUT_LEN);
-	}
+	alias_replace(wcswd);
 
 	/* If the path is still too long, crop it. */
-	len = wcslen(wcs_wd);
+	len = wcslen(wcswd);
 
 	if (cfg_maxpwdlen > 0 && len > cfg_maxpwdlen) {
 		if (cfg_cleancut && !cfg_newsgroup) {
-			cleancut(wcs_wd);
+			cleancut(wcswd);
 		} else {
-			quickcut(wcs_wd, len);
+			quickcut(wcswd, len);
 		}
 	}
 
-	/* If mercurial or git is enabled, show the branch */
-	if (cfg_mercurial) {
-		foundvcs = add_branch(wcs_wd, VCS_MERCURIAL);
-	}
-
-	if (!foundvcs && cfg_git) {
-		add_branch(wcs_wd, VCS_GIT);
-	}
-
-	/* Do we show the hostname? */
-	if (cfg_hostname) {
-		add_hostname(wcs_wd);
-	}
-
-	/* Add the '$' or '#' character depending if your root. */
-	if (cfg_uid_indicator) {
-		add_uid_indicator(wcs_wd);
-	}
-
-	wcstombs(mbs_wd, wcs_wd, MAX_OUTPUT_LEN);
-	puts(mbs_wd);
+done:
+	wprintf(L"%ls\n", wcswd);
 }
 
 static void
@@ -137,7 +90,7 @@ prwd_template(wchar_t *t)
 	const char *errstr;
 
 	/* Shut the wgetopt() warnings. */
-	wopterr = 0;
+	// XXX wopterr = 0;
 
 	i = template_render(t, output, MAX_OUTPUT_LEN, &errstr);
 	if (errstr != NULL)

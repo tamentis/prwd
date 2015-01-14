@@ -17,9 +17,12 @@
 #include <wchar.h>
 #include <string.h>
 
+#include "branch.h"
+#include "hostname.h"
 #include "path.h"
 #include "prwd.h"
 #include "template.h"
+#include "uid.h"
 #include "wcslcpy.h"
 
 #define ERRSTR_EMPTY "empty variable"
@@ -39,8 +42,6 @@ template_exec(wchar_t *value, wchar_t *out, size_t len, const char **errstrp)
 {
 	struct arglist al;
 	size_t argc;
-	wchar_t buf[MAX_OUTPUT_LEN];
-	int i = 0;
 
 	template_arglist_init(&al);
 	argc = template_variable_lexer(value, &al, errstrp);
@@ -54,14 +55,15 @@ template_exec(wchar_t *value, wchar_t *out, size_t len, const char **errstrp)
 	}
 
 	if (wcscmp(al.argv[0], L"path") == 0) {
-		i = path_exec(argc, al.argv, out, len);
+		path_exec(argc, al.argv, out, len);
+	} else if (wcscmp(al.argv[0], L"branch") == 0) {
+		branch_exec(argc, al.argv, out, len);
+	} else if (wcscmp(al.argv[0], L"hostname") == 0) {
+		hostname_exec(argc, al.argv, out, len);
+	} else if (wcscmp(al.argv[0], L"uid") == 0) {
+		uid_exec(argc, al.argv, out, len);
 	} else {
 		*errstrp = ERRSTR_UNKCMD;
-		return (-1);
-	}
-
-	if (i == -1) {
-		*errstrp = ERRSTR_CMDERR;
 		return (-1);
 	}
 

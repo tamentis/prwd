@@ -14,6 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifndef _PATH_H_
+#define _PATH_H_
+
 #include <wchar.h>
 
 enum {
@@ -24,6 +27,8 @@ enum {
 	ERR_GENERIC
 };
 
-void	 path_wcswd(wchar_t *, size_t, wchar_t **);
-int	 path_exec(int, wchar_t **, wchar_t *, size_t);
+void	 path_wcswd(wchar_t *, size_t, const wchar_t **);
+void	 path_exec(int, wchar_t **, wchar_t *, size_t);
 void	 path_newsgroupize(wchar_t *, const wchar_t *, size_t);
+
+#endif /* #ifndef _PATH_H_ */

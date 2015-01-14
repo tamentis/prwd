@@ -27,6 +27,9 @@
  *            b) the commands found in the arglist are executed.
  */
 
+#ifndef _TEMPLATE_H_
+#define _TEMPLATE_H_
+
 #include <wchar.h>
 
 /* Maximum number of tokens in a template */
@@ -67,3 +70,5 @@ int	 template_exec(wchar_t *, wchar_t *, size_t, const char **);
 size_t	 template_variable_lexer(wchar_t *, struct arglist *, const char **);
 void	 template_arglist_init(struct arglist *);
 size_t	 template_arglist_insert(struct arglist *, wchar_t *);
+
+#endif /* ifndef _TEMPLATE_H_ */

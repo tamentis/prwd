@@ -74,7 +74,7 @@ wchar_t path_wcswd_fakepwd[MAXPATHLEN] = L"/tmp";
  * Override with predictable path.
  */
 void
-path_wcswd(wchar_t *wcswd, size_t len, wchar_t **errstr)
+path_wcswd(wchar_t *wcswd, size_t len, const wchar_t **errstr)
 {
 	(void)errstr;
 	wcslcpy(wcswd, path_wcswd_fakepwd, len);
@@ -94,7 +94,7 @@ lgethostname(char *name, size_t namelen)
  * Override file_exists to ensure predictable returns.
  */
 int
-file_exists(char *filepath)
+path_is_valid(char *filepath)
 {
 	(void)filepath;
 	return (test_file_exists);
@@ -674,31 +674,6 @@ test_config__process_config_line__set_maxlength_quoted(void)
 }
 
 /*
- * test the hostname feature
- */
-void add_hostname(wchar_t *);
-
-static int
-test_hostname__full(void)
-{
-	wchar_t s[256] = L"anything";
-	char h[] = "odin.tamentis.com";
-	strlcpy(test_hostname_value, h, MAXHOSTNAMELEN);
-	add_hostname(s);
-	return (assert_wstring_equals(s, L"odin:anything"));
-}
-
-static int
-test_hostname__short(void)
-{
-	wchar_t s[256] = L"anything";
-	char h[] = "odin";
-	strlcpy(test_hostname_value, h, MAXHOSTNAMELEN);
-	add_hostname(s);
-	return (assert_wstring_equals(s, L"odin:anything"));
-}
-
-/*
  * alias_expand_prefix tests
  */
 static int
@@ -1232,19 +1207,15 @@ test_path_exec__path_n(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"path -n";
 	wchar_t buf[MAX_OUTPUT_LEN];
-	int i;
 	struct arglist al;
 
 	wcslcpy(path_wcswd_fakepwd, L"/usr/local/bin", MAXPATHLEN);
 
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);
-	i = path_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
+	path_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
 
-	return (
-	    assert_int_equals(i, 0) &&
-	    assert_wstring_equals(buf, L"/u/l/bin")
-	);
+	return (assert_wstring_equals(buf, L"/u/l/bin"));
 }
 
 static int
@@ -1252,20 +1223,49 @@ test_path_exec__path(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"path";
 	wchar_t buf[MAX_OUTPUT_LEN];
-	int i;
 	struct arglist al;
 
 	wcslcpy(path_wcswd_fakepwd, L"/usr/local/bin", MAXPATHLEN);
 
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);
-	i = path_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
+	path_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
 
-	return (
-	    assert_int_equals(i, 0) &&
-	    assert_wstring_equals(buf, L"/usr/local/bin")
-	);
+	return (assert_wstring_equals(buf, L"/usr/local/bin"));
 }
+
+static int
+test_hostname_exec__short(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"hostname";
+	wchar_t buf[MAX_OUTPUT_LEN];
+	struct arglist al;
+
+	strlcpy(test_hostname_value, "foobar.example.com", MAXHOSTNAMELEN);
+
+	template_arglist_init(&al);
+	template_variable_lexer(input, &al, &errstr);
+	hostname_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
+
+	return (assert_wstring_equals(buf, L"foobar"));
+}
+
+static int
+test_hostname_exec__long(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"hostname -l";
+	wchar_t buf[MAX_OUTPUT_LEN];
+	struct arglist al;
+
+	strlcpy(test_hostname_value, "foobar.example.com", MAXHOSTNAMELEN);
+
+	template_arglist_init(&al);
+	template_variable_lexer(input, &al, &errstr);
+	hostname_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
+
+	return (assert_wstring_equals(buf, L"foobar.example.com"));
+}
+
 
 int
 main(int argc, const char *argv[])
@@ -1323,9 +1323,6 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_alias__expand_prefix__single);
 	RUN_TEST(test_alias__expand_prefix__no_alias);
 
-	RUN_TEST(test_hostname__full);
-	RUN_TEST(test_hostname__short);
-
 	RUN_TEST(test_config__process_config_line__set_no_var);
 	RUN_TEST(test_config__process_config_line__alias_no_name);
 	RUN_TEST(test_config__process_config_line__just_spaces);
@@ -1369,6 +1366,9 @@ main(int argc, const char *argv[])
 
 	RUN_TEST(test_path_exec__path);
 	RUN_TEST(test_path_exec__path_n);
+
+	RUN_TEST(test_hostname_exec__short);
+	RUN_TEST(test_hostname_exec__long);
 
 	printf("%d tests (%d PASS, %d FAIL)\n", tested, passed, failed);
 

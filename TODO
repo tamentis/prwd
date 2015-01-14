@@ -1,4 +1,7 @@
-FOR 1.9
+FOR 2.0
+ - deprecate the prompt settings in the config file and instead, if no template
+   is specified, construct one from the existing flags.
+ - document "~" as a default alias.
  - review all the uses of sizeof on wchar buffers (need to be divided).
  - all the calls to mbstowcs and vice-versa should be audited, maybe wrappers
    should be written...
@@ -13,13 +16,24 @@ FOR 1.9
    folders.
  - Allow for a fully templated PS1, e.g.
 
- 	{hostname}:{prefixed_path}{uid_indicator}
+ 	${hostname}:${branch}:${path}${uid}
 
- - Maybe even better, multiple templates conditionally, conditions could be:
+   But if we aren't in a source control repo, it would look like:
+
+   	host::/tmp$
+
+   Which is why the "sep" command could be introduced:
+
+	${hostname}:${branch}${sep :}${path}${uid}
+
+   If any dynamic token around the sep command are empty, the separator is not
+   shown.
+
+ - Allow users to define separate templates based on conditions:
 
     - UID? username?
     - in a source control repo?
     - by path?
     - date/time?
 
-   Not sure if the conditions should be handled by prwd or externally.
+   These could be defined similarly to Host lines in ssh_config.

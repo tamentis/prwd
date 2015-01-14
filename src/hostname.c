@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,49 +17,50 @@
 #include <sys/param.h>
 
 #include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <wchar.h>
-#include <err.h>
 
-#include "prwd.h"
-#include "hostname.h"
-#include "wcslcpy.h"
 #include "utils.h"
+#include "wgetopt.h"
+
+#define ERR_BAD_ARG L"<hostname-bad-arg>"
+#define ERR_BAD_CHARSET L"<hostname-bad-charset>"
+#define ERR_GENERIC L"<hostname-error>"
 
 /*
- * Add the hostname in front of the path, turning "/etc" into "odin:/etc".
+ * This module should never crash and will always return a value on *out.  If
+ * any error occur during its runtime, it should be represented in a user
+ * readable format on *out.
  */
 void
-add_hostname(wchar_t *path)
+hostname_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
-	wchar_t buf[MAX_OUTPUT_LEN], hostname[MAXHOSTNAMELEN];
-
-	get_short_hostname(hostname, MAXHOSTNAMELEN);
-
-	if (swprintf(buf, MAX_OUTPUT_LEN, L"%ls:%ls", hostname, path) == -1)
-		errx(1, "failed to append the hostname");
-
-	wcslcpy(path, buf, MAX_OUTPUT_LEN);
-}
-
-/*
- * Get the hostname as a wchar*.  Die if anything goes wrong.
- */
-void
-get_short_hostname(wchar_t *host, size_t size)
-{
+	int longform = 0;
+	const wchar_t *errstr = NULL;
+	wchar_t ch;
 	char buf[MAXHOSTNAMELEN], *c;
-	if (lgethostname(buf, size) != 0) {
-		err(1, "gethostname() failed");
+
+	if (lgethostname(buf, MAXHOSTNAMELEN) != 0) {
+		wcslcpy(out, ERR_GENERIC, len);
+		return;
 	}
 
-	/* Find the first dot and stop right here. */
-	c = strchr(buf, '.');
-	if (c != NULL)
+	woptreset = 1;
+	woptind = 0;
+	while ((ch = wgetopt(argc, argv, L"l")) != -1) {
+		switch (ch) {
+		case L'l':
+			longform = 1;
+			break;
+		default:
+			wcslcpy(out, ERR_BAD_ARG, len);
+			return;
+		}
+	}
+
+	/* Find the first dot and stop right here for the short hostname.. */
+	if (!longform && (c = strchr(buf, '.')) != NULL)
 		*c = '\0';
 
-	if (mbstowcs(host, buf, MAXHOSTNAMELEN) == (size_t)-1) {
-		err(1, "failed to convert hostname to wchar");
-	}
+	if (mbstowcs(out, buf, len) == (size_t)-1)
+		wcslcpy(out, ERR_BAD_CHARSET, len);
 }

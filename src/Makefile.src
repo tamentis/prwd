@@ -26,6 +26,14 @@ all: ${BINARY}
 ${BINARY}: ${OBJECTS}
 	$(CC) -o ${BINARY} ${OBJECTS}
 
+afl-template: ${OBJECTS}
+	$(CC) ${CFLAGS} -c afl-template.c -o main.o
+	$(CC) ${CFLAGS} ${LDFLAGS} -o afl-template ${OBJECTS}
+
+run-afl-template: afl-template
+	mkdir -p afl-findings/templates
+	afl-fuzz -i afl-testcases/templates -o afl-findings/templates ./afl-template
+
 run_tests: ${OBJECTS}
 	$(CC) ${CFLAGS} -D REGRESS -c path.c -o path.o
 	$(CC) ${CFLAGS} -D REGRESS -c utils.c -o utils.o

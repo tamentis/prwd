@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include "branch.h"
+#include "date.h"
 #include "hostname.h"
 #include "path.h"
 #include "prwd.h"
@@ -60,6 +61,8 @@ template_exec(wchar_t *value, wchar_t *out, size_t len,
 		path_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"branch") == 0) {
 		branch_exec(argc, al.argv, out, len);
+	} else if (wcscmp(al.argv[0], L"date") == 0) {
+		date_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"hostname") == 0) {
 		hostname_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"uid") == 0) {

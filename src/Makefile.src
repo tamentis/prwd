@@ -1,21 +1,22 @@
 BINARY=prwd
 
 OBJECTS=alias.o \
+	branch.o \
 	config.o \
+	date.o \
 	hostname.o \
 	main.o \
-	path.o \
 	path-cut.o \
 	path-newsgroupize.o \
+	path.o \
 	strdelim.o \
-	uid.o \
-	utils.o \
-	branch.o \
 	template-arglist.o \
 	template-exec.o \
 	template-render.o \
 	template-tokenize.o \
 	template-variable.o \
+	uid.o \
+	utils.o \
 	wgetopt.o
 OBJECTS+=${EXTRA_OBJECTS}
 

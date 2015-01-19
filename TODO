@@ -1,7 +1,6 @@
 FOR 2.0
  - make sure we're consistent with using err() when it's abnormal and output
    string when it could be a user configuration error or environment error.
- - add ${time...}
  - Allow the configuration to be overridden by command-line flags.
  - Document the fact that the configuration can be specified on the commandline.
  - implement the color command  ${color #121212}.

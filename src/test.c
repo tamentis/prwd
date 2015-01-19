@@ -830,16 +830,18 @@ test_template_tokenize__too_many_tokens(void)
 
 	return (
 	    assert_int_equals(i, -1) &&
-	    assert_wstring_equals(errstr, L"tokenize error: too many tokens")
+	    assert_wstring_equals(errstr, L"too many tokens")
 	);
 }
 
 static int
 test_template_tokenize__token_too_long(void)
 {
-	wchar_t input[MAX_OUTPUT_LEN] = L"foobarfoobarfoobarfoobarfoobarfo"\
-					L"obarfoobarfoobarfoobarfoobarfoob"\
-					L"arfoobarfoobarfoobarfoobarfoobar";
+	wchar_t input[MAX_OUTPUT_LEN] = L"foobarfoobarfoobarfoobarfoobar"\
+					L"foobarfoobarfoobarfoobarfoobar"\
+					L"foobarfoobarfoobarfoobarfoobar"\
+					L"foobarfoobarfoobarfoobarfoobar"\
+					L"foobarfoobarfoobarfoobarfoobar";
 	struct token tokens[2];
 	int i;
 
@@ -847,8 +849,7 @@ test_template_tokenize__token_too_long(void)
 
 	return (
 	    assert_int_equals(i, -1) &&
-	    assert_wstring_equals(errstr,
-		L"tokenize error: invalid token size")
+	    assert_wstring_equals(errstr, L"invalid token size")
 	);
 }
 
@@ -968,7 +969,7 @@ static int
 test_template_arglist__insert_err_too_many_chars(void)
 {
 	struct arglist al;
-	size_t i, argc, max;
+	size_t i, argc = 0, max;
 	wchar_t s[] = L"foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobar" \
 		      L"foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobar";
 	int a;
@@ -1007,6 +1008,7 @@ test_template_variable_lexer__empty(void)
 	int i;
 	struct arglist al;
 
+	template_arglist_init(&al);
 	i = template_variable_lexer(input, &al, &errstr);
 
 	return (
@@ -1022,6 +1024,7 @@ test_template_variable_lexer__one(void)
 	int i;
 	struct arglist al;
 
+	template_arglist_init(&al);
 	i = template_variable_lexer(input, &al, &errstr);
 
 	return (

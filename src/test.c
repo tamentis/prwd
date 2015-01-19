@@ -117,8 +117,8 @@ assert_string_equals(const char *value, const char *expected)
 bad:
 	snprintf(details, sizeof(details),
 	    "    strings do not match:\n"
-	    "           value=%s\n"
-	    "        expected=%s", value, expected);
+	    "           value=\"%s\"\n"
+	    "        expected=\"%s\"", value, expected);
 	return (0);
 }
 
@@ -136,8 +136,8 @@ assert_wstring_equals(const wchar_t *value, const wchar_t *expected)
 bad:
 	snprintf(details, sizeof(details),
 	    "    wide strings do not match:\n"
-	    "           value=%ls\n"
-	    "        expected=%ls", value, expected);
+	    "           value=\"%ls\"\n"
+	    "        expected=\"%ls\"", value, expected);
 	return (0);
 }
 
@@ -1053,6 +1053,23 @@ test_template_variable_lexer__two(void)
 }
 
 static int
+test_template_variable_lexer__trailing_spaces(void)
+{
+	wchar_t input[MAX_OUTPUT_LEN] = L"foo ";
+	int i;
+	struct arglist al;
+
+	template_arglist_init(&al);
+	i = template_variable_lexer(input, &al, &errstr);
+
+	return (
+	    assert_int_equals(i, 1) &&
+	    assert_null(errstr) &&
+	    assert_wstring_equals(al.argv[0], L"foo")
+	);
+}
+
+static int
 test_template_variable_lexer__quoted_space(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"foo \"bar baz\"";
@@ -1328,6 +1345,7 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_template_variable_lexer__empty);
 	RUN_TEST(test_template_variable_lexer__one);
 	RUN_TEST(test_template_variable_lexer__two);
+	RUN_TEST(test_template_variable_lexer__trailing_spaces);
 	RUN_TEST(test_template_variable_lexer__quoted_space);
 	RUN_TEST(test_template_variable_lexer__quoted_quote);
 	RUN_TEST(test_template_variable_lexer__quoted_double_quote);

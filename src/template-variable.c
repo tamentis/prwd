@@ -90,12 +90,12 @@ template_variable_lexer(wchar_t *s, struct arglist *al,
 			buf[cur++] = *(s++);
 			break;
 		case STATE_SPACE:
+			if (*s == L'\0')
+				goto done;
 			if (iswspace(*s)) {
 				s++;
 				break;
 			}
-			if (*s == L'\0')
-				goto done;
 			if (*s == L'"') {
 				state = STATE_QUOTED;
 				s++;

@@ -40,6 +40,7 @@ uid_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 
 	woptreset = 1;
 	woptind = 0;
+	wopterr = 0;
 	while ((ch = wgetopt(argc, argv, L"")) != -1) {
 		switch (ch) {
 		default:

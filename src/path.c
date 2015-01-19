@@ -119,15 +119,16 @@ path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 	cfg_newsgroup = 0;
 	cfg_maxpwdlen = MAXPWD_LEN;
 	cfg_cleancut = 0;
+
 	woptreset = 1;
 	woptind = 0;
-
-	while ((ch = wgetopt(argc, argv, L"cm:n")) != -1) {
+	wopterr = 0;
+	while ((ch = wgetopt(argc, argv, L"cl:n")) != -1) {
 		switch (ch) {
 		case L'c':
 			cfg_cleancut = 1;
 			break;
-		case L'm':
+		case L'l':
 			cfg_maxpwdlen = wcstonum(woptarg, 1, 255, &errstr);
 			if (cfg_maxpwdlen == 0) {
 				wcslcpy(out, ERR_BAD_ARG, len);

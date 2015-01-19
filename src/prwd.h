@@ -15,7 +15,7 @@
  */
 
 /* Maximum filler length and default filler */
-#define FILLER_LEN 16
+#define MAX_FILLER_LEN 16
 #define FILLER_DEF L"..."
 
 /* Default value for the maxpwdlen configuration setting */

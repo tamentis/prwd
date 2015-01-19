@@ -24,6 +24,7 @@
 #include "template.h"
 #include "uid.h"
 #include "wcslcpy.h"
+#include "wgetopt.h"
 
 #define ERRSTR_EMPTY L"empty variable"
 #define ERRSTR_UNKCMD L"unknown command"

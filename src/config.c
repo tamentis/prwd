@@ -35,7 +35,7 @@ int	 cfg_git = 0;
 int	 cfg_hostname = 0;
 int	 cfg_uid_indicator = 0;
 int	 cfg_newsgroup = 0;
-wchar_t	 cfg_filler[FILLER_LEN] = FILLER_DEF;
+wchar_t	 cfg_filler[MAX_FILLER_LEN] = FILLER_DEF;
 wchar_t	 cfg_template[MAX_OUTPUT_LEN] = L"";
 
 extern wchar_t	 home[MAXPATHLEN];
@@ -83,7 +83,7 @@ set_variable(wchar_t *name, wchar_t *value, const wchar_t **errstrp)
 			*cfg_filler = L'\0';
 			return;
 		}
-		wcslcpy(cfg_filler, value, FILLER_LEN);
+		wcslcpy(cfg_filler, value, MAX_FILLER_LEN);
 
 	/* set cleancut <bool> */
 	} else if (wcscmp(name, L"cleancut") == 0) {

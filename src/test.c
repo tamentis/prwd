@@ -57,7 +57,7 @@
 	}							\
 
 
-extern wchar_t cfg_filler[FILLER_LEN];
+extern wchar_t cfg_filler[MAX_FILLER_LEN];
 extern int alias_count;
 const wchar_t *errstr;
 char details[256] = "";
@@ -300,7 +300,7 @@ static int
 test_path_quickcut__empty(void)
 {
 	wchar_t out[64];
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_quickcut(out, L"", 64);
 	return (assert_wstring_equals(out, L""));
 }
@@ -309,7 +309,7 @@ static int
 test_path_quickcut__one_to_one(void)
 {
 	wchar_t out[64];
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	cfg_maxpwdlen = 1;
 	path_quickcut(out, L"o", 64);
 	return (assert_wstring_equals(out, L"o"));
@@ -319,7 +319,7 @@ static int
 test_path_quickcut__one_to_two(void)
 {
 	wchar_t out[64];
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	cfg_maxpwdlen = 2;
 	path_quickcut(out, L"o", 64);
 	return (assert_wstring_equals(out, L"o"));
@@ -329,7 +329,7 @@ static int
 test_path_quickcut__thirty_to_ten(void)
 {
 	wchar_t out[64];
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	cfg_maxpwdlen = 10;
 	path_quickcut(out, L"qwertyuiopasdfghjklzxcvbnmqwer", 64);
 	return (assert_wstring_equals(out, L"...bnmqwer"));
@@ -339,7 +339,7 @@ static int
 test_path_quickcut__ten_to_thirty(void)
 {
 	wchar_t out[64];
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	cfg_maxpwdlen = 30;
 	path_quickcut(out, L"1234567890", 64);
 	return (assert_wstring_equals(out, L"1234567890"));
@@ -349,7 +349,7 @@ static int
 test_path_quickcut__ten_to_ten(void)
 {
 	wchar_t out[64];
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	cfg_maxpwdlen = 10;
 	path_quickcut(out, L"1234567890", 64);
 	return (assert_wstring_equals(out, L"1234567890"));
@@ -371,7 +371,7 @@ test_path_cleancut__root_to_ten(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 10;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/", 64);
 	return (assert_wstring_equals(out, L"/"));
 }
@@ -381,7 +381,7 @@ test_path_cleancut__root_to_one(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 1;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/", 64);
 	return (assert_wstring_equals(out, L"/"));
 }
@@ -391,7 +391,7 @@ test_path_cleancut__tmp_to_one(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 1;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/tmp", 64);
 	return (assert_wstring_equals(out, L"."));
 }
@@ -401,7 +401,7 @@ test_path_cleancut__tmp_to_three(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 3;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/tmp", 64);
 	return (assert_wstring_equals(out, L"..."));
 }
@@ -411,7 +411,7 @@ test_path_cleancut__tmp_to_four(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 4;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/tmp", 64);
 	return (assert_wstring_equals(out, L"/tmp"));
 }
@@ -421,7 +421,7 @@ test_path_cleancut__tmp_to_ten(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 10;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/tmp", 64);
 	return (assert_wstring_equals(out, L"/tmp"));
 }
@@ -431,7 +431,7 @@ test_path_cleancut__uld_to_one(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 1;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/usr/local/doc", 64);
 	return (assert_wstring_equals(out, L"."));
 }
@@ -441,7 +441,7 @@ test_path_cleancut__uld_to_five(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 5;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/usr/local/doc", 64);
 	return (assert_wstring_equals(out, L"...oc"));
 }
@@ -451,7 +451,7 @@ test_path_cleancut__uld_to_ten(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 10;
-	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	wcslcpy(cfg_filler, L"...", MAX_FILLER_LEN);
 	path_cleancut(out, L"/usr/local/doc", 64);
 	return (assert_wstring_equals(out, L".../doc"));
 }
@@ -461,7 +461,7 @@ test_path_cleancut__uld_to_eleven(void)
 {
 	wchar_t out[64];
 	cfg_maxpwdlen = 11;
-	wcslcpy(cfg_filler, L"_", FILLER_LEN);
+	wcslcpy(cfg_filler, L"_", MAX_FILLER_LEN);
 	path_cleancut(out, L"/usr/local/doc", 64);
 	return (assert_wstring_equals(out, L"_/local/doc"));
 }

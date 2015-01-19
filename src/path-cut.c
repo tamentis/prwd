@@ -24,7 +24,7 @@
 #define ERR_NULL_PATH L"<path-null>"
 
 extern size_t cfg_maxpwdlen;
-extern wchar_t cfg_filler[FILLER_LEN];
+extern wchar_t cfg_filler[MAX_FILLER_LEN];
 
 /*
  * Reduce the provided string to the smallest it could get to fit within the

@@ -94,10 +94,13 @@ main(int argc, char **argv)
 	char *t;
 	int opt, run_dump_alias_vars = 0;
 
-	while ((opt = getopt(argc, argv, "aVh")) != -1) {
+	while ((opt = getopt(argc, argv, "at:Vh")) != -1) {
 		switch (opt) {
 		case 'a':
 			run_dump_alias_vars = 1;
+			break;
+		case 't':
+			mbstowcs(cfg_template, optarg, MAX_OUTPUT_LEN);
 			break;
 		case 'V':
 			puts("prwd-"VERSION);
@@ -128,7 +131,6 @@ main(int argc, char **argv)
 			mbstowcs(cfg_template, t, MAX_OUTPUT_LEN);
 		}
 	}
-
 	if (wcslen(cfg_template) > 0) {
 		prwd_template(cfg_template);
 		return (0);

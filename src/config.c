@@ -54,6 +54,10 @@ set_variable(wchar_t *name, wchar_t *value, const wchar_t **errstrp)
 
 	/* set template <string> */
 	if (wcscmp(name, L"template") == 0) {
+		/* Do not override a command-line template. */
+		if (cfg_template[0] != L'\0')
+			return;
+
 		if (value == NULL || *value == '\0') {
 			*cfg_template = L'\0';
 			return;

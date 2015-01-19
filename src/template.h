@@ -33,13 +33,13 @@
 #include <wchar.h>
 
 /* Maximum number of tokens in a template */
-#define MAX_TOKEN_COUNT 32
+#define MAX_TOKEN_COUNT 64
 
 /* Maximum token length (wide-chars) */
-#define MAX_TOKEN_LEN 64
+#define MAX_TOKEN_LEN 128
 
 /* Maximum Number of arguments in a single template variable */
-#define MAX_ARG_COUNT 32
+#define MAX_ARG_COUNT 64
 
 /* Maximum number of characters (including NUL-bytes) stored in an arglist */
 #define MAX_ARGLIST_SIZE (64 * MAX_ARG_COUNT)

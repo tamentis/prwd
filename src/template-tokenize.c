@@ -29,8 +29,8 @@ enum fsm_state {
 	STATE_APPEND_TOKEN
 };
 
-#define ERRSTR_TOKEN_SIZE L"tokenize error: invalid token size"
-#define ERRSTR_TOO_MANY L"tokenize error: too many tokens"
+#define ERRSTR_TOKEN_SIZE L"invalid token size"
+#define ERRSTR_TOO_MANY L"too many tokens"
 
 /*
  * Given a template wide-char string 's', split all the tokens within and set
@@ -110,12 +110,12 @@ template_tokenize(wchar_t *s, struct token *tokens, size_t len,
 				if (wcslcpy(tokens[count].value, buf,
 				    MAX_TOKEN_LEN) > MAX_TOKEN_LEN) {
 					*errstrp = ERRSTR_TOKEN_SIZE;
-					return -1;
+					return (-1);
 				}
 				count++;
 				if ((size_t)count >= len) {
 					*errstrp = ERRSTR_TOO_MANY;
-					return -1;
+					return (-1);
 				}
 				cur = 0;
 			}
@@ -129,8 +129,13 @@ template_tokenize(wchar_t *s, struct token *tokens, size_t len,
 		default:
 			break;
 		}
+
+		if (cur >= MAX_TOKEN_LEN) {
+			*errstrp = ERRSTR_TOKEN_SIZE;
+			return (-1);
+		}
 	}
 
 done:
-	return count;
+	return (count);
 }

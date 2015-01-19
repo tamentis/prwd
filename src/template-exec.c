@@ -25,10 +25,10 @@
 #include "uid.h"
 #include "wcslcpy.h"
 
-#define ERRSTR_EMPTY "empty variable"
-#define ERRSTR_UNKCMD "unknown command"
-#define ERRSTR_TOO_LARGE "variable output too large"
-#define ERRSTR_CMDERR "command error"
+#define ERRSTR_EMPTY L"empty variable"
+#define ERRSTR_UNKCMD L"unknown command"
+#define ERRSTR_TOO_LARGE L"variable output too large"
+#define ERRSTR_CMDERR L"command error"
 
 /*
  * Execute a single dynamic token.
@@ -38,7 +38,8 @@
  *  4. copy the output
  */
 int
-template_exec(wchar_t *value, wchar_t *out, size_t len, const char **errstrp)
+template_exec(wchar_t *value, wchar_t *out, size_t len,
+    const wchar_t **errstrp)
 {
 	struct arglist al;
 	size_t argc;

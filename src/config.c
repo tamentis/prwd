@@ -36,6 +36,7 @@ int	 cfg_hostname = 0;
 int	 cfg_uid_indicator = 0;
 int	 cfg_newsgroup = 0;
 wchar_t	 cfg_filler[FILLER_LEN] = FILLER_DEF;
+wchar_t	 cfg_template[MAX_OUTPUT_LEN] = L"";
 
 extern wchar_t	 home[MAXPATHLEN];
 
@@ -47,27 +48,35 @@ extern wchar_t	 home[MAXPATHLEN];
  * an error string, it is set to NULL otherwise.
  */
 static void
-set_variable(wchar_t *name, wchar_t *value, const char **errstrp)
+set_variable(wchar_t *name, wchar_t *value, const wchar_t **errstrp)
 {
 	*errstrp = NULL;
 
-	/* set maxlength <int> */
-	if (wcscmp(name, L"maxlength") == 0) {
+	/* set template <string> */
+	if (wcscmp(name, L"template") == 0) {
 		if (value == NULL || *value == '\0') {
-			*errstrp = "no value for set maxlength";
+			*cfg_template = L'\0';
+			return;
+		}
+		wcslcpy(cfg_template, value, MAX_OUTPUT_LEN);
+
+	/* set maxlength <int> */
+	} else if (wcscmp(name, L"maxlength") == 0) {
+		if (value == NULL || *value == L'\0') {
+			*errstrp = L"no value for set maxlength";
 			return;
 		}
 
 		cfg_maxpwdlen = wcstonum(value, 1, 255, errstrp);
 		if (cfg_maxpwdlen == 0) {
-			*errstrp = "invalid number for set maxlength";
+			*errstrp = L"invalid number for set maxlength";
 			return;
 		}
 
 	/* set filler <string> */
 	} else if (wcscmp(name, L"filler") == 0) {
-		if (value == NULL || *value == '\0') {
-			*cfg_filler = '\0';
+		if (value == NULL || *value == L'\0') {
+			*cfg_filler = L'\0';
 			return;
 		}
 		wcslcpy(cfg_filler, value, FILLER_LEN);
@@ -98,7 +107,7 @@ set_variable(wchar_t *name, wchar_t *value, const char **errstrp)
 
 	/* Unknown variable */
 	} else {
-		*errstrp = "unknown variable for set";
+		*errstrp = L"unknown variable for set";
 	}
 }
 
@@ -107,7 +116,7 @@ set_variable(wchar_t *name, wchar_t *value, const char **errstrp)
  * errstrp pointer is set to the error message, else it is set to NULL.
  */
 void
-process_config_line(wchar_t *line, const char **errstrp)
+process_config_line(wchar_t *line, const wchar_t **errstrp)
 {
 	int len;
 	wchar_t *keyword, *name, *value;
@@ -137,7 +146,7 @@ process_config_line(wchar_t *line, const char **errstrp)
 	/* set varname value */
 	if (wcscmp(keyword, L"set") == 0) {
 		if ((name = strdelim(&line)) == NULL) {
-			*errstrp = "set without variable name";
+			*errstrp = L"set without variable name";
 			return;
 		}
 		value = strdelim(&line);
@@ -147,7 +156,7 @@ process_config_line(wchar_t *line, const char **errstrp)
 	/* alias short long */
 	} else if (wcscmp(keyword, L"alias") == 0) {
 		if ((name = strdelim(&line)) == NULL) {
-			*errstrp = "alias without name";
+			*errstrp = L"alias without name";
 			return;
 		}
 		value = strdelim(&line);
@@ -159,7 +168,7 @@ process_config_line(wchar_t *line, const char **errstrp)
 		}
 
 	} else {
-		*errstrp = "unknown command";
+		*errstrp = L"unknown command";
 	}
 }
 
@@ -171,7 +180,7 @@ read_config()
 {
 	FILE *fp;
 	char line[128], path[MAXPATHLEN];
-	const char *errstr;
+	const wchar_t *errstr;
 	wchar_t wline[128];
 	int linenum = 1;
 
@@ -185,7 +194,7 @@ read_config()
 		mbstowcs(wline, line, 128);
 		process_config_line(wline, &errstr);
 		if (errstr != NULL) {
-			errx(1, "prwdrc:%d: %s", linenum, errstr);
+			errx(1, "prwdrc:%d: %ls", linenum, errstr);
 		}
 		linenum++;
 	}

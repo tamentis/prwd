@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2014-2015 Bertrand Janin <b@janin.com>
  * Copyright (c) 2004 Ted Unangst and Todd Miller
  * All rights reserved.
  *
@@ -29,19 +29,19 @@
 
 long long
 wcstonum(const wchar_t *numstr, long long minval, long long maxval,
-    const char **errstrp)
+    const wchar_t **errstrp)
 {
 	long long ll = 0;
 	int error = 0;
 	wchar_t *ep;
 	struct errval {
-		const char *errstr;
+		const wchar_t *errstr;
 		int err;
 	} ev[4] = {
 		{ NULL,		0 },
-		{ "invalid",	EINVAL },
-		{ "too small",	ERANGE },
-		{ "too large",	ERANGE },
+		{ L"invalid",	EINVAL },
+		{ L"too small",	ERANGE },
+		{ L"too large",	ERANGE },
 	};
 
 	ev[0].err = errno;

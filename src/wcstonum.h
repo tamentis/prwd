@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2014-2015 Bertrand Janin <b@janin.com>
  * Copyright (c) 2004 Ted Unangst and Todd Miller
  * All rights reserved.
  *
@@ -18,4 +18,4 @@
 
 #include <wchar.h>
 
-long long wcstonum(const wchar_t *, long long, long long, const char **);
+long long wcstonum(const wchar_t *, long long, long long, const wchar_t **);

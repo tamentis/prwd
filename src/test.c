@@ -44,7 +44,7 @@
 			details[0] = '\0';			\
 		}						\
 		if (errstr != NULL) {				\
-			printf("%17s%s\n", "errstr=", errstr);	\
+			printf("%17s%ls\n", "errstr=", errstr);	\
 		}						\
 		failed++;					\
 	};							\
@@ -59,7 +59,7 @@
 
 extern wchar_t cfg_filler[FILLER_LEN];
 extern int alias_count;
-const char *errstr;
+const wchar_t *errstr;
 char details[256] = "";
 char test_hostname_value[MAXHOSTNAMELEN];
 int tested = 0;
@@ -197,7 +197,7 @@ assert_null(const void *p)
  * newgroupize tests
  */
 static int
-test_newsgroupize__null(void)
+test_path_newsgroupize__null(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, NULL, 64);
@@ -205,7 +205,7 @@ test_newsgroupize__null(void)
 }
 
 static int
-test_newsgroupize__empty(void)
+test_path_newsgroupize__empty(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"", 64);
@@ -213,7 +213,7 @@ test_newsgroupize__empty(void)
 }
 
 static int
-test_newsgroupize__one(void)
+test_path_newsgroupize__one(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"a", 64);
@@ -221,7 +221,7 @@ test_newsgroupize__one(void)
 }
 
 static int
-test_newsgroupize__root(void)
+test_path_newsgroupize__root(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"/", 64);
@@ -229,7 +229,7 @@ test_newsgroupize__root(void)
 }
 
 static int
-test_newsgroupize__slash_one(void)
+test_path_newsgroupize__slash_one(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"/a", 64);
@@ -237,7 +237,7 @@ test_newsgroupize__slash_one(void)
 }
 
 static int
-test_newsgroupize__tmp(void)
+test_path_newsgroupize__tmp(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"/foo", 64);
@@ -245,7 +245,7 @@ test_newsgroupize__tmp(void)
 }
 
 static int
-test_newsgroupize__home(void)
+test_path_newsgroupize__home(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"/foo/bar", 64);
@@ -253,7 +253,7 @@ test_newsgroupize__home(void)
 }
 
 static int
-test_newsgroupize__shortpath(void)
+test_path_newsgroupize__shortpath(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"~/foo/bar", 64);
@@ -261,7 +261,7 @@ test_newsgroupize__shortpath(void)
 }
 
 static int
-test_newsgroupize__shortpath_one_level(void)
+test_path_newsgroupize__shortpath_one_level(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"~/foo", 64);
@@ -269,7 +269,7 @@ test_newsgroupize__shortpath_one_level(void)
 }
 
 static int
-test_newsgroupize__alreadyshort(void)
+test_path_newsgroupize__alreadyshort(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"/a/b/c/d/e/f/g/h/i/j", 64);
@@ -277,7 +277,7 @@ test_newsgroupize__alreadyshort(void)
 }
 
 static int
-test_newsgroupize__trailingslash(void)
+test_path_newsgroupize__trailingslash(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"/foo/bar/", 64);
@@ -285,7 +285,7 @@ test_newsgroupize__trailingslash(void)
 }
 
 static int
-test_newsgroupize__alias(void)
+test_path_newsgroupize__alias(void)
 {
 	wchar_t out[64];
 	path_newsgroupize(out, L"$alias/foo/bar/baz", 64);
@@ -294,208 +294,176 @@ test_newsgroupize__alias(void)
 
 
 /*
- * Quick Cut tests
+ * path_quickcut()
  */
-void	quickcut(wchar_t *, size_t);
-
 static int
-test_quickcut__null(void)
+test_path_quickcut__empty(void)
 {
-	quickcut(NULL, 0);
-	return (1);
+	wchar_t out[64];
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_quickcut(out, L"", 64);
+	return (assert_wstring_equals(out, L""));
 }
 
 static int
-test_quickcut__empty(void)
+test_path_quickcut__one_to_one(void)
 {
-	wchar_t s[] = L"";
-	wchar_t f[] = L"...";
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	quickcut(s, 0);
-	return (assert_wstring_equals(s, L""));
-}
-
-static int
-test_quickcut__one_to_one(void)
-{
-	wchar_t s[] = L"o";
-	wchar_t f[] = L"...";
-	wcslcpy(cfg_filler, f, FILLER_LEN);
+	wchar_t out[64];
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
 	cfg_maxpwdlen = 1;
-	quickcut(s, 1);
-	return (assert_wstring_equals(s, L"o"));
+	path_quickcut(out, L"o", 64);
+	return (assert_wstring_equals(out, L"o"));
 }
 
 static int
-test_quickcut__one_to_two(void)
+test_path_quickcut__one_to_two(void)
 {
-	wchar_t s[] = L"o";
-	wchar_t f[] = L"...";
-	wcslcpy(cfg_filler, f, FILLER_LEN);
+	wchar_t out[64];
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
 	cfg_maxpwdlen = 2;
-	quickcut(s, 1);
-	return (assert_wstring_equals(s, L"o"));
+	path_quickcut(out, L"o", 64);
+	return (assert_wstring_equals(out, L"o"));
 }
 
 static int
-test_quickcut__thirty_to_ten(void)
+test_path_quickcut__thirty_to_ten(void)
 {
-	wchar_t s[] = L"qwertyuiopasdfghjklzxcvbnmqwer";
-	wchar_t f[] = L"...";
-	wcslcpy(cfg_filler, f, FILLER_LEN);
+	wchar_t out[64];
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
 	cfg_maxpwdlen = 10;
-	quickcut(s, 30);
-	return (assert_wstring_equals(s, L"...bnmqwer"));
+	path_quickcut(out, L"qwertyuiopasdfghjklzxcvbnmqwer", 64);
+	return (assert_wstring_equals(out, L"...bnmqwer"));
 }
 
 static int
-test_quickcut__ten_to_thirty(void)
+test_path_quickcut__ten_to_thirty(void)
 {
-	wchar_t s[] = L"1234567890";
-	wchar_t f[] = L"...";
-	wcslcpy(cfg_filler, f, FILLER_LEN);
+	wchar_t out[64];
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
 	cfg_maxpwdlen = 30;
-	quickcut(s, 10);
-	return (assert_wstring_equals(s, L"1234567890"));
+	path_quickcut(out, L"1234567890", 64);
+	return (assert_wstring_equals(out, L"1234567890"));
 }
 
 static int
-test_quickcut__ten_to_ten(void)
+test_path_quickcut__ten_to_ten(void)
 {
-	wchar_t s[] = L"1234567890";
-	wchar_t f[] = L"...";
-	wcslcpy(cfg_filler, f, FILLER_LEN);
+	wchar_t out[64];
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
 	cfg_maxpwdlen = 10;
-	quickcut(s, 10);
-	return (assert_wstring_equals(s, L"1234567890"));
+	path_quickcut(out, L"1234567890", 64);
+	return (assert_wstring_equals(out, L"1234567890"));
 }
 
 /*
- * Clean cut tests
+ * path_cleancut()
  */
-void cleancut(wchar_t *s);
-
 static int
-test_cleancut__null(void)
+test_path_cleancut__empty(void)
 {
-	cleancut(NULL);
-	return (1);
+	wchar_t out[64];
+	path_cleancut(out, L"", 64);
+	return (assert_wstring_equals(out, L""));
 }
 
 static int
-test_cleancut__empty(void)
+test_path_cleancut__root_to_ten(void)
 {
-	wchar_t s[] = L"";
-	cleancut(s);
-	return (s[0] == L'\0');
-}
-
-static int
-test_cleancut__root_to_ten(void)
-{
-	wchar_t s[] = L"/";
+	wchar_t out[64];
 	cfg_maxpwdlen = 10;
-	cleancut(s);
-	return (assert_wstring_equals(s, L"/"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/", 64);
+	return (assert_wstring_equals(out, L"/"));
 }
 
 static int
-test_cleancut__root_to_one(void)
+test_path_cleancut__root_to_one(void)
 {
-	wchar_t s[] = L"/";
-	wchar_t f[] = L"...";
+	wchar_t out[64];
 	cfg_maxpwdlen = 1;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L"/"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/", 64);
+	return (assert_wstring_equals(out, L"/"));
 }
 
 static int
-test_cleancut__tmp_to_one(void)
+test_path_cleancut__tmp_to_one(void)
 {
-	wchar_t s[] = L"/tmp";
-	wchar_t f[] = L"...";
+	wchar_t out[64];
 	cfg_maxpwdlen = 1;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L"/tmp"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/tmp", 64);
+	return (assert_wstring_equals(out, L"."));
 }
 
 static int
-test_cleancut__tmp_to_three(void)
+test_path_cleancut__tmp_to_three(void)
 {
-	wchar_t s[] = L"/tmp";
-	wchar_t f[] = L"...";
+	wchar_t out[64];
 	cfg_maxpwdlen = 3;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L"/tmp"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/tmp", 64);
+	return (assert_wstring_equals(out, L"..."));
 }
 
 static int
-test_cleancut__tmp_to_four(void)
+test_path_cleancut__tmp_to_four(void)
 {
-	wchar_t s[] = L"/tmp";
-	wchar_t f[] = L"...";
+	wchar_t out[64];
 	cfg_maxpwdlen = 4;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L"/tmp"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/tmp", 64);
+	return (assert_wstring_equals(out, L"/tmp"));
 }
 
 static int
-test_cleancut__tmp_to_ten(void)
+test_path_cleancut__tmp_to_ten(void)
 {
-	wchar_t s[] = L"/tmp";
-	wchar_t f[] = L"...";
+	wchar_t out[64];
 	cfg_maxpwdlen = 10;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L"/tmp"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/tmp", 64);
+	return (assert_wstring_equals(out, L"/tmp"));
 }
 
 static int
-test_cleancut__uld_to_one(void)
+test_path_cleancut__uld_to_one(void)
 {
-	wchar_t s[] = L"/usr/local/doc";
-	wchar_t f[] = L"...";
+	wchar_t out[64];
 	cfg_maxpwdlen = 1;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L".../doc"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/usr/local/doc", 64);
+	return (assert_wstring_equals(out, L"."));
 }
 
 static int
-test_cleancut__uld_to_five(void)
+test_path_cleancut__uld_to_five(void)
 {
-	wchar_t s[] = L"/usr/local/doc";
-	wchar_t f[] = L"...";
+	wchar_t out[64];
 	cfg_maxpwdlen = 5;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L".../doc"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/usr/local/doc", 64);
+	return (assert_wstring_equals(out, L"...oc"));
 }
 
 static int
-test_cleancut__uld_to_ten(void)
+test_path_cleancut__uld_to_ten(void)
 {
-	wchar_t s[] = L"/usr/local/doc";
-	wchar_t f[] = L"...";
+	wchar_t out[64];
 	cfg_maxpwdlen = 10;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L".../doc"));
+	wcslcpy(cfg_filler, L"...", FILLER_LEN);
+	path_cleancut(out, L"/usr/local/doc", 64);
+	return (assert_wstring_equals(out, L".../doc"));
 }
 
 static int
-test_cleancut__uld_to_eleven(void)
+test_path_cleancut__uld_to_eleven(void)
 {
-	wchar_t s[] = L"/usr/local/doc";
-	wchar_t f[] = L"_";
+	wchar_t out[64];
 	cfg_maxpwdlen = 11;
-	wcslcpy(cfg_filler, f, FILLER_LEN);
-	cleancut(s);
-	return (assert_wstring_equals(s, L"_/local/doc"));
+	wcslcpy(cfg_filler, L"_", FILLER_LEN);
+	path_cleancut(out, L"/usr/local/doc", 64);
+	return (assert_wstring_equals(out, L"_/local/doc"));
 }
 
 /*
@@ -597,7 +565,7 @@ test_alias__add__too_many(void)
 		return (0);
 	}
 
-	return (assert_string_equals(errstr, "too many aliases"));
+	return (assert_wstring_equals(errstr, L"too many aliases"));
 }
 
 /*
@@ -610,7 +578,7 @@ test_config__process_config_line__set_no_var(void)
 {
 	wchar_t line[] = L"set";
 	process_config_line(line, &errstr);
-	return (assert_string_equals(errstr, "set without variable name"));
+	return (assert_wstring_equals(errstr, L"set without variable name"));
 }
 
 static int
@@ -618,7 +586,7 @@ test_config__process_config_line__alias_no_name(void)
 {
 	wchar_t line[] = L"alias";
 	process_config_line(line, &errstr);
-	return (assert_string_equals(errstr, "alias without name"));
+	return (assert_wstring_equals(errstr, L"alias without name"));
 }
 
 static int
@@ -651,7 +619,8 @@ test_config__process_config_line__set_maxlength_bad(void)
 {
 	wchar_t line[] = L"set maxlength $F@#$";
 	process_config_line(line, &errstr);
-	return (assert_string_equals(errstr, "invalid number for set maxlength"));
+	return (assert_wstring_equals(errstr,
+	    L"invalid number for set maxlength"));
 }
 
 static int
@@ -659,7 +628,8 @@ test_config__process_config_line__set_maxlength_overflow(void)
 {
 	wchar_t line[] = L"set maxlength 5000";
 	process_config_line(line, &errstr);
-	return (assert_string_equals(errstr, "invalid number for set maxlength"));
+	return (assert_wstring_equals(errstr,
+	    L"invalid number for set maxlength"));
 }
 
 static int
@@ -860,7 +830,7 @@ test_template_tokenize__too_many_tokens(void)
 
 	return (
 	    assert_int_equals(i, -1) &&
-	    assert_string_equals(errstr, "tokenize error: too many tokens")
+	    assert_wstring_equals(errstr, L"tokenize error: too many tokens")
 	);
 }
 
@@ -877,7 +847,8 @@ test_template_tokenize__token_too_long(void)
 
 	return (
 	    assert_int_equals(i, -1) &&
-	    assert_string_equals(errstr, "tokenize error: invalid token size")
+	    assert_wstring_equals(errstr,
+		L"tokenize error: invalid token size")
 	);
 }
 
@@ -1144,7 +1115,7 @@ test_template_variable_lexer__unmatched_quote(void)
 
 	return (
 	    assert_size_t_equals(i, (size_t)-1) &&
-	    assert_string_equals(errstr, "unmatched quote")
+	    assert_wstring_equals(errstr, L"unmatched quote")
 	);
 }
 
@@ -1179,7 +1150,7 @@ test_template_variable_lexer__err_arg_size(void)
 
 	return (
 	    assert_size_t_equals(i, (size_t)-1) &&
-	    assert_string_equals(errstr, "argument list too large")
+	    assert_wstring_equals(errstr, L"argument list too large")
 	);
 }
 
@@ -1198,7 +1169,7 @@ test_template_variable_lexer__err_too_many(void)
 
 	return (
 	    assert_int_equals(i, -1) &&
-	    assert_string_equals(errstr, "argument list too large")
+	    assert_wstring_equals(errstr, L"argument list too large")
 	);
 }
 
@@ -1222,16 +1193,16 @@ static int
 test_path_exec__path(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"path";
-	wchar_t buf[MAX_OUTPUT_LEN];
+	wchar_t out[MAX_OUTPUT_LEN];
 	struct arglist al;
 
 	wcslcpy(path_wcswd_fakepwd, L"/usr/local/bin", MAXPATHLEN);
 
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);
-	path_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
+	path_exec(al.argc, al.argv, out, MAX_OUTPUT_LEN);
 
-	return (assert_wstring_equals(buf, L"/usr/local/bin"));
+	return (assert_wstring_equals(out, L"/usr/local/bin"));
 }
 
 static int
@@ -1274,39 +1245,37 @@ main(int argc, const char *argv[])
 	(void)argv;
 	setlocale(LC_ALL, "");
 
-	RUN_TEST(test_newsgroupize__null);
-	RUN_TEST(test_newsgroupize__empty);
-	RUN_TEST(test_newsgroupize__one);
-	RUN_TEST(test_newsgroupize__slash_one);
-	RUN_TEST(test_newsgroupize__root);
-	RUN_TEST(test_newsgroupize__tmp);
-	RUN_TEST(test_newsgroupize__home);
-	RUN_TEST(test_newsgroupize__shortpath);
-	RUN_TEST(test_newsgroupize__shortpath_one_level);
-	RUN_TEST(test_newsgroupize__alreadyshort);
-	RUN_TEST(test_newsgroupize__trailingslash);
-	RUN_TEST(test_newsgroupize__alias);
+	RUN_TEST(test_path_newsgroupize__null);
+	RUN_TEST(test_path_newsgroupize__empty);
+	RUN_TEST(test_path_newsgroupize__one);
+	RUN_TEST(test_path_newsgroupize__slash_one);
+	RUN_TEST(test_path_newsgroupize__root);
+	RUN_TEST(test_path_newsgroupize__tmp);
+	RUN_TEST(test_path_newsgroupize__home);
+	RUN_TEST(test_path_newsgroupize__shortpath);
+	RUN_TEST(test_path_newsgroupize__shortpath_one_level);
+	RUN_TEST(test_path_newsgroupize__alreadyshort);
+	RUN_TEST(test_path_newsgroupize__trailingslash);
+	RUN_TEST(test_path_newsgroupize__alias);
 
-	RUN_TEST(test_quickcut__null);
-	RUN_TEST(test_quickcut__empty);
-	RUN_TEST(test_quickcut__one_to_one);
-	RUN_TEST(test_quickcut__one_to_two);
-	RUN_TEST(test_quickcut__thirty_to_ten);
-	RUN_TEST(test_quickcut__ten_to_thirty);
-	RUN_TEST(test_quickcut__ten_to_ten);
+	RUN_TEST(test_path_quickcut__empty);
+	RUN_TEST(test_path_quickcut__one_to_one);
+	RUN_TEST(test_path_quickcut__one_to_two);
+	RUN_TEST(test_path_quickcut__thirty_to_ten);
+	RUN_TEST(test_path_quickcut__ten_to_thirty);
+	RUN_TEST(test_path_quickcut__ten_to_ten);
 
-	RUN_TEST(test_cleancut__null);
-	RUN_TEST(test_cleancut__empty);
-	RUN_TEST(test_cleancut__root_to_ten);
-	RUN_TEST(test_cleancut__root_to_one);
-	RUN_TEST(test_cleancut__tmp_to_one);
-	RUN_TEST(test_cleancut__tmp_to_three);
-	RUN_TEST(test_cleancut__tmp_to_four);
-	RUN_TEST(test_cleancut__tmp_to_ten);
-	RUN_TEST(test_cleancut__uld_to_one);
-	RUN_TEST(test_cleancut__uld_to_five);
-	RUN_TEST(test_cleancut__uld_to_ten);
-	RUN_TEST(test_cleancut__uld_to_eleven);
+	RUN_TEST(test_path_cleancut__empty);
+	RUN_TEST(test_path_cleancut__root_to_ten);
+	RUN_TEST(test_path_cleancut__root_to_one);
+	RUN_TEST(test_path_cleancut__tmp_to_one);
+	RUN_TEST(test_path_cleancut__tmp_to_three);
+	RUN_TEST(test_path_cleancut__tmp_to_four);
+	RUN_TEST(test_path_cleancut__tmp_to_ten);
+	RUN_TEST(test_path_cleancut__uld_to_one);
+	RUN_TEST(test_path_cleancut__uld_to_five);
+	RUN_TEST(test_path_cleancut__uld_to_ten);
+	RUN_TEST(test_path_cleancut__uld_to_eleven);
 
 	RUN_TEST(test_alias__replace__none);
 	RUN_TEST(test_alias__replace__home_alone);

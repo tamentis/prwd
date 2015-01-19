@@ -2,10 +2,10 @@ BINARY=prwd
 
 OBJECTS=alias.o \
 	config.o \
-	cut.o \
 	hostname.o \
 	main.o \
 	path.o \
+	path-cut.o \
 	path-newsgroupize.o \
 	strdelim.o \
 	uid.o \
@@ -34,6 +34,9 @@ run_tests: ${OBJECTS}
 
 test: run_tests run_tests.sh
 	./run_tests.sh
+
+force-test: run_tests
+	./run_tests
 
 clean:
 	rm -f ${BINARY} ${OBJECTS}

@@ -22,17 +22,22 @@
 #include <errno.h>
 #include <wchar.h>
 
+#include "path.h"
 #include "prwd.h"
 #include "strlcpy.h"
 #include "wcslcpy.h"
+#include "wcstonum.h"
 #include "wgetopt.h"
-#include "path.h"
 
 #define ERR_NO_ACCESS L"<path-no-access>"
 #define ERR_NOT_FOUND L"<path-not-found>"
 #define ERR_BAD_CHARSET L"<path-bad-charset>"
 #define ERR_BAD_ARG L"<path-bad-arg>"
-#define ERR_GENERIC L"<path-bad-arg>"
+#define ERR_GENERIC L"<path-error>"
+
+extern size_t cfg_maxpwdlen;
+extern int cfg_newsgroup;
+extern int cfg_cleancut;
 
 /*
  * Return a wide-char version of the current path.  If any error occurs,
@@ -101,7 +106,6 @@ path_wcswd(wchar_t *wcswd, size_t len, const wchar_t **errstr)
 void
 path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
-	int newsgroupize = 0;
 	const wchar_t *errstr = NULL;
 	wchar_t ch, wcswd[MAXPATHLEN];
 
@@ -111,12 +115,27 @@ path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 		return;
 	}
 
+	/* Reset options */
+	cfg_newsgroup = 0;
+	cfg_maxpwdlen = MAXPWD_LEN;
+	cfg_cleancut = 0;
 	woptreset = 1;
 	woptind = 0;
-	while ((ch = wgetopt(argc, argv, L"n")) != -1) {
+
+	while ((ch = wgetopt(argc, argv, L"cm:n")) != -1) {
 		switch (ch) {
+		case L'c':
+			cfg_cleancut = 1;
+			break;
+		case L'm':
+			cfg_maxpwdlen = wcstonum(woptarg, 1, 255, &errstr);
+			if (cfg_maxpwdlen == 0) {
+				wcslcpy(out, ERR_BAD_ARG, len);
+				return;
+			}
+			break;
 		case L'n':
-			newsgroupize = 1;
+			cfg_newsgroup = 1;
 			break;
 		default:
 			wcslcpy(out, ERR_BAD_ARG, len);
@@ -124,9 +143,19 @@ path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 		}
 	}
 
-	if (newsgroupize) {
+	if (cfg_newsgroup) {
 		path_newsgroupize(out, wcswd, len);
-	} else {
-		wcslcpy(out, wcswd, len);
+		return;
 	}
+
+	if (cfg_maxpwdlen > 0 && wcslen(wcswd) > cfg_maxpwdlen) {
+		if (cfg_cleancut) {
+			path_cleancut(out, wcswd, len);
+		} else {
+			path_quickcut(out, wcswd, len);
+		}
+		return;
+	}
+
+	wcslcpy(out, wcswd, len);
 }

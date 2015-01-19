@@ -21,14 +21,15 @@
 #include "wcslcpy.h"
 #include "template.h"
 
-#define ERRSTR_OUTPUT_SIZE "output buffer too short for rendered template"
+#define ERRSTR_OUTPUT_SIZE L"output buffer too short for rendered template"
 
 /*
  * Execute the provided template 'tmpl' and save the output to 'output'.  In
  * case of error, return -1 and set errstrp to an error message.
  */
 int
-template_render(wchar_t *tmpl, wchar_t *out, size_t len, const char **errstrp)
+template_render(wchar_t *tmpl, wchar_t *out, size_t len,
+    const wchar_t **errstrp)
 {
 	struct token tokens[MAX_TOKEN_COUNT];
 	wchar_t buf[MAX_OUTPUT_LEN], *c;

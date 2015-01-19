@@ -26,7 +26,6 @@
 #include "prwd.h"
 #include "config.h"
 #include "alias.h"
-#include "cut.h"
 #include "path.h"
 #include "branch.h"
 #include "hostname.h"
@@ -36,6 +35,7 @@
 extern int cfg_cleancut;
 extern size_t cfg_maxpwdlen;
 extern int cfg_newsgroup;
+extern wchar_t cfg_template[MAX_OUTPUT_LEN];
 
 extern int wopterr;
 
@@ -49,34 +49,25 @@ static void
 prwd(void)
 {
 	size_t len;
-	const char *errstr;
-	const wchar_t *werrstr;
-	wchar_t wcswd[MAX_OUTPUT_LEN], buf[MAX_OUTPUT_LEN];
+	const wchar_t *errstr;
+	wchar_t wcswd[MAX_OUTPUT_LEN];
 
-	path_wcswd(wcswd, MAX_OUTPUT_LEN, &werrstr);
-	if (werrstr != NULL) {
-		wcslcpy(wcswd, werrstr, MAX_OUTPUT_LEN);
+	path_wcswd(wcswd, MAX_OUTPUT_LEN, &errstr);
+	if (errstr != NULL) {
+		wcslcpy(wcswd, errstr, MAX_OUTPUT_LEN);
 		goto done;
 	}
 
 	/* Replace the beginning with ~ for directories within $HOME. */
 	alias_add(L"~", home, &errstr);
 	if (errstr != NULL)
-		errx(1, "failed to add default \"~\" alias: %s", errstr);
+		errx(1, "failed to add default \"~\" alias: %ls", errstr);
 
 	/* Alias handling */
 	alias_replace(wcswd);
 
 	/* If the path is still too long, crop it. */
 	len = wcslen(wcswd);
-
-	if (cfg_maxpwdlen > 0 && len > cfg_maxpwdlen) {
-		if (cfg_cleancut && !cfg_newsgroup) {
-			cleancut(wcswd);
-		} else {
-			quickcut(wcswd, len);
-		}
-	}
 
 done:
 	wprintf(L"%ls\n", wcswd);
@@ -87,14 +78,11 @@ prwd_template(wchar_t *t)
 {
 	wchar_t output[MAX_OUTPUT_LEN];
 	int i;
-	const char *errstr;
-
-	/* Shut the wgetopt() warnings. */
-	// XXX wopterr = 0;
+	const wchar_t *errstr;
 
 	i = template_render(t, output, MAX_OUTPUT_LEN, &errstr);
 	if (errstr != NULL)
-		errx(1, "template error: %s", errstr);
+		errx(1, "template error: %ls", errstr);
 
 	wprintf(L"%ls\n", output);
 }
@@ -104,7 +92,6 @@ int
 main(int argc, char **argv)
 {
 	char *t;
-	wchar_t template[MAX_OUTPUT_LEN];
 	int opt, run_dump_alias_vars = 0;
 
 	while ((opt = getopt(argc, argv, "aVh")) != -1) {
@@ -136,9 +123,14 @@ main(int argc, char **argv)
 		return (0);
 	}
 
-	if ((t = getenv("PRWD")) != NULL) {
-		mbstowcs(template, t, MAX_OUTPUT_LEN);
-		prwd_template(template);
+	if (wcslen(cfg_template) == 0) {
+		if ((t = getenv("PRWD")) != NULL) {
+			mbstowcs(cfg_template, t, MAX_OUTPUT_LEN);
+		}
+	}
+
+	if (wcslen(cfg_template) > 0) {
+		prwd_template(cfg_template);
 		return (0);
 	}
 

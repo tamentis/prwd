@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2014-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -29,8 +29,8 @@ enum fsm_state {
 	STATE_APPEND_TOKEN
 };
 
-#define ERRSTR_TOKEN_SIZE "tokenize error: invalid token size"
-#define ERRSTR_TOO_MANY "tokenize error: too many tokens"
+#define ERRSTR_TOKEN_SIZE L"tokenize error: invalid token size"
+#define ERRSTR_TOO_MANY L"tokenize error: too many tokens"
 
 /*
  * Given a template wide-char string 's', split all the tokens within and set
@@ -50,7 +50,7 @@ enum fsm_state {
  */
 int
 template_tokenize(wchar_t *s, struct token *tokens, size_t len,
-    const char **errstrp)
+    const wchar_t **errstrp)
 {
 	enum fsm_state state, next_state;
 	wchar_t buf[MAX_TOKEN_LEN];

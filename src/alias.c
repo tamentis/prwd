@@ -33,27 +33,27 @@ int alias_count = 0;
  * error occured and the alias was not added.
  */
 void
-alias_add(wchar_t *name, wchar_t *path, const char **errstrp)
+alias_add(wchar_t *name, wchar_t *path, const wchar_t **errstrp)
 {
 	*errstrp = NULL;
 
 	if (alias_count >= MAX_ALIASES - 1) {
-		*errstrp = "too many aliases";
+		*errstrp = L"too many aliases";
 		return;
 	}
 
 	if (wcslen(path) > (MAXPATHLEN - 1)) {
-		*errstrp = "alias path is too long";
+		*errstrp = L"alias path is too long";
 		return;
 	}
 
 	if (wcslen(path) < wcslen(name)) {
-		*errstrp = "alias name longer than its path";
+		*errstrp = L"alias name longer than its path";
 		return;
 	}
 
 	if (wcschr(name, '/') != NULL) {
-		*errstrp = "alias name contains '/'";
+		*errstrp = L"alias name contains '/'";
 		return;
 	}
 

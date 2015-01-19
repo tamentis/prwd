@@ -32,8 +32,8 @@ enum fsm_state {
 	STATE_ESCAPED
 };
 
-#define ERRSTR_TOO_LARGE "argument list too large"
-#define ERRSTR_UNMATCHED_QUOTE "unmatched quote"
+#define ERRSTR_TOO_LARGE L"argument list too large"
+#define ERRSTR_UNMATCHED_QUOTE L"unmatched quote"
 
 /*
  * Run a lexical analysis on a variable token extracted from a template.  This
@@ -55,7 +55,8 @@ enum fsm_state {
  * which could be passed to getopt() with its argc and argv properties.
  */
 size_t
-template_variable_lexer(wchar_t *s, struct arglist *al, const char **errstrp)
+template_variable_lexer(wchar_t *s, struct arglist *al,
+    const wchar_t **errstrp)
 {
 	enum fsm_state state, next_state;
 	wchar_t buf[MAX_ARGLIST_SIZE];

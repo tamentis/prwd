@@ -30,5 +30,6 @@ enum {
 void	 path_wcswd(wchar_t *, size_t, const wchar_t **);
 void	 path_exec(int, wchar_t **, wchar_t *, size_t);
 void	 path_newsgroupize(wchar_t *, const wchar_t *, size_t);
-
+void	 path_cleancut(wchar_t *, wchar_t *, size_t);
+void	 path_quickcut(wchar_t *, wchar_t *, size_t);
 #endif /* #ifndef _PATH_H_ */

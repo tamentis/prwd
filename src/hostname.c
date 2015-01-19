@@ -17,8 +17,10 @@
 #include <sys/param.h>
 
 #include <string.h>
+#include <stdlib.h>
 #include <wchar.h>
 
+#include "hostname.h"
 #include "utils.h"
 #include "wgetopt.h"
 
@@ -35,7 +37,6 @@ void
 hostname_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
 	int longform = 0;
-	const wchar_t *errstr = NULL;
 	wchar_t ch;
 	char buf[MAXHOSTNAMELEN], *c;
 

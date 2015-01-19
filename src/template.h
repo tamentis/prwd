@@ -64,10 +64,10 @@ struct arglist {
 	wchar_t value[MAX_ARGLIST_SIZE];
 };
 
-int	 template_tokenize(wchar_t *, struct token *, size_t, const char **);
-int	 template_render(wchar_t *, wchar_t *, size_t, const char **);
-int	 template_exec(wchar_t *, wchar_t *, size_t, const char **);
-size_t	 template_variable_lexer(wchar_t *, struct arglist *, const char **);
+int	 template_tokenize(wchar_t *, struct token *, size_t, const wchar_t **);
+int	 template_render(wchar_t *, wchar_t *, size_t, const wchar_t **);
+int	 template_exec(wchar_t *, wchar_t *, size_t, const wchar_t **);
+size_t	 template_variable_lexer(wchar_t *, struct arglist *, const wchar_t **);
 void	 template_arglist_init(struct arglist *);
 size_t	 template_arglist_insert(struct arglist *, wchar_t *);
 

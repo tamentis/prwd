@@ -29,7 +29,7 @@ struct alias {
 	wchar_t	path[MAXPATHLEN];
 };
 
-void		 alias_add(wchar_t *, wchar_t *, const char **);
+void		 alias_add(wchar_t *, wchar_t *, const wchar_t **);
 void		 alias_purge_all(void);
 void		 alias_expand_prefix(wchar_t *, wchar_t *);
 void		 alias_dump_vars(void);

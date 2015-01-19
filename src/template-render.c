@@ -38,7 +38,7 @@ template_render(wchar_t *tmpl, wchar_t *out, size_t len,
 
 	count = template_tokenize(tmpl, tokens, MAX_TOKEN_COUNT, errstrp);
 	if (count == -1) {
-		return -1;
+		return (-1);
 	}
 
 	cur = 0;
@@ -64,5 +64,5 @@ template_render(wchar_t *tmpl, wchar_t *out, size_t len,
 
 	out[cur] = L'\0';
 
-	return 0;
+	return (0);
 }

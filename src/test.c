@@ -956,9 +956,8 @@ test_template_arglist__insert_err_too_many_args(void)
 	    assert_wstring_equals(al.argv[MAX_ARG_COUNT - 1], s)
 	);
 
-	if (!a) {
-		return a;
-	}
+	if (!a)
+		return (a);
 
 	/* This final insert should cause an error. */
 	argc = template_arglist_insert(&al, s);
@@ -992,9 +991,8 @@ test_template_arglist__insert_err_too_many_chars(void)
 	    assert_wstring_equals(al.argv[max - 1], s)
 	);
 
-	if (!a) {
-		return a;
-	}
+	if (!a)
+		return (a);
 
 	/* This final insert should cause an error. */
 	argc = template_arglist_insert(&al, s);
@@ -1152,7 +1150,7 @@ test_template_variable_lexer__large_arg(void)
 	template_arglist_init(&al);
 	i = template_variable_lexer(input, &al, &errstr);
 
-	return assert_size_t_equals(i, 1);
+	return (assert_size_t_equals(i, 1));
 }
 
 static int

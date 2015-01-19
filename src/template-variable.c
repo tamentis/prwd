@@ -15,6 +15,7 @@
  */
 
 #include <wchar.h>
+#include <wctype.h>
 #include <string.h>
 
 #include "prwd.h"

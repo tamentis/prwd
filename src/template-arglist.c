@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2014-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -59,5 +59,5 @@ template_arglist_insert(struct arglist *al, wchar_t *arg)
 	al->len += l + 1;
 	al->argc++;
 
-	return al->argc;
+	return (al->argc);
 }

@@ -48,9 +48,8 @@ template_exec(wchar_t *value, wchar_t *out, size_t len,
 
 	template_arglist_init(&al);
 	argc = template_variable_lexer(value, &al, errstrp);
-	if (argc == (size_t)-1) {
+	if (argc == (size_t)-1)
 		return (-1);
-	}
 
 	if (argc == 0) {
 		*errstrp = ERRSTR_EMPTY;

@@ -21,5 +21,4 @@ int	 wc_path_is_valid(wchar_t *);
 int	 fmt_path_is_valid(char *, ...);
 void	 tokcpy(wchar_t *, wchar_t *);
 int	 lgethostname(char *, size_t);
-int	 iswspace(wchar_t);
 int	 wcswd(wchar_t *, size_t);

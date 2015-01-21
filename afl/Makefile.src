@@ -1,0 +1,18 @@
+CC=afl-gcc
+
+all:
+	@echo "AFL runs should run separately, read the Makefile"
+
+template:
+	cd ../src && make clean all
+	cp ../src/*.o .
+	cp ../src/*.h .
+	$(CC) ${CFLAGS} -c template.c -o main.o
+	$(CC) ${CFLAGS} ${LDFLAGS} -o template ${OBJECTS}
+
+run-template: template
+	mkdir -p findings/templates
+	afl-fuzz -i testcases/templates -o findings/templates ./template
+
+clean:
+	rm -f *.o *.h template

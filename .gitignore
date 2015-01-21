@@ -10,4 +10,6 @@ config.log
 config.status
 src/.deps/
 src/run_tests
-src/afl-template
+afl/template
+afl/findings
+afl/*.h

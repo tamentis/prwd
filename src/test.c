@@ -1255,7 +1255,6 @@ test_cmd_hostname_exec__long(void)
 	return (assert_wstring_equals(buf, L"foobar.example.com"));
 }
 
-
 int
 main(int argc, const char *argv[])
 {

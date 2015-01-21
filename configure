@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Configure script for 'prwd'
-# Copyright (c) 2012-2014 Bertrand Janin <b@janin.com>
+# Copyright (c) 2012-2015 Bertrand Janin <b@janin.com>
 #
 #
 
@@ -224,6 +224,7 @@ rm -f fake_wcstonum*
 
 generate_makefile Makefile.src > Makefile
 generate_makefile src/Makefile.src > src/Makefile
+generate_makefile afl/Makefile.src > afl/Makefile
 
 echo
 echo "Configured for '$OS', run 'make' (or 'gmake') to compile."

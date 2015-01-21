@@ -1,0 +1,11 @@
+AFL TESTS
+
+    Tools to run sub-systems of prwd through AFL.  The Makefile is quite hacky
+    and goes outside of the tree to pick up files required to build the tests.
+    You can run the tests individually with for example:
+
+        make run-template
+
+    Which will compile all the .c file to .o files in the ../src directory,
+    copy them with their headers in here, compile the template program which is
+    a stub reading templates from stdin and run afl-fuzz on it.

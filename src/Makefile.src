@@ -36,7 +36,7 @@ run-afl-template: afl-template
 	afl-fuzz -i afl-testcases/templates -o afl-findings/templates ./afl-template
 
 run_tests: ${OBJECTS}
-	$(CC) ${CFLAGS} -D REGRESS -c path.c -o path.o
+	$(CC) ${CFLAGS} -D REGRESS -c cmd-path.c -o cmd-path.o
 	$(CC) ${CFLAGS} -D REGRESS -c utils.c -o utils.o
 	$(CC) ${CFLAGS} -D REGRESS -c test.c -o main.o
 	$(CC) ${CFLAGS} ${LDFLAGS} -o run_tests ${OBJECTS}

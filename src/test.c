@@ -1192,7 +1192,7 @@ test_template_variable_lexer__err_too_many(void)
 }
 
 static int
-test_path_exec__path_n(void)
+test_cmd_path_exec__path_n(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"path -n";
 	wchar_t buf[MAX_OUTPUT_LEN];
@@ -1202,13 +1202,13 @@ test_path_exec__path_n(void)
 
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);
-	path_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
+	cmd_path_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
 
 	return (assert_wstring_equals(buf, L"/u/l/bin"));
 }
 
 static int
-test_path_exec__path(void)
+test_cmd_path_exec__path(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"path";
 	wchar_t out[MAX_OUTPUT_LEN];
@@ -1218,13 +1218,13 @@ test_path_exec__path(void)
 
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);
-	path_exec(al.argc, al.argv, out, MAX_OUTPUT_LEN);
+	cmd_path_exec(al.argc, al.argv, out, MAX_OUTPUT_LEN);
 
 	return (assert_wstring_equals(out, L"/usr/local/bin"));
 }
 
 static int
-test_hostname_exec__short(void)
+test_cmd_hostname_exec__short(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"hostname";
 	wchar_t buf[MAX_OUTPUT_LEN];
@@ -1234,13 +1234,13 @@ test_hostname_exec__short(void)
 
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);
-	hostname_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
+	cmd_hostname_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
 
 	return (assert_wstring_equals(buf, L"foobar"));
 }
 
 static int
-test_hostname_exec__long(void)
+test_cmd_hostname_exec__long(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"hostname -l";
 	wchar_t buf[MAX_OUTPUT_LEN];
@@ -1250,7 +1250,7 @@ test_hostname_exec__long(void)
 
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);
-	hostname_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
+	cmd_hostname_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
 
 	return (assert_wstring_equals(buf, L"foobar.example.com"));
 }
@@ -1352,11 +1352,11 @@ main(int argc, const char *argv[])
 	RUN_TEST(test_template_variable_lexer__err_arg_size);
 	RUN_TEST(test_template_variable_lexer__err_too_many);
 
-	RUN_TEST(test_path_exec__path);
-	RUN_TEST(test_path_exec__path_n);
+	RUN_TEST(test_cmd_path_exec__path);
+	RUN_TEST(test_cmd_path_exec__path_n);
 
-	RUN_TEST(test_hostname_exec__short);
-	RUN_TEST(test_hostname_exec__long);
+	RUN_TEST(test_cmd_hostname_exec__short);
+	RUN_TEST(test_cmd_hostname_exec__long);
 
 	printf("%d tests (%d PASS, %d FAIL)\n", tested, passed, failed);
 

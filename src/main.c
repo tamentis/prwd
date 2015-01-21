@@ -26,9 +26,7 @@
 #include "prwd.h"
 #include "config.h"
 #include "alias.h"
-#include "path.h"
-#include "branch.h"
-#include "hostname.h"
+#include "cmd-path.h"
 #include "template.h"
 #include "wcslcpy.h"
 

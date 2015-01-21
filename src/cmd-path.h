@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,16 +14,22 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _BRANCH_H_
-#define _BRANCH_H_
+#ifndef _PATH_H_
+#define _PATH_H_
 
 #include <wchar.h>
 
-enum vcs_types { VCS_NONE, VCS_MERCURIAL, VCS_GIT };
+enum {
+	ERR_NO_ACCESS = 1,
+	ERR_NOT_FOUND,
+	ERR_BAD_CHARSET,
+	ERR_BAD_ARG,
+	ERR_GENERIC
+};
 
-void	 parse_git_head(wchar_t *, char *, size_t);
-void	 parse_hg_branch(wchar_t *, char *, size_t);
-void	 add_branch(wchar_t *, size_t);
-void	 branch_exec(int, wchar_t **, wchar_t *, size_t);
-
-#endif /* #ifndef _BRANCH_H_ */
+void	 path_wcswd(wchar_t *, size_t, const wchar_t **);
+void	 cmd_path_exec(int, wchar_t **, wchar_t *, size_t);
+void	 path_newsgroupize(wchar_t *, const wchar_t *, size_t);
+void	 path_cleancut(wchar_t *, wchar_t *, size_t);
+void	 path_quickcut(wchar_t *, wchar_t *, size_t);
+#endif /* #ifndef _PATH_H_ */

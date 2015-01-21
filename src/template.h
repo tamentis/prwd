@@ -20,11 +20,11 @@
  *  1. template_tokenize() will take a full template string and turn it into a
  *     list of tokens.
  *  2. template_render() will loop over the tokens and copy or execute them
- *     depending on their type (STATIC vs DYNAMIC):
- *      2.1. template_exec() is run from render on dynamic tokens:
- *            a) template_variable_lexer() will split the dynamic token
- *               ("variable") into an arglist which is suitable for getopt().
- *            b) the commands found in the arglist are executed.
+ *     depending on their type (STATIC vs COMMAND):
+ *      2.1. template_exec_cmd() is run from render on command tokens:
+ *            a) template_variable_lexer() will split the command tokens
+ *               into an arglist which is suitable for getopt().
+ *            b) execute the comand based on the arglist.
  */
 
 #ifndef _TEMPLATE_H_
@@ -44,7 +44,7 @@
 /* Maximum number of characters (including NUL-bytes) stored in an arglist */
 #define MAX_ARGLIST_SIZE (64 * MAX_ARG_COUNT)
 
-enum tokentype { TOKEN_STATIC, TOKEN_DYNAMIC };
+enum tokentype { TOKEN_STATIC, TOKEN_COMMAND };
 
 struct token {
 	enum tokentype type;
@@ -66,7 +66,7 @@ struct arglist {
 
 int	 template_tokenize(wchar_t *, struct token *, size_t, const wchar_t **);
 int	 template_render(wchar_t *, wchar_t *, size_t, const wchar_t **);
-int	 template_exec(wchar_t *, wchar_t *, size_t, const wchar_t **);
+int	 template_exec_cmd(wchar_t *, wchar_t *, size_t, const wchar_t **);
 size_t	 template_variable_lexer(wchar_t *, struct arglist *, const wchar_t **);
 void	 template_arglist_init(struct arglist *);
 size_t	 template_arglist_insert(struct arglist *, wchar_t *);

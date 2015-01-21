@@ -1,4 +1,5 @@
 FOR 2.0
+ - split the test suite on a per-file basis (e.g. test-path.c)
  - Allow the configuration to be overridden by command-line flags.
  - Document the fact that the configuration can be specified on the commandline.
  - implement the color command  ${color #121212}.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2014-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,22 +14,4 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _PATH_H_
-#define _PATH_H_
-
-#include <wchar.h>
-
-enum {
-	ERR_NO_ACCESS = 1,
-	ERR_NOT_FOUND,
-	ERR_BAD_CHARSET,
-	ERR_BAD_ARG,
-	ERR_GENERIC
-};
-
-void	 path_wcswd(wchar_t *, size_t, const wchar_t **);
-void	 path_exec(int, wchar_t **, wchar_t *, size_t);
-void	 path_newsgroupize(wchar_t *, const wchar_t *, size_t);
-void	 path_cleancut(wchar_t *, wchar_t *, size_t);
-void	 path_quickcut(wchar_t *, wchar_t *, size_t);
-#endif /* #ifndef _PATH_H_ */
+void	 cmd_uid_exec(int, wchar_t **, wchar_t *, size_t);

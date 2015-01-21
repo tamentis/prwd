@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <wchar.h>
 
-#include "branch.h"
+#include "cmd-branch.h"
 #include "utils.h"
 
 /* How much to read of the branch file (e.g. HEAD, .hg/branch, etc.) */
@@ -33,7 +33,7 @@
  * file is a simple branch name, we only need to remove a potential new-line
  * character.
  */
-void
+static void
 parse_hg_branch(wchar_t *out, char *data, size_t len)
 {
 	char *c;
@@ -47,7 +47,7 @@ parse_hg_branch(wchar_t *out, char *data, size_t len)
 /*
  * Extract a git branch name from *data and save it to *out.
  */
-void
+static void
 parse_git_head(wchar_t *out, char *data, size_t len)
 {
 	char *c;
@@ -85,7 +85,7 @@ done:
  * help them understand or correct the issue.
  */
 void
-branch_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
+cmd_branch_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
 	FILE *fp;
 	char *c, pwd[MAXPATHLEN], path[MAXPATHLEN], buf[BRANCH_FILE_BUFSIZE];

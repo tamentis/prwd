@@ -17,7 +17,7 @@
 #include <wchar.h>
 
 #include "prwd.h"
-#include "path.h"
+#include "cmd-path.h"
 #include "wcslcpy.h"
 
 /*

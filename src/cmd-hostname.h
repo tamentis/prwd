@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,6 +16,4 @@
 
 #include <wchar.h>
 
-#define MAX_DATE_LEN 128
-
-void	 date_exec(int, wchar_t **, wchar_t *, size_t);
+void	 cmd_hostname_exec(int, wchar_t **, wchar_t *, size_t);

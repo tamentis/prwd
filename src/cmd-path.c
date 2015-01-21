@@ -22,7 +22,7 @@
 #include <errno.h>
 #include <wchar.h>
 
-#include "path.h"
+#include "cmd-path.h"
 #include "prwd.h"
 #include "strlcpy.h"
 #include "wcslcpy.h"
@@ -104,7 +104,7 @@ path_wcswd(wchar_t *wcswd, size_t len, const wchar_t **errstr)
  * the prompt output).
  */
 void
-path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
+cmd_path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
 	const wchar_t *errstr = NULL;
 	wchar_t ch, wcswd[MAXPATHLEN];

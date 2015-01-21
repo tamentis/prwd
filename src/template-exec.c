@@ -17,13 +17,13 @@
 #include <wchar.h>
 #include <string.h>
 
-#include "branch.h"
-#include "date.h"
-#include "hostname.h"
-#include "path.h"
+#include "cmd-branch.h"
+#include "cmd-date.h"
+#include "cmd-hostname.h"
+#include "cmd-path.h"
+#include "cmd-uid.h"
 #include "prwd.h"
 #include "template.h"
-#include "uid.h"
 #include "wcslcpy.h"
 #include "wgetopt.h"
 
@@ -33,14 +33,14 @@
 #define ERRSTR_CMDERR L"command error"
 
 /*
- * Execute a single dynamic token.
+ * Execute a single command.
  *  1. shell tokenize, obtain argc and argv
  *  2. check if we know the command
  *  3. execute the parse_args for this command with the arglist
  *  4. copy the output
  */
 int
-template_exec(wchar_t *value, wchar_t *out, size_t len,
+template_exec_cmd(wchar_t *value, wchar_t *out, size_t len,
     const wchar_t **errstrp)
 {
 	struct arglist al;
@@ -57,15 +57,15 @@ template_exec(wchar_t *value, wchar_t *out, size_t len,
 	}
 
 	if (wcscmp(al.argv[0], L"path") == 0) {
-		path_exec(argc, al.argv, out, len);
+		cmd_path_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"branch") == 0) {
-		branch_exec(argc, al.argv, out, len);
+		cmd_branch_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"date") == 0) {
-		date_exec(argc, al.argv, out, len);
+		cmd_date_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"hostname") == 0) {
-		hostname_exec(argc, al.argv, out, len);
+		cmd_hostname_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"uid") == 0) {
-		uid_exec(argc, al.argv, out, len);
+		cmd_uid_exec(argc, al.argv, out, len);
 	} else {
 		*errstrp = ERRSTR_UNKCMD;
 		return (-1);

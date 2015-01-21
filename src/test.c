@@ -780,7 +780,7 @@ test_template_tokenize__one_static(void)
 }
 
 static int
-test_template_tokenize__one_dynamic(void)
+test_template_tokenize__one_command(void)
 {
 	wchar_t input[MAX_OUTPUT_LEN] = L"${bar}";
 	struct token tokens[10];
@@ -791,7 +791,7 @@ test_template_tokenize__one_dynamic(void)
 	return (
 	    assert_int_equals(i, 1) &&
 	    assert_wstring_equals(tokens[0].value, L"bar") &&
-	    assert_int_equals(tokens[0].type, TOKEN_DYNAMIC) &&
+	    assert_int_equals(tokens[0].type, TOKEN_COMMAND) &&
 	    assert_null(errstr)
 	);
 }
@@ -812,9 +812,9 @@ test_template_tokenize__complex(void)
 	    assert_wstring_equals(tokens[2].value, L" and fooba") &&
 	    assert_wstring_equals(tokens[3].value, L"r") &&
 	    assert_int_equals(tokens[0].type, TOKEN_STATIC) &&
-	    assert_int_equals(tokens[1].type, TOKEN_DYNAMIC) &&
+	    assert_int_equals(tokens[1].type, TOKEN_COMMAND) &&
 	    assert_int_equals(tokens[2].type, TOKEN_STATIC) &&
-	    assert_int_equals(tokens[3].type, TOKEN_DYNAMIC) &&
+	    assert_int_equals(tokens[3].type, TOKEN_COMMAND) &&
 	    assert_null(errstr)
 	);
 }
@@ -1326,7 +1326,7 @@ main(int argc, const char *argv[])
 
 	RUN_TEST(test_template_tokenize__empty);
 	RUN_TEST(test_template_tokenize__one_static);
-	RUN_TEST(test_template_tokenize__one_dynamic);
+	RUN_TEST(test_template_tokenize__one_command);
 	RUN_TEST(test_template_tokenize__complex);
 	RUN_TEST(test_template_tokenize__too_many_tokens);
 	RUN_TEST(test_template_tokenize__token_too_long);

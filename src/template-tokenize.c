@@ -24,8 +24,8 @@ enum fsm_state {
 	STATE_DOLLAR,
 	STATE_STATIC,
 	STATE_STATIC_END,
-	STATE_DYNAMIC,
-	STATE_DYNAMIC_END,
+	STATE_COMMAND,
+	STATE_COMMAND_END,
 	STATE_APPEND_TOKEN
 };
 
@@ -42,9 +42,9 @@ enum fsm_state {
  * the 'tokens' array would contain the following strings:
  *
  *     - this is	(TOKEN_STATIC)
- *     - a var		(TOKEN_DYNAMIC)
+ *     - a var		(TOKEN_COMMAND)
  *     - with		(TOKEN_STATIC)
- *     - things		(TOKEN_DYNAMIC)
+ *     - things		(TOKEN_COMMAND)
  *
  * The return value would be 4.
  */
@@ -77,7 +77,7 @@ template_tokenize(wchar_t *s, struct token *tokens, size_t len,
 		case STATE_STATIC_END:
 			tokens[count].type = TOKEN_STATIC;
 			state = STATE_APPEND_TOKEN;
-			next_state = STATE_DYNAMIC;
+			next_state = STATE_COMMAND;
 			break;
 		case STATE_DOLLAR:
 			if (*s == L'{') {
@@ -87,19 +87,19 @@ template_tokenize(wchar_t *s, struct token *tokens, size_t len,
 			buf[cur++] = L'$';
 			state = STATE_STATIC;
 			break;
-		case STATE_DYNAMIC:
+		case STATE_COMMAND:
 			if (*s == L'\0') {
-				state = STATE_DYNAMIC_END;
+				state = STATE_COMMAND_END;
 				break;
 			}
 			if (*s == L'}') {
-				state = STATE_DYNAMIC_END;
+				state = STATE_COMMAND_END;
 				break;
 			}
 			buf[cur++] = *(s++);
 			break;
-		case STATE_DYNAMIC_END:
-			tokens[count].type = TOKEN_DYNAMIC;
+		case STATE_COMMAND_END:
+			tokens[count].type = TOKEN_COMMAND;
 			state = STATE_APPEND_TOKEN;
 			next_state = STATE_STATIC;
 			break;

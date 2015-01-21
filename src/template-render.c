@@ -46,7 +46,7 @@ template_render(wchar_t *tmpl, wchar_t *out, size_t len,
 		if (tokens[i].type == TOKEN_STATIC) {
 			c = tokens[i].value;
 		} else {
-			template_exec(tokens[i].value, buf, MAX_OUTPUT_LEN,
+			template_exec_cmd(tokens[i].value, buf, MAX_OUTPUT_LEN,
 			    errstrp);
 			if (*errstrp != NULL) {
 				return (-1);

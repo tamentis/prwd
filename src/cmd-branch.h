@@ -14,6 +14,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifndef _BRANCH_H_
+#define _BRANCH_H_
+
 #include <wchar.h>
 
-void	 hostname_exec(int, wchar_t **, wchar_t *, size_t);
+enum vcs_types { VCS_NONE, VCS_MERCURIAL, VCS_GIT };
+
+void	 cmd_branch_exec(int, wchar_t **, wchar_t *, size_t);
+
+#endif /* #ifndef _BRANCH_H_ */

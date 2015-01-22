@@ -1,0 +1,31 @@
+REGRESS_CFLAGS=-DREGRESS -I../src
+TEST_INCLUDES=inc-filelist.c inc-testlist.c
+
+all: test
+
+obj:
+	cd ../src && CFLAGS="${REGRESS_CFLAGS}" make clean obj
+
+run-tests: ${TEST_INCLUDES} obj
+	$(CC) ${REGRESS_CFLAGS} ${CFLAGS} -c test.c
+	$(CC) ${CFLAGS} ${LDFLAGS} -o run-tests ../src/*.o test.o
+
+inc-filelist.c:
+	ls test-*.c \
+		| sed 's/^/#include "/' \
+		| sed 's/$$/"/' \
+		> inc-filelist.c
+
+inc-testlist.c:
+	grep -h '^test_' test-*c \
+		| sed 's/(.*/);/g' \
+		| sed 's/^/RUN_TEST(/' \
+		> inc-testlist.c
+
+test: obj run-tests
+	./run-tests
+
+clean:
+	rm -f *.o run-tests inc-*.c
+
+.PHONY: testlist.c

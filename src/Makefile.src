@@ -22,24 +22,14 @@ OBJECTS+=${EXTRA_OBJECTS}
 
 CFLAGS?=--std=c99 -Wall
 
+obj: ${OBJECTS}
+
 all: ${BINARY}
 
 ${BINARY}: ${OBJECTS}
 	$(CC) -o ${BINARY} ${OBJECTS}
 
-run_tests: ${OBJECTS}
-	$(CC) ${CFLAGS} -D REGRESS -c cmd-path.c -o cmd-path.o
-	$(CC) ${CFLAGS} -D REGRESS -c utils.c -o utils.o
-	$(CC) ${CFLAGS} -D REGRESS -c test.c -o main.o
-	$(CC) ${CFLAGS} ${LDFLAGS} -o run_tests ${OBJECTS}
-
-test: run_tests run_tests.sh
-	./run_tests.sh
-
-force-test: run_tests
-	./run_tests
-
 clean:
 	rm -f ${BINARY} ${OBJECTS}
 
-.PHONY: clean test all
+.PHONY: clean all

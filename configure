@@ -224,6 +224,7 @@ rm -f fake_wcstonum*
 
 generate_makefile Makefile.src > Makefile
 generate_makefile src/Makefile.src > src/Makefile
+generate_makefile tests/Makefile.src > tests/Makefile
 generate_makefile afl/Makefile.src > afl/Makefile
 
 echo

@@ -17,18 +17,18 @@
 static int
 test_alias__replace__none(void)
 {
-	wchar_t pwd[] = L"/usr/local/doc";
+	wchar_t pwd[] = L"/usr/src";
 	alias_purge_all();
 	alias_replace(pwd);
-	return (assert_wstring_equals(pwd, L"/usr/local/doc"));
+	return (assert_wstring_equals(pwd, L"/usr/src"));
 }
 
 static int
 test_alias__replace__home_alone(void)
 {
-	wchar_t pwd[] = L"/home/tamentis";
+	wchar_t pwd[] = L"/home/foo";
 	alias_purge_all();
-	ALIAS_ADD(L"~", L"/home/tamentis");
+	ALIAS_ADD(L"~", L"/home/foo");
 	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"~"));
 }
@@ -36,9 +36,9 @@ test_alias__replace__home_alone(void)
 static int
 test_alias__replace__home_and_one(void)
 {
-	wchar_t pwd[] = L"/home/tamentis/x";
+	wchar_t pwd[] = L"/home/foo/x";
 	alias_purge_all();
-	ALIAS_ADD(L"~", L"/home/tamentis");
+	ALIAS_ADD(L"~", L"/home/foo");
 	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"~/x"));
 }
@@ -46,35 +46,35 @@ test_alias__replace__home_and_one(void)
 static int
 test_alias__replace__home_and_tree(void)
 {
-	wchar_t pwd[] = L"/home/tamentis/x/projects/stuff";
+	wchar_t pwd[] = L"/home/foo/x/projects/prwd";
 	alias_purge_all();
-	ALIAS_ADD(L"~", L"/home/tamentis");
+	ALIAS_ADD(L"~", L"/home/foo");
 	alias_replace(pwd);
-	return (assert_wstring_equals(pwd, L"~/x/projects/stuff"));
+	return (assert_wstring_equals(pwd, L"~/x/projects/prwd"));
 }
 
 static int
 test_alias__replace__five_unmatching_aliases(void)
 {
-	wchar_t pwd[] = L"/home/tamentiz/x/projects";
+	wchar_t pwd[] = L"/home/foo/x/projects";
 	alias_purge_all();
 	ALIAS_ADD(L"a1", L"/the/first/path");
 	ALIAS_ADD(L"b2", L"/path/second");
-	ALIAS_ADD(L"c3", L"/troisieme/chemin");
-	ALIAS_ADD(L"d4", L"drole/de/chemin/quatre");
-	ALIAS_ADD(L"e5", L"/home/tamentïs");
+	ALIAS_ADD(L"c3", L"/third/path");
+	ALIAS_ADD(L"d4", L"foo/bar/fourth/path");
+	ALIAS_ADD(L"e5", L"/home/föö");
 	alias_replace(pwd);
-	return (assert_wstring_equals(pwd, L"/home/tamentiz/x/projects"));
+	return (assert_wstring_equals(pwd, L"/home/foo/x/projects"));
 }
 
 static int
 test_alias__replace__duplicate_aliases(void)
 {
-	wchar_t pwd[] = L"/home/tamentis/x/projects";
+	wchar_t pwd[] = L"/home/foo/x/projects";
 	alias_purge_all();
-	ALIAS_ADD(L"aa", L"/home/tamentis");
-	ALIAS_ADD(L"aa", L"/home/tamentis");
-	ALIAS_ADD(L"aa", L"/home/tamentis");
+	ALIAS_ADD(L"aa", L"/home/foo");
+	ALIAS_ADD(L"aa", L"/home/foo");
+	ALIAS_ADD(L"aa", L"/home/foo");
 	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"aa/x/projects"));
 }
@@ -82,12 +82,12 @@ test_alias__replace__duplicate_aliases(void)
 static int
 test_alias__replace__find_smallest(void)
 {
-	wchar_t pwd[] = L"/home/tamentis/x/y/z/projects/prwd";
+	wchar_t pwd[] = L"/home/foo/x/y/z/projects/prwd";
 	alias_count = 0;
-	ALIAS_ADD(L"bad1", L"/home/tamentis");
+	ALIAS_ADD(L"bad1", L"/home/foo");
 	ALIAS_ADD(L"bad2", L"/home");
-	ALIAS_ADD(L"bad3", L"/home/tamentis/x");
-	ALIAS_ADD(L"good", L"/home/tamentis/x/y/z");
+	ALIAS_ADD(L"bad3", L"/home/foo/x");
+	ALIAS_ADD(L"good", L"/home/foo/x/y/z");
 	alias_replace(pwd);
 	return (assert_wstring_equals(pwd, L"good/projects/prwd"));
 }
@@ -98,10 +98,10 @@ test_alias__add__too_many(void)
 	int i;
 	alias_purge_all();
 	for (i = 0; i < MAX_ALIASES * 2; i++) {
-		ALIAS_ADD(L"aa", L"/home/tamentis");
+		ALIAS_ADD(L"aa", L"/home/foo");
 	}
 
-	alias_add(L"aa", L"/home/tamentis", &errstr);
+	alias_add(L"aa", L"/home/foo", &errstr);
 	if (errstr == NULL) {
 		snprintf(details, sizeof(details),
 		    "alias_add should have returned an error");
@@ -114,37 +114,37 @@ test_alias__add__too_many(void)
 static int
 test_alias__expand_prefix__normal(void)
 {
-	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck";
+	wchar_t s[MAX_OUTPUT_LEN] = L"$local/man/cat1";
 	wchar_t output[MAX_OUTPUT_LEN];
 
 	alias_purge_all();
-	ALIAS_ADD(L"$what", L"/anything/giving");
+	ALIAS_ADD(L"$foo", L"/usr/local");
 	alias_expand_prefix(s, output);
-	return (assert_wstring_equals(output, L"/anything/giving/the/fsck"));
+	return (assert_wstring_equals(output, L"/usr/local/man/cat1"));
 }
 
 static int
 test_alias__expand_prefix__with_slash(void)
 {
-	wchar_t s[MAX_OUTPUT_LEN] = L"$what/the/fsck/";
+	wchar_t s[MAX_OUTPUT_LEN] = L"$local/man/cat1/";
 	wchar_t output[MAX_OUTPUT_LEN];
 
 	alias_purge_all();
-	ALIAS_ADD(L"$what", L"/anything/giving/");
+	ALIAS_ADD(L"$local", L"/usr/local/");
 	alias_expand_prefix(s, output);
-	return (assert_wstring_equals(output, L"/anything/giving//the/fsck/"));
+	return (assert_wstring_equals(output, L"/usr/local//man/cat1/"));
 }
 
 static int
 test_alias__expand_prefix__single(void)
 {
-	wchar_t s[MAX_OUTPUT_LEN] = L"$what";
+	wchar_t s[MAX_OUTPUT_LEN] = L"$local";
 	wchar_t output[MAX_OUTPUT_LEN];
 
 	alias_purge_all();
-	ALIAS_ADD(L"$what", L"/anything/giving");
+	ALIAS_ADD(L"$local", L"/usr/local");
 	alias_expand_prefix(s, output);
-	return (assert_wstring_equals(output, L"/anything/giving"));
+	return (assert_wstring_equals(output, L"/usr/local"));
 }
 
 /*
@@ -154,11 +154,11 @@ test_alias__expand_prefix__single(void)
 static int
 test_alias__expand_prefix__no_alias(void)
 {
-	wchar_t s[MAX_OUTPUT_LEN] = L"what";
+	wchar_t s[MAX_OUTPUT_LEN] = L"local";
 	wchar_t output[MAX_OUTPUT_LEN];
 
 	alias_purge_all();
-	ALIAS_ADD(L"$what", L"/anything/giving");
+	ALIAS_ADD(L"$local", L"/usr/local");
 	alias_expand_prefix(s, output);
-	return (assert_wstring_equals(output, L"what"));
+	return (assert_wstring_equals(output, L"local"));
 }

@@ -38,13 +38,13 @@ enum fsm_state {
  * The number of tokens saved on 'tokens' is returned. In case of error, -1 is
  * returned.
  *
- * For example, given the following string "this is ${a var} with ${things}",
+ * For example, given the following string "this is ${a var} foo ${bar}",
  * the 'tokens' array would contain the following strings:
  *
  *     - this is	(TOKEN_STATIC)
  *     - a var		(TOKEN_COMMAND)
- *     - with		(TOKEN_STATIC)
- *     - things		(TOKEN_COMMAND)
+ *     - foo		(TOKEN_STATIC)
+ *     - bar		(TOKEN_COMMAND)
  *
  * The return value would be 4.
  */

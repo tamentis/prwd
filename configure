@@ -65,8 +65,8 @@ usage() {
 }
 
 
-# stuff_not_found() - Exit 'cause we're missing something
-stuff_not_found() {
+# not_found() - Exit 'cause we're missing something
+not_found() {
 	message="$1"
 	echo "not found"
 	echo
@@ -158,7 +158,7 @@ all:
 	@echo found
 EOF
 if ! make -f fake_makefile 1>/dev/null 2>/dev/null; then
-	stuff_not_found "Make not found (try to install make or gmake)"
+	not_found "Make not found (try to install make or gmake)"
 fi
 echo found
 rm -f fake_makefile*
@@ -171,7 +171,7 @@ cat <<EOF > fake_cc.c
 main() { printf("woot\n"); }
 EOF
 if ! ${CC} fake_cc.c -o /dev/null 1>/dev/null 2>/dev/null; then
-	stuff_not_found "No C compiler found (try to install gcc or clang)"
+	not_found "No C compiler found (try to install gcc or clang)"
 fi
 echo ${CC}
 rm -f fake_cc*

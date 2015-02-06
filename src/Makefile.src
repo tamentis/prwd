@@ -2,6 +2,7 @@ BINARY=prwd
 
 OBJECTS=alias.o \
 	cmd-branch.o \
+	cmd-color.o \
 	cmd-date.o \
 	cmd-hostname.o \
 	cmd-path-cut.o \

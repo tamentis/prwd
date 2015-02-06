@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include "cmd-branch.h"
+#include "cmd-color.h"
 #include "cmd-date.h"
 #include "cmd-hostname.h"
 #include "cmd-path.h"
@@ -60,6 +61,8 @@ template_exec_cmd(wchar_t *value, wchar_t *out, size_t len,
 		cmd_path_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"branch") == 0) {
 		cmd_branch_exec(argc, al.argv, out, len);
+	} else if (wcscmp(al.argv[0], L"color") == 0) {
+		cmd_color_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"date") == 0) {
 		cmd_date_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"hostname") == 0) {

@@ -1,5 +1,4 @@
 FOR 2.0
- - implement the color command  ${color #121212}.
  - deprecate the prompt settings in the config file and instead, if no template
    is specified, construct one from the existing flags.
  - document "~" as a default alias.

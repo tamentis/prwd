@@ -104,7 +104,7 @@ main(int argc, char **argv)
 			puts("prwd-"VERSION);
 			exit(-1);
 		default:
-			printf("usage: prwd [-aVh]\n");
+			printf("usage: prwd [-aVh] [-t template]\n");
 			exit(-1);
 		}
 	}

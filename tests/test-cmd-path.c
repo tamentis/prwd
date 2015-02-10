@@ -23,6 +23,8 @@ test_cmd_path_exec__path_n(void)
 
 	wcslcpy(path_wcswd_fakepwd, L"/usr/local/bin", MAXPATHLEN);
 
+	alias_purge_all();
+
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);
 	cmd_path_exec(al.argc, al.argv, buf, MAX_OUTPUT_LEN);
@@ -38,6 +40,8 @@ test_cmd_path_exec__path(void)
 	struct arglist al;
 
 	wcslcpy(path_wcswd_fakepwd, L"/usr/local/bin", MAXPATHLEN);
+
+	alias_purge_all();
 
 	template_arglist_init(&al);
 	template_variable_lexer(input, &al, &errstr);

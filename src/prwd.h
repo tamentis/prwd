@@ -30,3 +30,9 @@
 
 /* Maximum output size */
 #define MAX_OUTPUT_LEN 1024
+
+/*
+ * DEFAULT_TEMPLATE is the template used by prwd in case none was specified
+ * through environment variable, configuration file or command-line.
+ */
+#define DEFAULT_TEMPLATE L"${hostname}:${path -l 32}${uid} "

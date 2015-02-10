@@ -40,39 +40,8 @@ extern int wopterr;
 wchar_t	 home[MAXPATHLEN];
 
 
-/*
- * Main prwd functionality, prints a reduced working directory.
- */
 static void
-prwd(void)
-{
-	size_t len;
-	const wchar_t *errstr;
-	wchar_t wcswd[MAX_OUTPUT_LEN];
-
-	path_wcswd(wcswd, MAX_OUTPUT_LEN, &errstr);
-	if (errstr != NULL) {
-		wcslcpy(wcswd, errstr, MAX_OUTPUT_LEN);
-		goto done;
-	}
-
-	/* Replace the beginning with ~ for directories within $HOME. */
-	alias_add(L"~", home, &errstr);
-	if (errstr != NULL)
-		errx(1, "failed to add default \"~\" alias: %ls", errstr);
-
-	/* Alias handling */
-	alias_replace(wcswd);
-
-	/* If the path is still too long, crop it. */
-	len = wcslen(wcswd);
-
-done:
-	wprintf(L"%ls\n", wcswd);
-}
-
-static void
-prwd_template(wchar_t *t)
+prwd(wchar_t *t)
 {
 	wchar_t output[MAX_OUTPUT_LEN];
 	int i;
@@ -129,12 +98,11 @@ main(int argc, char **argv)
 			mbstowcs(cfg_template, t, MAX_OUTPUT_LEN);
 		}
 	}
-	if (wcslen(cfg_template) > 0) {
-		prwd_template(cfg_template);
-		return (0);
+	if (wcslen(cfg_template) == 0) {
+		wcslcpy(cfg_template, DEFAULT_TEMPLATE, MAX_OUTPUT_LEN);
 	}
 
-	prwd();
+	prwd(cfg_template);
 
 	return (0);
 }

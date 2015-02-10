@@ -194,6 +194,10 @@ read_config()
 	if (fp == NULL)
 		return;
 
+	alias_add(L"~", home, &errstr);
+	if (errstr != NULL)
+		errx(1, "failed to add default \"~\" alias: %ls", errstr);
+
 	while (fgets(line, sizeof(line), fp)) {
 		mbstowcs(wline, line, 128);
 		process_config_line(wline, &errstr);

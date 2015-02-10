@@ -60,10 +60,9 @@ path_cleancut(wchar_t *out, wchar_t *path, size_t len)
 	if (flen >= cfg_maxpwdlen)
 		return;
 
-	/* Maximum allowable path length */
 	maxplen = cfg_maxpwdlen - flen;
 
-	/* Keep triming until 'path' is smaller than maxplen. If we */
+	/* Keep triming until 'path' is smaller than maxplen. */
 	for (c = path; wcslen(c) > maxplen;) {
 		if (*c == L'/')
 			c++;

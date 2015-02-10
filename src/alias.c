@@ -179,18 +179,22 @@ alias_dump_vars(void)
  * Find the best match to get the shortest path as possible.
  */
 void
-alias_replace(wchar_t *path)
+alias_replace(wchar_t *out, wchar_t *path, size_t len)
 {
 	size_t nlen, plen;
-	wchar_t buf[MAX_OUTPUT_LEN];
 	struct alias *alias;
 
 	alias = alias_get_by_path(path);
-	if (alias == NULL)
+	if (alias == NULL) {
+		wcslcpy(out, path, len);
 		return;
+	}
 
 	plen = wcslen(alias->path);
-	nlen = wcslcpy(buf, alias->name, MAX_OUTPUT_LEN);
-	wcslcpy(buf + nlen, path + plen, MAX_OUTPUT_LEN - nlen);
-	wcslcpy(path, buf, MAX_OUTPUT_LEN);
+	nlen = wcslen(alias->name);
+
+	if (wcslcpy(out, alias->name, len) != nlen)
+		return;
+
+	wcslcpy(out + nlen, path + plen, len - nlen);
 }

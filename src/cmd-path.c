@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <wchar.h>
 
+#include "alias.h"
 #include "cmd-path.h"
 #include "prwd.h"
 #include "strlcpy.h"
@@ -108,6 +109,7 @@ cmd_path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
 	const wchar_t *errstr = NULL;
 	wchar_t ch, wcswd[MAXPATHLEN];
+	wchar_t buf[MAX_OUTPUT_LEN];
 
 	path_wcswd(wcswd, MAXPATHLEN, &errstr);
 	if (errstr != NULL) {
@@ -149,14 +151,16 @@ cmd_path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 		return;
 	}
 
-	if (cfg_maxpwdlen > 0 && wcslen(wcswd) > cfg_maxpwdlen) {
+	alias_replace(buf, wcswd, MAX_OUTPUT_LEN);
+
+	if (cfg_maxpwdlen > 0 && wcslen(buf) > cfg_maxpwdlen) {
 		if (cfg_cleancut) {
-			path_cleancut(out, wcswd, len);
+			path_cleancut(out, buf, len);
 		} else {
-			path_quickcut(out, wcswd, len);
+			path_quickcut(out, buf, len);
 		}
 		return;
 	}
 
-	wcslcpy(out, wcswd, len);
+	wcslcpy(out, buf, len);
 }

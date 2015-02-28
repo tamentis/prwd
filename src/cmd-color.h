@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,5 +16,6 @@
 
 #include <wchar.h>
 
-void cleancut(wchar_t *);
-void quickcut(wchar_t *, size_t);
+#define MAX_COLOR_LEN 32
+
+void	 cmd_color_exec(int, wchar_t **, wchar_t *, size_t);

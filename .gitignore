@@ -9,4 +9,8 @@ autom4te.cache/
 config.log
 config.status
 src/.deps/
-src/run_tests
+tests/run-tests
+tests/inc-*.c
+afl/template
+afl/findings
+afl/*.h

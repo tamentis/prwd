@@ -6,7 +6,7 @@ src/prwd:
 	cd src/ && make
 
 test:
-	cd src/ && make test
+	cd tests/ && make test
 
 install: src/${PROG}
 	install -d ${DESTDIR}${PREFIX}/bin
@@ -16,6 +16,8 @@ install: src/${PROG}
 
 clean:
 	cd src/ && make clean
+	cd afl/ && make clean
+	cd tests/ && make clean
 
 mantest:
 	nroff -man ${PROG}.1 | less -R

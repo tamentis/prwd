@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +14,46 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <wchar.h>
+#include <sys/param.h>
 
-void newsgroupize(wchar_t *);
+#include <stdio.h>
+#include <stdlib.h>
+#include <wchar.h>
+#include <err.h>
+#include <locale.h>
+
+#include "prwd.h"
+#include "template.h"
+
+extern wchar_t cfg_template[MAX_OUTPUT_LEN];
+wchar_t	 home[MAXPATHLEN];
+
+
+static void
+prwd_template(wchar_t *t)
+{
+	wchar_t output[MAX_OUTPUT_LEN];
+	int i;
+	const wchar_t *errstr;
+
+	i = template_render(t, output, MAX_OUTPUT_LEN, &errstr);
+	if (errstr != NULL)
+		errx(1, "template error: %ls", errstr);
+
+	wprintf(L"%ls\n", output);
+}
+
+int
+main(void)
+{
+	char buf[4096];
+
+	setlocale(LC_ALL, "");
+
+	fread(buf, sizeof(char), 4096, stdin);
+	mbstowcs(cfg_template, buf, MAX_OUTPUT_LEN);
+
+	prwd_template(cfg_template);
+
+	return (0);
+}

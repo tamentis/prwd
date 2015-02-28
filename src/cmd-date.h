@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,6 +16,6 @@
 
 #include <wchar.h>
 
-enum vcs_types { VCS_NONE, VCS_MERCURIAL, VCS_GIT };
+#define MAX_DATE_LEN 128
 
-int add_branch(wchar_t *, enum vcs_types);
+void	 cmd_date_exec(int, wchar_t **, wchar_t *, size_t);

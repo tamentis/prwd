@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,6 +20,7 @@
 #include <err.h>
 #include <errno.h>
 #include <wchar.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -31,7 +32,7 @@
  */
 #ifndef REGRESS
 int
-file_exists(char *path)
+path_is_valid(char *path)
 {
 	struct stat sb;
 
@@ -50,11 +51,29 @@ file_exists(char *path)
  * Checks if a file exists given a wchar path.
  */
 int
-wc_file_exists(wchar_t *wpath)
+wc_path_is_valid(wchar_t *wpath)
 {
 	char path[MAXPATHLEN];
 	wcstombs(path, wpath, MAXPATHLEN);
-	return (file_exists(path));
+	return (path_is_valid(path));
+}
+
+/*
+ * Check if a path is valid using a format string.
+ */
+int
+fmt_path_is_valid(char *fmt, ...)
+{
+	int valid;
+	va_list ap;
+	char path[MAXPATHLEN];
+
+	va_start(ap, fmt);
+	vsnprintf(path, MAXPATHLEN, fmt, ap);
+	valid = path_is_valid(path);
+	va_end(ap);
+
+	return (valid);
 }
 
 /*

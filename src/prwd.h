@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2013-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,7 +15,7 @@
  */
 
 /* Maximum filler length and default filler */
-#define FILLER_LEN 16
+#define MAX_FILLER_LEN 16
 #define FILLER_DEF L"..."
 
 /* Default value for the maxpwdlen configuration setting */
@@ -30,3 +30,9 @@
 
 /* Maximum output size */
 #define MAX_OUTPUT_LEN 1024
+
+/*
+ * DEFAULT_TEMPLATE is the template used by prwd in case none was specified
+ * through environment variable, configuration file or command-line.
+ */
+#define DEFAULT_TEMPLATE L"${hostname}:${path -l 32}${uid} "

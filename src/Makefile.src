@@ -1,25 +1,36 @@
 BINARY=prwd
 
-OBJECTS=main.o config.o strdelim.o utils.o alias.o cut.o newsgroupize.o \
-	hostname.o uid.o vcs.o
+OBJECTS=alias.o \
+	cmd-branch.o \
+	cmd-color.o \
+	cmd-date.o \
+	cmd-hostname.o \
+	cmd-path-cut.o \
+	cmd-path-newsgroupize.o \
+	cmd-path.o \
+	cmd-uid.o \
+	config.o \
+	main.o \
+	strdelim.o \
+	template-arglist.o \
+	template-exec.o \
+	template-render.o \
+	template-tokenize.o \
+	template-variable.o \
+	utils.o \
+	wgetopt.o
 OBJECTS+=${EXTRA_OBJECTS}
 
 CFLAGS?=--std=c99 -Wall
 
 all: ${BINARY}
 
+obj: ${OBJECTS}
+
 ${BINARY}: ${OBJECTS}
 	$(CC) -o ${BINARY} ${OBJECTS}
-
-run_tests: ${OBJECTS}
-	$(CC) ${CFLAGS} -D REGRESS -c utils.c -o utils.o
-	$(CC) ${CFLAGS} -D REGRESS -c test.c -o main.o
-	$(CC) ${CFLAGS} ${LDFLAGS} -o run_tests ${OBJECTS}
-
-test: run_tests run_tests.sh
-	./run_tests.sh
 
 clean:
 	rm -f ${BINARY} ${OBJECTS}
 
-.PHONY: clean test all
+.PHONY: clean all

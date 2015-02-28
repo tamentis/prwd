@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,8 +14,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifndef _BRANCH_H_
+#define _BRANCH_H_
+
 #include <wchar.h>
 
-void		 add_hostname(wchar_t *);
-void		 get_short_hostname(wchar_t *, size_t);
-void		 get_short_hostname(wchar_t *, size_t);
+enum vcs_types { VCS_NONE, VCS_MERCURIAL, VCS_GIT };
+
+void	 cmd_branch_exec(int, wchar_t **, wchar_t *, size_t);
+
+#endif /* #ifndef _BRANCH_H_ */

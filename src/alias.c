@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2013-2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -33,27 +33,27 @@ int alias_count = 0;
  * error occured and the alias was not added.
  */
 void
-alias_add(wchar_t *name, wchar_t *path, const char **errstrp)
+alias_add(wchar_t *name, wchar_t *path, const wchar_t **errstrp)
 {
 	*errstrp = NULL;
 
 	if (alias_count >= MAX_ALIASES - 1) {
-		*errstrp = "too many aliases";
+		*errstrp = L"too many aliases";
 		return;
 	}
 
 	if (wcslen(path) > (MAXPATHLEN - 1)) {
-		*errstrp = "alias path is too long";
+		*errstrp = L"alias path is too long";
 		return;
 	}
 
 	if (wcslen(path) < wcslen(name)) {
-		*errstrp = "alias name longer than its path";
+		*errstrp = L"alias name longer than its path";
 		return;
 	}
 
 	if (wcschr(name, '/') != NULL) {
-		*errstrp = "alias name contains '/'";
+		*errstrp = L"alias name contains '/'";
 		return;
 	}
 
@@ -166,7 +166,7 @@ alias_dump_vars(void)
 		if (aliases[i].name[0] == '$') {
 			wcslcpy(path, aliases[i].path, MAX_OUTPUT_LEN);
 			alias_expand_prefix(path, output);
-			if (!wc_file_exists(output))
+			if (!wc_path_is_valid(output))
 				continue;
 			/* Skip the '$' */
 			wprintf(L"export %ls=\"%ls\"\n", aliases[i].name + 1,
@@ -179,18 +179,22 @@ alias_dump_vars(void)
  * Find the best match to get the shortest path as possible.
  */
 void
-alias_replace(wchar_t *path)
+alias_replace(wchar_t *out, wchar_t *path, size_t len)
 {
 	size_t nlen, plen;
-	wchar_t buf[MAX_OUTPUT_LEN];
 	struct alias *alias;
 
 	alias = alias_get_by_path(path);
-	if (alias == NULL)
+	if (alias == NULL) {
+		wcslcpy(out, path, len);
 		return;
+	}
 
 	plen = wcslen(alias->path);
-	nlen = wcslcpy(buf, alias->name, MAX_OUTPUT_LEN);
-	wcslcpy(buf + nlen, path + plen, MAX_OUTPUT_LEN - nlen);
-	wcslcpy(path, buf, MAX_OUTPUT_LEN);
+	nlen = wcslen(alias->name);
+
+	if (wcslcpy(out, alias->name, len) != nlen)
+		return;
+
+	wcslcpy(out + nlen, path + plen, len - nlen);
 }

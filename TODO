@@ -1,97 +1,47 @@
-FOR 1.9
-    - Allow for a fully templated PS1, e.g.
+FOR 2.0
 
-        {hostname}:{prefixed_path}{uid_indicator}
+    [core] drop separator conditionally -OR- conditional templates
 
-        - format should be flexible for users to type any crap and add any
-          unicode nonsense they feel like adding.
+        ${hostname}:${branch}${sep :}${path}${uid}
 
-        - we could consider opt-based functions:
-       
-            [${time %H:%M:%s}] ${hostname -s}:${path --newsgroup}${uid}
+        If any dynamic token around the sep command are empty, the separator is
+        not shown.
 
-        - we're gonna need to accept fork-exec() in some fashion, even if it is
-          bound to be abused.
+        Not sure if the conditions should be handled by prwd or externally.
+        This is an example configuration:
      
-            ${exec whoami}
-      
-      The command+options style looks like executable commands, I'm almost
-      tempted to add some form of namespacing to make it extra obvious that the
-      commands are internal. For example:
+     	if (hostname == "lab") {
+     		template = "{foo}:{bar}"
+     	}
+     
+        And another, based on context:
+     
+        	Context AtWork
+     		Hostname lab
+     		Domain truveris
+     		Template {foo}:{bar}
 
-        {i:hostname -s}:{i:path newsgroup}
+    [cmd] Add an ${exec whoami} command.  Even if bound to be abused.
+    [doc] Split prwd and prwdrc configuration man pages and turn README into a proper githubesque thing.
+    [doc] Document "~" as a default alias
+    [doc] Explain advantages:
+        - a single fork instead of fork-exec git and hg.
+        - small in-stack memory footprint
+        - compiled and fast
+        - same prompt on all systems
 
-      While accepting external commands:
 
-        {i:hostname -s}:{x:ls -l}
+FOR LATER
+    
+    [alias] Load all the environment variables starting with '/' and resolving to existing path as aliases.
+    [alias] Properly escape the exports in dump_alias_vars in order to work with space folders.
+    [ui] if prwd's argv[0] is different, call the internal funcs.
 
-      Since these commands are essentially just command line arguments, there
-      is value in allowing the user to call them from the command line as well:
 
-        prwd hostname -s
+AUDIT
 
-      Would it be better to keep it to a single command format?
+    review all the uses of sizeof on wchar buffers (need to be divided).
+    all the calls to mbstowcs and vice-versa should be audited, maybe wrappers should be written...
 
-        prwd hostname-short
-        prwd path-newsgroupize
-
-      While the simplicity is appealing, it makes it difficult to do something
-      like a date format:
-
-        prwd date VS prwd time %Y-%m-%s
-
-      What would I prefer to use:
-
-        [{time}] {hostname -s}:{path -n}{uid}
-
-      What I will have to use:
-
-        [${time}] ${hostname -s}:${path -n}${uid}
-        -or-
-        [{time}] ${hostname -s}:${path -n}${uid}
-
- - Split prwd and prwdrc configuration man pages and turn README into a proper
-   githubesque thing.
-
- - Allow the configuration to be overridden by command-line flags.
-
- - Load all the environment variables starting with '/' and resolving to
-   existing path as aliases.
-
- - Properly escape the exports in dump_alias_vars in order to work with space
-   folders.
-
- - Maybe even better, multiple templates conditionally, conditions could be:
-
-    - UID? username?
-    - in a source control repo
-    - path
-    - date/time
-    - hostname
-
-   Not sure if the conditions should be handled by prwd or externally. This is an
-   example configuration:
-
-	if (hostname == "lab") {
-		template = "{foo}:{bar}"
-	}
-
-   And another, based on context:
-
-   	Context AtWork
-		Hostname lab
-		Domain truveris
-		Template {foo}:{bar}
-
-   Another:
-
-   	(
-		hostname = lab
-
- - Advantages of prwd to document properly:
-    - a single fork instead of fork-exec git and hg.
-    - small in-stack memory footprint
-    - compiled and fast
-    - same prompt on all systems
 
 vim: expandtab ts=4 sw=4

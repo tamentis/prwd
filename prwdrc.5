@@ -1,0 +1,172 @@
+.\" Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+.\" 
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\" 
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd $Mdocdate: May 9 2013 $
+.Dt PRWDRC 5
+.Os
+.Sh NAME
+.Nm prwdrc
+.Nd prwd configuration file
+.Sh SYNOPSIS
+.Nm ~/.prwdrc
+.Sh DESCRIPTION
+prwd(1) obtains configuration data from its command-line options and its
+configuration file located in your home directory.  Command-line options will
+always override the configuration file.
+.Pp
+The configuration file has the following format:
+.Pp
+Empty lines and lines starting with `#' are comments.  Otherwise a line is
+of the format ``keyword argument''.  Configuraiton arguments may be separated
+by whitespace.  Arguments may optionally be enclosed in double quotes (") in
+order to represent arguments containing spaces.
+.Pp
+The possible keywords and their meanings are as follows:
+.Sh ALIASES
+Defines a short name for a lengthy path, e.g.:
+.Bd -literal -offset indent
+alias *prwd /home/tamentis/projects/prwd
+.Ed
+.Pp
+If you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
+return "*prwd/doc/html". If you have spaces in your directories, you can
+wrap your 'alias' parameters with double quotes:
+.Bd -literal -offset indent
+alias winDocs "/mnt/Windows XP/My Documents/"
+.Ed
+.Pp
+You can define multiple values for a single alias, this allows you to share
+your configuration on different machines, but keep the same alias, for
+example:
+.Bd -literal -offset indent
+alias $tp /home/tamentis/truveris/projects
+alias $tp /Users/tamentis/truveris/projects
+.Ed
+.Pp
+Aliases can be nested one level deep if you have a complicated directory
+hierarchy.
+.Bd -literal -offset indent
+alias $tp /home/tamentis/truveris/projects
+alias $constants $tp/pytruveris/truveris/constants/
+.Ed
+.Sh MAX LENGTH
+Defines the maximum length to return, the default filler string is "...",
+the default length is 32, a value of 0 will disable the feature all
+together.
+.Bd -literal -offset indent
+set maxlength 20
+.Ed
+.Pp
+This setting would turn "~/projects/prwd/doc/html" into a shorter string:
+"...cts/prwd/doc/html". You can define the filler string with the 'filler'
+variable:
+.Bd -literal -offset indent
+set filler "-"
+.Ed
+.Pp
+Or if your font/terminal/shell supports UTF:
+.Bd -literal -offset indent
+set filler "…"
+.Ed
+.Pp
+If you want
+.Nm
+to keep complete path elements instead of cutting as much
+as possible, you can use this setting:
+.Bd -literal -offset indent
+set cleancut on
+.Ed
+.Sh NEWSGROUP STYLE
+This will shorten the path by only displaying the first letter of each path
+components, toggle it with:
+.Bd -literal -offset indent
+set newsgroup on
+.Ed
+.Pp
+This will turn the "/home/tamentis/projects/prwd/src/nowhere" path into
+"/h/t/p/s/nowhere". Note that the newsgroup style filter is applied before
+the path is trimmed with 'maxlength'.
+.Sh MERCURIAL
+You can see the currently selected branch as a prefix to your path
+whenever you are in a mercurial repository, enable this feature with
+the following option:
+.Bd -literal -offset indent
+set mercurial on
+.Ed
+.Pp
+The resulting path will be "my-branch:project/folder".
+.Sh GIT
+You can see the currently HEAD position as a prefix to your path when you
+are in a git repository, you can enable this feature with the following
+option:
+.Bd -literal -offset indent
+set git on
+.Ed
+.Pp
+The resulting path will be "my-branch:project/folder" if you are located on
+the HEAD of a branch, it will be "59cefd9...:project/folder" if you are
+anywhere else.
+.Sh ALIAS VARIABLES
+Since you already define your aliases in your prwdrc file, you might want to
+use them in your shell without having to redefine them somewhere else. If you
+prefix your aliases with a '$' and add the following line to your .profile, you
+will be able to do exactlt that:
+.Bd -literal -offset indent
+eval `prwd -a`
+.Ed
+.Pp
+You can then use your aliases in your shell using the variable name, for
+example:
+.Bd -literal -offset indent
+cd $py3k
+.Ed
+.Sh PS1 REPLACEMENT
+The following options are pulled from much higher context and have nothing to
+do with your current path. They have been added to prwd because they are simple
+to implement and make the handling of both hostname and uid indication more
+streamlined. This one will prefix everything with the short hostname:
+.Bd -literal -offset indent
+set hostname on
+.Ed
+.Pp
+The result will look like "myhostname:project/folder". Combined with the
+following:
+.Bd -literal -offset indent
+set uid_indicator on
+.Ed
+.Pp
+You will obtain something like "myhostname:project/folder$" which is as close
+as you could get to your typical default PS1 on your average shell.
+.Sh SETUP
+This will depend on your shell, but the following will usually do (ksh and
+bash):
+.Bd -literal -offset indent
+export PS1='\\h:`prwd`\\$ '
+.Ed
+.Pp
+Note that the single quote matters since you want to keep the command
+within the variable as-is (unresolved). If you use both the hostname and
+uid_indicator options, you can simplify your PS1 even more:
+.Bd -literal -offset indent
+export PS1='`prwd` '
+.Ed
+.Sh SEE ALSO
+.Xr pwd 1 ,
+.Xr csh 1 ,
+.Xr ksh 1 ,
+.Xr sh 1 ,
+.Xr getcwd 3
+.Sh AUTHORS
+prwd was written by Bertrand Janin <b@janin.com> and is distributed under an
+ISC license (BSD compatible, OSI compatible).

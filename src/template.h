@@ -66,9 +66,11 @@ struct arglist {
 
 int	 template_tokenize(wchar_t *, struct token *, size_t, const wchar_t **);
 int	 template_render(wchar_t *, wchar_t *, size_t, const wchar_t **);
-int	 template_exec_cmd(wchar_t *, wchar_t *, size_t, const wchar_t **);
+size_t	 template_exec_cmd(wchar_t *, wchar_t *, size_t, int,
+		const wchar_t **);
 size_t	 template_variable_lexer(wchar_t *, struct arglist *, const wchar_t **);
 void	 template_arglist_init(struct arglist *);
 size_t	 template_arglist_insert(struct arglist *, wchar_t *);
 
+void	 template_from_config(wchar_t *, size_t);
 #endif /* ifndef _TEMPLATE_H_ */

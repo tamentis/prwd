@@ -93,14 +93,13 @@ main(int argc, char **argv)
 		return (0);
 	}
 
-	if (wcslen(cfg_template) == 0) {
-		if ((t = getenv("PRWD")) != NULL) {
-			mbstowcs(cfg_template, t, MAX_OUTPUT_LEN);
-		}
-	}
-	if (wcslen(cfg_template) == 0) {
-		wcslcpy(cfg_template, DEFAULT_TEMPLATE, MAX_OUTPUT_LEN);
-	}
+	/* No template configured, try to get the env var. */
+	if (wcslen(cfg_template) == 0 && (t = getenv("PRWD")) != NULL)
+		mbstowcs(cfg_template, t, MAX_OUTPUT_LEN);
+
+	/* Still no template, build one using legacy flags. */
+	if (wcslen(cfg_template) == 0)
+		template_from_config(cfg_template, MAX_OUTPUT_LEN);
 
 	prwd(cfg_template);
 

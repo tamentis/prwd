@@ -35,7 +35,7 @@ int	 cfg_git = 0;
 int	 cfg_hostname = 0;
 int	 cfg_uid_indicator = 0;
 int	 cfg_newsgroup = 0;
-wchar_t	 cfg_filler[MAX_FILLER_LEN] = FILLER_DEF;
+wchar_t	 cfg_filler[MAX_FILLER_LEN] = DEFAULT_FILLER;
 wchar_t	 cfg_template[MAX_OUTPUT_LEN] = L"";
 
 extern wchar_t	 home[MAXPATHLEN];

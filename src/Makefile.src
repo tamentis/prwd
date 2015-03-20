@@ -8,11 +8,13 @@ OBJECTS=alias.o \
 	cmd-path-cut.o \
 	cmd-path-newsgroupize.o \
 	cmd-path.o \
+	cmd-sep.o \
 	cmd-uid.o \
 	config.o \
 	main.o \
 	strdelim.o \
 	template-arglist.o \
+	template-config.o \
 	template-exec.o \
 	template-render.o \
 	template-tokenize.o \

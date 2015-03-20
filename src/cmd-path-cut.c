@@ -23,16 +23,14 @@
 
 #define ERR_NULL_PATH L"<path-null>"
 
-extern size_t cfg_maxpwdlen;
-extern wchar_t cfg_filler[MAX_FILLER_LEN];
-
 /*
  * Reduce the provided string to the smallest it could get to fit within the
  * global max length and without cutting any path element. For example
  * "/usr/local/share/doc" is reduced to ".../share/doc".
  */
 void
-path_cleancut(wchar_t *out, wchar_t *path, size_t len)
+path_cleancut(wchar_t *out, wchar_t *path, size_t len, size_t maxlen,
+    wchar_t *filler)
 {
 	size_t maxplen, flen;
 	wchar_t *last = NULL, *c;
@@ -43,24 +41,24 @@ path_cleancut(wchar_t *out, wchar_t *path, size_t len)
 		errx(1, "path_cleancut: null input");
 
 	/* Normalize len instead dealing with two limits. */
-	if (cfg_maxpwdlen + 1 > len)
-		errx(1, "path_cleancut: maxpwdlen too long");
-	len = cfg_maxpwdlen + 1;
+	if (maxlen + 1 > len)
+		errx(1, "path_cleancut: maxlen too long");
+	len = maxlen + 1;
 
 	/* Path is already short enough. */
-	if (wcslen(path) <= cfg_maxpwdlen) {
+	if (wcslen(path) <= maxlen) {
 		wcslcpy(out, path, len);
 		return;
 	}
 
 	/* Copy the filler, everyone needs that. */
-	flen = wcslcpy(out, cfg_filler, len);
+	flen = wcslcpy(out, filler, len);
 
 	/* We already reached the max, leave here, there is nothing to add. */
-	if (flen >= cfg_maxpwdlen)
+	if (flen >= maxlen)
 		return;
 
-	maxplen = cfg_maxpwdlen - flen;
+	maxplen = maxlen - flen;
 
 	/* Keep triming until 'path' is smaller than maxplen. */
 	for (c = path; wcslen(c) > maxplen;) {
@@ -72,7 +70,7 @@ path_cleancut(wchar_t *out, wchar_t *path, size_t len)
 		 * path enough, just truncate it.
 		 */
 		if (c == NULL) {
-			path_quickcut(out, path, len);
+			path_quickcut(out, path, len, maxlen, filler);
 			return;
 		}
 		last = c;
@@ -83,11 +81,12 @@ path_cleancut(wchar_t *out, wchar_t *path, size_t len)
 
 /*
  * Reduce the given string with the global max length and filler.  Given a
- * maxpwdlen of 7, filler of ".." and an input of "/usr/local/share/doc",
+ * maxlen of 7, filler of ".." and an input of "/usr/local/share/doc",
  * the path would be transformed to "..e/doc"
  */
 void
-path_quickcut(wchar_t *out, wchar_t *path, size_t len)
+path_quickcut(wchar_t *out, wchar_t *path, size_t len, size_t maxlen,
+    wchar_t *filler)
 {
 	size_t plen, offset, excess;
 
@@ -97,24 +96,24 @@ path_quickcut(wchar_t *out, wchar_t *path, size_t len)
 		errx(1, "path_quickcut: null input");
 
 	/* Normalize len instead dealing with two limits. */
-	if (cfg_maxpwdlen + 1 > len)
-		errx(1, "path_cleancut: maxpwdlen too long");
-	len = cfg_maxpwdlen + 1;
+	if (maxlen + 1 > len)
+		errx(1, "path_quickcut: maxlen too long");
+	len = maxlen + 1;
 
 	plen = wcslen(path);
-	if (plen <= cfg_maxpwdlen) {
+	if (plen <= maxlen) {
 		wcslcpy(out, path, len);
 		return;
 	}
 
 	/* Copy the filler, everyone needs that. */
-	offset = wcslcpy(out, cfg_filler, len);
+	offset = wcslcpy(out, filler, len);
 
 	/* We already reached the max, leave here, there is nothing to add. */
-	if (offset >= cfg_maxpwdlen)
+	if (offset >= maxlen)
 		return;
 
-	excess = plen - cfg_maxpwdlen;
+	excess = plen - maxlen;
 	path += excess + offset;
 
 	wcslcpy(out + offset, path, len - offset);

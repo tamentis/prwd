@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <sys/param.h>
 
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -35,10 +36,6 @@
 #define ERR_BAD_CHARSET L"<path-bad-charset>"
 #define ERR_BAD_ARG L"<path-bad-arg>"
 #define ERR_GENERIC L"<path-error>"
-
-extern size_t cfg_maxpwdlen;
-extern int cfg_newsgroup;
-extern int cfg_cleancut;
 
 /*
  * Return a wide-char version of the current path.  If any error occurs,
@@ -107,9 +104,13 @@ path_wcswd(wchar_t *wcswd, size_t len, const wchar_t **errstr)
 void
 cmd_path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 {
+	int cleancut = 0;
+	int newsgroupize = 0;
+	size_t maxlen = 0;
 	const wchar_t *errstr = NULL;
 	wchar_t ch, wcswd[MAXPATHLEN];
 	wchar_t buf[MAX_OUTPUT_LEN];
+	wchar_t filler[MAX_FILLER_LEN] = DEFAULT_FILLER;
 
 	path_wcswd(wcswd, MAXPATHLEN, &errstr);
 	if (errstr != NULL) {
@@ -117,28 +118,26 @@ cmd_path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 		return;
 	}
 
-	/* Reset options */
-	cfg_newsgroup = 0;
-	cfg_maxpwdlen = MAXPWD_LEN;
-	cfg_cleancut = 0;
-
 	woptreset = 1;
 	woptind = 0;
 	wopterr = 0;
-	while ((ch = wgetopt(argc, argv, L"cl:n")) != -1) {
+	while ((ch = wgetopt(argc, argv, L"cl:f:n")) != -1) {
 		switch (ch) {
 		case L'c':
-			cfg_cleancut = 1;
+			cleancut = 1;
 			break;
 		case L'l':
-			cfg_maxpwdlen = wcstonum(woptarg, 1, 255, &errstr);
-			if (cfg_maxpwdlen == 0) {
+			maxlen = wcstonum(woptarg, 1, 255, &errstr);
+			if (maxlen == 0) {
 				wcslcpy(out, ERR_BAD_ARG, len);
 				return;
 			}
 			break;
+		case L'f':
+			wcslcpy(filler, woptarg, MAX_FILLER_LEN);
+			break;
 		case L'n':
-			cfg_newsgroup = 1;
+			newsgroupize = 1;
 			break;
 		default:
 			wcslcpy(out, ERR_BAD_ARG, len);
@@ -146,18 +145,18 @@ cmd_path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 		}
 	}
 
-	if (cfg_newsgroup) {
+	if (newsgroupize) {
 		path_newsgroupize(out, wcswd, len);
 		return;
 	}
 
 	alias_replace(buf, wcswd, MAX_OUTPUT_LEN);
 
-	if (cfg_maxpwdlen > 0 && wcslen(buf) > cfg_maxpwdlen) {
-		if (cfg_cleancut) {
-			path_cleancut(out, buf, len);
+	if (maxlen > 0 && wcslen(buf) > maxlen) {
+		if (cleancut) {
+			path_cleancut(out, buf, len, maxlen, filler);
 		} else {
-			path_quickcut(out, buf, len);
+			path_quickcut(out, buf, len, maxlen, filler);
 		}
 		return;
 	}

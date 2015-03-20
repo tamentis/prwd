@@ -1,11 +1,17 @@
+FOR 1.9
+
+    [doc] Split prwd and prwdrc configuration man pages and turn README into a proper githubesque thing.
+    [doc] Document "~" as a default alias
+    [doc] Explain advantages:
+        - a single fork instead of fork-exec git and hg.
+        - small in-stack memory footprint
+        - compiled and fast
+        - same prompt on all systems
+
+
 FOR 2.0
 
-    [core] drop separator conditionally -OR- conditional templates
-
-        ${hostname}:${branch}${sep :}${path}${uid}
-
-        If any dynamic token around the sep command are empty, the separator is
-        not shown.
+    [core] conditional templates
 
         Not sure if the conditions should be handled by prwd or externally.
         This is an example configuration:
@@ -21,14 +27,23 @@ FOR 2.0
      		Domain truveris
      		Template {foo}:{bar}
 
+        Maybe template could be laid vertically:
+
+            template in vcs {
+                date
+                space
+                hostname
+                branch
+                optional :
+                path -l 24
+                uid
+                space
+            }
+
+        User can define conditions based on UID, username, repo, path,
+        date/time, una,e, os, etc.
+
     [cmd] Add an ${exec whoami} command.  Even if bound to be abused.
-    [doc] Split prwd and prwdrc configuration man pages and turn README into a proper githubesque thing.
-    [doc] Document "~" as a default alias
-    [doc] Explain advantages:
-        - a single fork instead of fork-exec git and hg.
-        - small in-stack memory footprint
-        - compiled and fast
-        - same prompt on all systems
 
 
 FOR LATER
@@ -36,6 +51,8 @@ FOR LATER
     [alias] Load all the environment variables starting with '/' and resolving to existing path as aliases.
     [alias] Properly escape the exports in dump_alias_vars in order to work with space folders.
     [ui] if prwd's argv[0] is different, call the internal funcs.
+    [core] deprecate config flags
+    [core] allow user to access env variables
 
 
 AUDIT

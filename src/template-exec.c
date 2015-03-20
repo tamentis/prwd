@@ -22,6 +22,7 @@
 #include "cmd-date.h"
 #include "cmd-hostname.h"
 #include "cmd-path.h"
+#include "cmd-sep.h"
 #include "cmd-uid.h"
 #include "prwd.h"
 #include "template.h"
@@ -34,14 +35,17 @@
 #define ERRSTR_CMDERR L"command error"
 
 /*
- * Execute a single command.
+ * Execute a single command.  The prevempty argument defines whether the
+ * previous token ended up being empty or not, this is used for the sep
+ * command until we find better semantics.
+ *
  *  1. shell tokenize, obtain argc and argv
  *  2. check if we know the command
  *  3. execute the parse_args for this command with the arglist
  *  4. copy the output
  */
-int
-template_exec_cmd(wchar_t *value, wchar_t *out, size_t len,
+size_t
+template_exec_cmd(wchar_t *value, wchar_t *out, size_t len, int prevempty,
     const wchar_t **errstrp)
 {
 	struct arglist al;
@@ -50,11 +54,11 @@ template_exec_cmd(wchar_t *value, wchar_t *out, size_t len,
 	template_arglist_init(&al);
 	argc = template_variable_lexer(value, &al, errstrp);
 	if (argc == (size_t)-1)
-		return (-1);
+		return ((size_t)-1);
 
 	if (argc == 0) {
 		*errstrp = ERRSTR_EMPTY;
-		return (-1);
+		return ((size_t)-1);
 	}
 
 	if (wcscmp(al.argv[0], L"path") == 0) {
@@ -69,10 +73,13 @@ template_exec_cmd(wchar_t *value, wchar_t *out, size_t len,
 		cmd_hostname_exec(argc, al.argv, out, len);
 	} else if (wcscmp(al.argv[0], L"uid") == 0) {
 		cmd_uid_exec(argc, al.argv, out, len);
+	} else if (wcscmp(al.argv[0], L"sep") == 0) {
+		if (!prevempty)
+			cmd_sep_exec(argc, al.argv, out, len);
 	} else {
 		*errstrp = ERRSTR_UNKCMD;
-		return (-1);
+		return ((size_t)-1);
 	}
 
-	return (0);
+	return (wcslen(out));
 }

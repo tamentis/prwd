@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2015 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,25 +14,27 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* Maximum filler length and default filler */
-#define MAX_FILLER_LEN 16
-#define DEFAULT_FILLER L"..."
+#include <wchar.h>
 
-/* Default value for the maxpwdlen configuration setting */
-#define MAXPWD_LEN 24
+#include "cmd-sep.h"
 
-/* Maximum character length for branch */
-#define MAX_BRANCH_LEN 32
-
-/* Used to split various things */
-#define WHITESPACE	L" \t\r\n"
-#define QUOTE		L"\""
-
-/* Maximum output size */
-#define MAX_OUTPUT_LEN 1024
+#define ERR_BAD_ARG L"<sep-bad-arg>"
 
 /*
- * DEFAULT_TEMPLATE is the template used by prwd in case none was specified
- * through environment variable, configuration file or command-line.
+ * This module should never crash and will always return a value on *out.  If
+ * any error occur during its runtime, it should be represented in a user
+ * readable format on *out.
  */
-#define DEFAULT_TEMPLATE L"${hostname}:${path -l 32}${uid} "
+void
+cmd_sep_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
+{
+	(void)argc;
+	(void)argv;
+
+	if (argc != 2) {
+		wcslcpy(out, ERR_BAD_ARG, len);
+		return;
+	}
+
+	swprintf(out, len, L"%ls", argv[1]);
+}

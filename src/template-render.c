@@ -33,7 +33,7 @@ template_render(wchar_t *tmpl, wchar_t *out, size_t len,
 {
 	struct token tokens[MAX_TOKEN_COUNT];
 	wchar_t buf[MAX_OUTPUT_LEN], *c;
-	int i, count;
+	int i, count, prevempty;
 	size_t cur, tlen;
 
 	count = template_tokenize(tmpl, tokens, MAX_TOKEN_COUNT, errstrp);
@@ -42,14 +42,20 @@ template_render(wchar_t *tmpl, wchar_t *out, size_t len,
 	}
 
 	cur = 0;
+	prevempty = 0;
 	for (i = 0; i < count; i++) {
 		if (tokens[i].type == TOKEN_STATIC) {
 			c = tokens[i].value;
+			prevempty = 0;
 		} else {
-			template_exec_cmd(tokens[i].value, buf, MAX_OUTPUT_LEN,
-			    errstrp);
-			if (*errstrp != NULL) {
+			tlen = template_exec_cmd(tokens[i].value, buf,
+			    MAX_OUTPUT_LEN, prevempty, errstrp);
+			if (*errstrp != NULL)
 				return (-1);
+			if (tlen == 0) {
+				prevempty = 1;
+			} else {
+				prevempty = 0;
 			}
 			c = buf;
 		}

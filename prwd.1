@@ -1,4 +1,4 @@
-.\" Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
+.\" Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
 .\" 
 .\" Permission to use, copy, modify, and distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
@@ -17,15 +17,15 @@
 .Os
 .Sh NAME
 .Nm prwd
-.Nd print reduced working directory
+.Nd universal shell prompt
 .Sh SYNOPSIS
 .Nm prwd
 .Op Fl aVh
 .Sh DESCRIPTION
 .Nm
-is a replacement for your shell's PS1.  It provides a number of facilities to
-reduce your displayed path and allows you to add various bits of information
-(e.g. current git or mercurial branch).
+is a replacement for your shell's PS1, it provides a simple templating language
+and a number of commands to customize your shell prompt and share it across all
+your shells.
 .Pp
 The command-line options are as follows:
 .Bl -tag -width Ds
@@ -33,12 +33,33 @@ The command-line options are as follows:
 Show current version.
 .It Fl h
 Show usage.
+.It Fl t Ar template
+Use the provided template instead of the one defined in the configuration file
+or the one defined in the environment variable PRWD.  This is particularly useful
+for testing a new template.  Use single quote (') around your template to avoid
+your shell to expand the $ variable.
 .It Fl a
 Outputs all the aliases starting with '$' as shell variable exports. The output
 from this command is meant to be used with eval in your .profile file, see
-section
-.Nm ALIAS VARIABLES
-for more detailed information.
+section ALIAS VARIABLES in the
+.Xr prwdrc 5
+manual for more detailed information.
+.El
+.Sh ENVIRONMENT
+.Nm
+can read its template from a configuration file, a command-line parameters or the
+following environment variable:
+.Bl -tag -width REMOTEHOST
+.It Ev PRWD
+The template used to render your prompt.  This value will override the default
+internal template and can be overridden by the configuration file.
+.El
+.Sh FILES
+.Bl -tag -width ~/.prwdrc -compact
+.It Pa ~/.prwdrc
+defines all the configuration, overrides PRWD and the internal defaults.  See
+.Xr prwdrc 5
+for configuratiom syntax and parameters.
 .El
 .Sh SETUP
 You'll need to place this line in your ~/.profile (your mileage may vary):

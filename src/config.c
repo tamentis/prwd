@@ -52,20 +52,7 @@ set_variable(wchar_t *name, wchar_t *value, const wchar_t **errstrp)
 {
 	*errstrp = NULL;
 
-	/* set template <string> */
-	if (wcscmp(name, L"template") == 0) {
-		/* Do not override a command-line template. */
-		if (cfg_template[0] != L'\0')
-			return;
-
-		if (value == NULL || *value == '\0') {
-			*cfg_template = L'\0';
-			return;
-		}
-		wcslcpy(cfg_template, value, MAX_OUTPUT_LEN);
-
-	/* set maxlength <int> */
-	} else if (wcscmp(name, L"maxlength") == 0) {
+	if (wcscmp(name, L"maxlength") == 0) {
 		if (value == NULL || *value == L'\0') {
 			*errstrp = L"no value for set maxlength";
 			return;
@@ -170,6 +157,18 @@ process_config_line(wchar_t *line, const wchar_t **errstrp)
 		if (*errstrp != NULL) {
 			return;
 		}
+
+	/* template value */
+	} else if (wcscmp(keyword, L"template") == 0) {
+		if ((value = strdelim(&line)) == NULL) {
+			*errstrp = L"template without value";
+			return;
+		}
+		if (cfg_template[0] != L'\0') {
+			*errstrp = L"template is already defined";
+			return;
+		}
+		wcslcpy(cfg_template, value, MAX_OUTPUT_LEN);
 
 	} else {
 		*errstrp = L"unknown command";

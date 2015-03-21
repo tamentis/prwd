@@ -22,6 +22,9 @@ clean:
 mantest:
 	nroff -man ${PROG}.1 | less -R
 
+rcmantest:
+	nroff -man ${PROG}rc.1 | less -R
+
 README: ${PROG}.1
 	# On Linux
 	# nroff -c -man ${PROG}.1 | col -b > README

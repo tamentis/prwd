@@ -1,9 +1,9 @@
-.\" Copyright (c) 2009-2014 Bertrand Janin <b@janin.com>
-.\" 
+.\" Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
+.\"
 .\" Permission to use, copy, modify, and distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
 .\" copyright notice and this permission notice appear in all copies.
-.\" 
+.\"
 .\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 .\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -12,7 +12,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: May 9 2013 $
+.Dd $Mdocdate: Mar 21 2015 $
 .Dt PRWDRC 5
 .Os
 .Sh NAME
@@ -21,145 +21,225 @@
 .Sh SYNOPSIS
 .Nm ~/.prwdrc
 .Sh DESCRIPTION
-prwd(1) obtains configuration data from its command-line options and its
-configuration file located in your home directory.  Command-line options will
-always override the configuration file.
-.Pp
+The
+.Nm
+file describes the template and various attributes affecting the behavior of
+.Nm prwd.
 The configuration file has the following format:
 .Pp
-Empty lines and lines starting with `#' are comments.  Otherwise a line is
-of the format ``keyword argument''.  Configuraiton arguments may be separated
-by whitespace.  Arguments may optionally be enclosed in double quotes (") in
-order to represent arguments containing spaces.
+Empty lines and lines starting with `#' are comments, otherwise a line is of
+the format ``keyword arguments...''.  Configuration arguments may be separated by
+whitespace.  Arguments may optionally be enclosed in double quotes (") in order
+to represent arguments containing spaces.
 .Pp
 The possible keywords and their meanings are as follows:
+.Bl -tag -width Ds
+.It Xo Ic alias
+.Op Ar name
+.Op Ar path
+.Xc
+Defines a new alias which could be used as a path shortener (see path in the
+TEMPLATE COMMANDS section) and as a shortcut (see
+.Xr prwd 1
+and its -a parameter).  The
+.Em name
+defines the short key used as replacement to the
+.Em path .
+See the ALIASES section below for a more complete description.
+.It Xo Ic set
+.Op Ar key
+.Op Ar value
+.Xc
+Sets the global configuration parameter
+.Em key
+to
+.Em value .
+See the GLOBAL SETTINGS section below for a complete list of settings and
+their impact on
+.Nm prwd .
+.It Xo Ic template
+.Op Ar value
+.Xc
+Defines your shell prompt template.  See the PROMPT TEMPLATING section.
+.El
 .Sh ALIASES
-Defines a short name for a lengthy path, e.g.:
+If you use the
+.Em path
+command in your prompt, defining aliases will allow
+.Em path
+to shorten the paths using your own defined keywords.  For example:
 .Bd -literal -offset indent
 alias *prwd /home/tamentis/projects/prwd
 .Ed
 .Pp
-If you are in "/home/tamentis/projects/prwd/doc/html/", prwd would
-return "*prwd/doc/html". If you have spaces in your directories, you can
-wrap your 'alias' parameters with double quotes:
+If you are in "/home/tamentis/projects/prwd/doc/html/", prwd would return
+"*prwd/doc/html".  If you have spaces in your directories, you can wrap your
+.Em path
+parameters with double quotes:
 .Bd -literal -offset indent
-alias winDocs "/mnt/Windows XP/My Documents/"
+alias windocs "/mnt/Windows XP/My Documents/"
 .Ed
 .Pp
-You can define multiple values for a single alias, this allows you to share
-your configuration on different machines, but keep the same alias, for
+You can define multiple values for a single alias,
+.Nm prwd
+will pick the one with an existing path. This allows you to share your
+configuration on different machines and use the same shortened alias, for
 example:
 .Bd -literal -offset indent
-alias $tp /home/tamentis/truveris/projects
-alias $tp /Users/tamentis/truveris/projects
+alias *prwd /home/tamentis/projects/prwd
+alias *prwd /Users/tamentis/projects/prwd
 .Ed
 .Pp
 Aliases can be nested one level deep if you have a complicated directory
 hierarchy.
 .Bd -literal -offset indent
-alias $tp /home/tamentis/truveris/projects
-alias $constants $tp/pytruveris/truveris/constants/
-.Ed
-.Sh MAX LENGTH
-Defines the maximum length to return, the default filler string is "...",
-the default length is 32, a value of 0 will disable the feature all
-together.
-.Bd -literal -offset indent
-set maxlength 20
+alias *prwd /home/tamentis/projects/prwd
+alias *prwddoc *prwd/doc
 .Ed
 .Pp
-This setting would turn "~/projects/prwd/doc/html" into a shorter string:
-"...cts/prwd/doc/html". You can define the filler string with the 'filler'
-variable:
-.Bd -literal -offset indent
-set filler "-"
-.Ed
-.Pp
-Or if your font/terminal/shell supports UTF:
-.Bd -literal -offset indent
-set filler "…"
-.Ed
-.Pp
-If you want
+Since you already define your aliases in your
 .Nm
-to keep complete path elements instead of cutting as much
-as possible, you can use this setting:
-.Bd -literal -offset indent
-set cleancut on
-.Ed
-.Sh NEWSGROUP STYLE
-This will shorten the path by only displaying the first letter of each path
-components, toggle it with:
-.Bd -literal -offset indent
-set newsgroup on
-.Ed
-.Pp
-This will turn the "/home/tamentis/projects/prwd/src/nowhere" path into
-"/h/t/p/s/nowhere". Note that the newsgroup style filter is applied before
-the path is trimmed with 'maxlength'.
-.Sh MERCURIAL
-You can see the currently selected branch as a prefix to your path
-whenever you are in a mercurial repository, enable this feature with
-the following option:
-.Bd -literal -offset indent
-set mercurial on
-.Ed
-.Pp
-The resulting path will be "my-branch:project/folder".
-.Sh GIT
-You can see the currently HEAD position as a prefix to your path when you
-are in a git repository, you can enable this feature with the following
-option:
-.Bd -literal -offset indent
-set git on
-.Ed
-.Pp
-The resulting path will be "my-branch:project/folder" if you are located on
-the HEAD of a branch, it will be "59cefd9...:project/folder" if you are
-anywhere else.
-.Sh ALIAS VARIABLES
-Since you already define your aliases in your prwdrc file, you might want to
-use them in your shell without having to redefine them somewhere else. If you
-prefix your aliases with a '$' and add the following line to your .profile, you
-will be able to do exactlt that:
+file, you might want to use them in your shell.  If you prefix your aliases
+with a '$' and add the following line to your .profile, you will be able to have
+your aliases available as environment variables.  Add this to your profile or
+shell configuration file:
 .Bd -literal -offset indent
 eval `prwd -a`
 .Ed
 .Pp
-You can then use your aliases in your shell using the variable name, for
-example:
+Then use your aliases like any environment variable:
 .Bd -literal -offset indent
 cd $py3k
 .Ed
-.Sh PS1 REPLACEMENT
-The following options are pulled from much higher context and have nothing to
-do with your current path. They have been added to prwd because they are simple
-to implement and make the handling of both hostname and uid indication more
-streamlined. This one will prefix everything with the short hostname:
+.Sh TEMPLATE SYNTAX
+.Nm
+has a very simple templating language with a few small commands providing basic
+information about your shell context.  All the commands start with ``${`` and
+end with ``}'', within these brackets the syntax uses flags and is very similar
+to standard UNIX tools.
+.Pp
+Here is a simple template definition:
 .Bd -literal -offset indent
-set hostname on
+template "${path -l 20}> "
 .Ed
 .Pp
-The result will look like "myhostname:project/folder". Combined with the
-following:
-.Bd -literal -offset indent
-set uid_indicator on
+This simple template returns your current path, up to 20 characters and a
+static "> " suffix.
 .Ed
-.Pp
-You will obtain something like "myhostname:project/folder$" which is as close
-as you could get to your typical default PS1 on your average shell.
-.Sh SETUP
-This will depend on your shell, but the following will usually do (ksh and
-bash):
+.Sh TEMPLATE COMMANDS
+The following commands available to customize your shell prompt:
+.Bl -tag -width Ds
+.It Xo Ic path
+.Op Fl nc
+.Op Fl l Ar length
+.Op Fl f Ar filler
+.Xc
+Returns the current path (similar to the pwd command).  The command-line
+options are as follows:
+.Bl -tag -width Ds
+.It Fl n
+Return the current path using a USENET/newsgroup-style naming convention, i.e.
+only use the first letters of each path component.
+.It Fl c
+Attempt to keep all the path components intact (cut at the slash).
+.It Fl l Ar length
+Length of the final path output, including any possibly ellipsis/filler.
+Default: 24
+.It Fl f Ar filler
+String to use as ellipsis/filler on trimmed paths. Default: "..."
+.El
+.It Xo Ic branch
+.Xc
+Display the current branch if you happen to be in a mercurial or git
+repository.
+.It Xo Ic date
+.Op Ar format
+.Xc
+Returns the current date/time using the provided format.  See
+.Xr strftime 3
+for more information on the format.
+.It Xo Ic hostname
+.Op Fl l
+.Xc
+Returns the current short hostname (up until the first dot).  If the -l
+parameters is given, this command returns the long hostname.
+.It Xo Ic uid
+.Xc
+Returns the ``$'' character if the user has UID != 0 and ``#'' otherwise.  This
+is typically used at the end of a template, just before the trailing space.
+.It Xo Ic sep
+.Op Ar value
+.Xc
+Define an optional separator.  If the token immediately before the
+.Em sep
+command is empty, the value of the separator is not returned.  This is useful
+on prompts featuring some items that could be empty from time to time (e.g.
+branch).
+.El
+.Sh GLOBAL SETTINGS
+Settings are defined with the
+.Em set
+command, the first argument is the name of the setting, the second is the
+value:
+.Bl -tag -width Ds
+.It Xo set Ic maxlength
+.Op Ar length
+.Xc
+This setting is deprecated and was replaced by the -l parameter of the path
+command.  If no template is defined, this will set the path length in the
+default template.
+.It Xo set Ic filler
+.Op Ar value
+.Xc
+This setting is deprecated and was replaced by the -f parameter of the path
+command.  If no template is defined, it sets the path filler/ellipsis in the
+default template.
+.It Xo set Ic cleancut
+.Op Ar bool
+.Xc
+This setting is deprecated and was replaced by the -c parameter of the path
+command.  If no template is defined, it sets the cleancut flag on in the
+default template, avoiding
+.Nm prwd
+from cutting path in the middle.  For example "...rwd/doc/html" will be
+returned as ".../doc/html".
+.It Xo set Ic newsgroup
+.Op Ar bool
+.Xc
+This setting is deprecated and was replaced by the -n parameter of the path
+command.  If no template is defined, it sets the newsgroup flag on in the
+default template, shortening the path by only displaying the first letter of
+each path components.  For example "/home/tamentis/projects/prwd/src/nowhere"
+is turned into "/h/t/p/s/nowhere".
+.It Xo set Ic mercurial
+.Op Ar bool
+.Xc
+.It Xo set Ic git
+.Op Ar bool
+.Xc
+This setting is deprecated and was replaced by the ${branch} command.  If no
+template was defined, it will add the branch information between the hostname
+and the path in the default template.
+.It Xo set Ic hostname
+.Op Ar bool
+.Xc
+This setting is deprecated and was replaced by the ${hostname} command.  If no
+template was defined, it will add the hostname information at the beginning of
+the default template.
+.It Xo set Ic uid_indicator
+.Op Ar bool
+.Xc
+This setting is deprecated and was replaced by the ${uid} command.  If no
+template was defined, it will add the uid character at the end of
+the default template.
+.El
+.Sh EXAMPLE
+This example configuration defines two aliases and a template with the time:
 .Bd -literal -offset indent
-export PS1='\\h:`prwd`\\$ '
-.Ed
-.Pp
-Note that the single quote matters since you want to keep the command
-within the variable as-is (unresolved). If you use both the hostname and
-uid_indicator options, you can simplify your PS1 even more:
-.Bd -literal -offset indent
-export PS1='`prwd` '
+alias $ports /usr/ports
+alias $p /home/tamentis/projects
+
+template "${date} ${hostname}:${branch}${sep :}${path -l 24}${uid} "
 .Ed
 .Sh SEE ALSO
 .Xr pwd 1 ,

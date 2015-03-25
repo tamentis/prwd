@@ -11,7 +11,7 @@ Add the following line in your shell's config file (e.g. `.profile` or `.bashrc`
 
     export PS1='`prwd`'
 
-== Template syntax
+## Template syntax
 All the commands start with `${` and end with `}`, anything else is considered
 static.  Commands within the brackets have flags similarly to standard UNIX
 tools.  Here is an example template definition:

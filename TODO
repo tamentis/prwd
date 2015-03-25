@@ -1,14 +1,3 @@
-FOR 1.9
-
-    [doc] Split prwd and prwdrc configuration man pages and turn README into a proper githubesque thing.
-    [doc] Document "~" as a default alias
-    [doc] Explain advantages:
-        - a single fork instead of fork-exec git and hg.
-        - small in-stack memory footprint
-        - compiled and fast
-        - same prompt on all systems
-
-
 FOR 2.0
 
     [core] conditional templates

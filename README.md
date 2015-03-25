@@ -46,7 +46,9 @@ example, add the following to your `prwdrc` file:
     alias *prwd /home/tamentis/projects/prwd
 
 And navigating to `/home/tamentis/projects/prwd/doc` will allow prwd to reduce
-your current path to `*prwd/doc`.
+your current path to `*prwd/doc`.  Another good example is that `~` is a
+default alias for prwd, you can create more of these ultra-short aliases if you
+want.
 
 ## Installation
 

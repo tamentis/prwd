@@ -1,4 +1,4 @@
-= prwd - universal shell prompt
+# prwd - universal shell prompt
 
 prwd is a replacement for your shell's PS1, it provides a simple templating
 language with commands to customize your prompt.  prwd keeps your prompt
@@ -6,7 +6,7 @@ consistent between shells, provides fast template commands to get your
 hostname, git or mercurial branch without an inordinate amount of slow shell
 scripting.
 
-== Setup
+## Setup
 Add the following line in your shell's config file (e.g. `.profile` or `.bashrc`):
 
     export PS1='`prwd`'
@@ -27,7 +27,7 @@ Your prompt template can be defined in three different places:
  2. using the "template" keyword in your ~/.prwdrc file
  3. using the -t parameter to prwd
 
-== Template commands
+## Template commands
 Check the `prwdrc` man page for detailed command information.  The following
 commands are available:
  - `path`
@@ -38,7 +38,7 @@ commands are available:
  - `color`
  - `sep`
 
-== Aliases
+## Aliases
 If you use the `path` command in your prompt template, defining aliases will
 allow path to shorten your current path using your own defined keywords.  For
 example, add the following to your `prwdrc` file:
@@ -48,13 +48,13 @@ example, add the following to your `prwdrc` file:
 And navigating to `/home/tamentis/projects/prwd/doc` will allow prwd to reduce
 your current path to `*prwd/doc`.
 
-== Installation
+## Installation
 
     ./configure
     make
     sudo make install
 
-== Hacking on prwd
+## Hacking on prwd
  - Start from OpenBSD's style(9) man page.
  - Use parenthesis with your returns.
  - Use brackets even for one-line blocks or at least add a new line after.

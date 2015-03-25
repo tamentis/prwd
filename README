@@ -1,169 +1,63 @@
-NAME
-     prwd - print reduced working directory
+= prwd - universal shell prompt
 
-SYNOPSIS
-     prwd [-aVh]
+prwd is a replacement for your shell's PS1, it provides a simple templating
+language with commands to customize your prompt.  prwd keeps your prompt
+consistent between shells, provides fast template commands to get your
+hostname, git or mercurial branch without an inordinate amount of slow shell
+scripting.
 
-DESCRIPTION
-     prwd prints the absolute pathname of the current working directory to the
-     standard output. It is similar to pwd but has command-line flags and a
-     configuration file (~/.prwdrc) giving you the option to shorten your
-     displayed path in a number of ways and add more informative bits of
-     information (git branch, uid, etc.). This is particularly useful if you
-     plan to have a consistent and informative shell prompt (e.g. PS1) across
-     multiple shells but don't want to maintain it using different syntaxes.
-     The command-line options are as follows:
+== Setup
+Add the following line in your shell's config file (e.g. `.profile` or `.bashrc`):
 
-     -V      Show current version.
+    export PS1='`prwd`'
 
-     -h      Show usage.
+== Template syntax
+All the commands start with `${` and end with `}`, anything else is considered
+static.  Commands within the brackets have flags similarly to standard UNIX
+tools.  Here is an example template definition:
 
-     -a      Outputs all the aliases starting with '$' as shell variable
-             exports. The output from this command is meant to be used with
-             eval in your .profile file, see section ALIAS VARIABLES for more
-             detailed information.
+    ${date} ${hostname}:${branch}:${path -l 24}${uid}
 
-REASONING
-     Most shells read $PS1 differently and have a very rigid way to display
-     the current working directory.  prwd allows you to have one way to handle
-     the display of your working directory and use it across multiple shells.
-     It also has awareness of a few version control system (git and mercurial)
-     and will display the current branch when you enter a project under
-     version control.
+Which would render as:
 
-     The keywords available in the configuration are described in the sections
-     below. Lines starting with '#' are ignored.
+    18:29:22 prometheus:master:/tmp$
 
-ALIASES
-     Defines a short name for a lengthy path, e.g.:
+Your prompt template can be defined in three different places:
+ 1. using a PRWD environment variable
+ 2. using the "template" keyword in your ~/.prwdrc file
+ 3. using the -t parameter to prwd
 
-           alias *prwd /home/tamentis/projects/prwd
+== Template commands
+Check the `prwdrc` man page for detailed command information.  The following
+commands are available:
+ - `path`
+ - `branch`
+ - `date`
+ - `hostname`
+ - `uid`
+ - `color`
+ - `sep`
 
-     If you are in "/home/tamentis/projects/prwd/doc/html/", prwd would return
-     "*prwd/doc/html". If you have spaces in your directories, you can wrap
-     your 'alias' parameters with double quotes:
+== Aliases
+If you use the `path` command in your prompt template, defining aliases will
+allow path to shorten your current path using your own defined keywords.  For
+example, add the following to your `prwdrc` file:
 
-           alias winDocs "/mnt/Windows XP/My Documents/"
+    alias *prwd /home/tamentis/projects/prwd
 
-     You can define multiple values for a single alias, this allows you to
-     share your configuration on different machines, but keep the same alias,
-     for example:
+And navigating to `/home/tamentis/projects/prwd/doc` will allow prwd to reduce
+your current path to `*prwd/doc`.
 
-           alias $tp /home/tamentis/truveris/projects
-           alias $tp /Users/tamentis/truveris/projects
+== Installation
 
-     Aliases can be nested one level deep if you have a complicated directory
-     hierarchy.
+    ./configure
+    make
+    sudo make install
 
-           alias $tp /home/tamentis/truveris/projects
-           alias $constants $tp/pytruveris/truveris/constants/
-
-MAX LENGTH
-     Defines the maximum length to return, the default filler string is "...",
-     the default length is 32, a value of 0 will disable the feature all
-     together.
-
-           set maxlength 20
-
-     This setting would turn "~/projects/prwd/doc/html" into a shorter string:
-     "...cts/prwd/doc/html". You can define the filler string with the
-     'filler' variable:
-
-           set filler "-"
-
-     Or if your font/terminal/shell supports UTF:
-
-           set filler "…"
-
-     If you want prwd to keep complete path elements instead of cutting as
-     much as possible, you can use this setting:
-
-           set cleancut on
-
-NEWSGROUP STYLE
-     This will shorten the path by only displaying the first letter of each
-     path components, toggle it with:
-
-           set newsgroup on
-
-     This will turn the "/home/tamentis/projects/prwd/src/nowhere" path into
-     "/h/t/p/s/nowhere". Note that the newsgroup style filter is applied
-     before the path is trimmed with 'maxlength'.
-
-MERCURIAL
-     You can see the currently selected branch as a prefix to your path
-     whenever you are in a mercurial repository, enable this feature with the
-     following option:
-
-           set mercurial on
-
-     The resulting path will be "my-branch:project/folder".
-
-GIT
-     You can see the currently HEAD position as a prefix to your path when you
-     are in a git repository, you can enable this feature with the following
-     option:
-
-           set git on
-
-     The resulting path will be "my-branch:project/folder" if you are located
-     on the HEAD of a branch, it will be "59cefd9...:project/folder" if you
-     are anywhere else.
-
-ALIAS VARIABLES
-     Since you already define your aliases in your prwdrc file, you might want
-     to use them in your shell without having to redefine them somewhere else.
-     If you prefix your aliases with a '$' and add the following line to your
-     .profile, you will be able to do exactlt that:
-
-           eval `prwd -a`
-
-     You can then use your aliases in your shell using the variable name, for
-     example:
-
-           cd $py3k
-
-PS1 REPLACEMENT
-     The following options are pulled from much higher context and have
-     nothing to do with your current path. They have been added to prwd
-     because they are simple to implement and make the handling of both
-     hostname and uid indication more streamlined. This one will prefix
-     everything with the short hostname:
-
-           set hostname on
-
-     The result will look like "myhostname:project/folder". Combined with the
-     following:
-
-           set uid_indicator on
-
-     You will obtain something like "myhostname:project/folder$" which is as
-     close as you could get to your typical default PS1 on your average shell.
-
-SETUP
-     This will depend on your shell, but the following will usually do (ksh
-     and bash):
-
-           export PS1='\h:`prwd`\$ '
-
-     Note that the single quote matters since you want to keep the command
-     within the variable as-is (unresolved). If you use both the hostname and
-     uid_indicator options, you can simplify your PS1 even more:
-
-           export PS1='`prwd` '
-
-SEE ALSO
-     pwd(1), csh(1), ksh(1), sh(1), getcwd(3)
-
-AUTHORS
-     prwd was written by Bertrand Janin <b@janin.com> and is distributed under
-     an ISC license (BSD compatible, OSI compatible).
-
-     A bunch of utility functions are borrowed from OpenBSD and OpenSSH, both
-     under ISC and BSD licenses, with copyrights from the following authors:
-
-      Copyright (c) 2004 Ted Unangst and Todd Miller
-      Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
-      Copyright (c) 2000 Markus Friedl.  All rights reserved.
-      Copyright (c) 2005,2006 Damien Miller.  All rights reserved.
-
+== Hacking on prwd
+ - Start from OpenBSD's style(9) man page.
+ - Use parenthesis with your returns.
+ - Use brackets even for one-line blocks or at least add a new line after.
+ - Unless a value is only used as boolean, do not use '!', explicitely check
+   for the value (e.g. !strcmp to test equality is not explicit).
+ - No malloc/free, all the memory should be automatically allocated in prwd.

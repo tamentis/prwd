@@ -60,60 +60,11 @@ their impact on
 .It Xo Ic template
 .Op Ar value
 .Xc
-Defines your shell prompt template.  See the PROMPT TEMPLATING section.
+Defines your shell prompt template.  See the section below.
 .El
-.Sh ALIASES
-If you use the
-.Em path
-command in your prompt, defining aliases will allow
-.Em path
-to shorten the paths using your own defined keywords.  For example:
-.Bd -literal -offset indent
-alias *prwd /home/tamentis/projects/prwd
-.Ed
-.Pp
-If you are in "/home/tamentis/projects/prwd/doc/html/", prwd would return
-"*prwd/doc/html".  If you have spaces in your directories, you can wrap your
-.Em path
-parameters with double quotes:
-.Bd -literal -offset indent
-alias windocs "/mnt/Windows XP/My Documents/"
-.Ed
-.Pp
-You can define multiple values for a single alias,
-.Nm prwd
-will pick the one with an existing path. This allows you to share your
-configuration on different machines and use the same shortened alias, for
-example:
-.Bd -literal -offset indent
-alias *prwd /home/tamentis/projects/prwd
-alias *prwd /Users/tamentis/projects/prwd
-.Ed
-.Pp
-Aliases can be nested one level deep if you have a complicated directory
-hierarchy.
-.Bd -literal -offset indent
-alias *prwd /home/tamentis/projects/prwd
-alias *prwddoc *prwd/doc
-.Ed
-.Pp
-Since you already define your aliases in your
-.Nm
-file, you might want to use them in your shell.  If you prefix your aliases
-with a '$' and add the following line to your .profile, you will be able to have
-your aliases available as environment variables.  Add this to your profile or
-shell configuration file:
-.Bd -literal -offset indent
-eval `prwd -a`
-.Ed
-.Pp
-Then use your aliases like any environment variable:
-.Bd -literal -offset indent
-cd $py3k
-.Ed
 .Sh TEMPLATE SYNTAX
 .Nm
-has a very simple templating language with a few small commands providing basic
+has a simple templating language with a few small commands providing basic
 information about your shell context.  All the commands start with ``${`` and
 end with ``}'', within these brackets the syntax uses flags and is very similar
 to standard UNIX tools.
@@ -176,6 +127,55 @@ command is empty, the value of the separator is not returned.  This is useful
 on prompts featuring some items that could be empty from time to time (e.g.
 branch).
 .El
+.Sh ALIASES
+If you use the
+.Em path
+command in your prompt, defining aliases will allow
+.Em path
+to shorten the paths using your own defined keywords.  For example:
+.Bd -literal -offset indent
+alias *prwd /home/tamentis/projects/prwd
+.Ed
+.Pp
+If you are in "/home/tamentis/projects/prwd/doc/html/", prwd would return
+"*prwd/doc/html".  If you have spaces in your directories, you can wrap your
+.Em path
+parameters with double quotes:
+.Bd -literal -offset indent
+alias windocs "/mnt/Windows XP/My Documents/"
+.Ed
+.Pp
+You can define multiple values for a single alias,
+.Nm prwd
+will pick the one with an existing path. This allows you to share your
+configuration on different machines and use the same shortened alias, for
+example:
+.Bd -literal -offset indent
+alias *prwd /home/tamentis/projects/prwd
+alias *prwd /Users/tamentis/projects/prwd
+.Ed
+.Pp
+Aliases can be nested one level deep if you have a complicated directory
+hierarchy.
+.Bd -literal -offset indent
+alias *prwd /home/tamentis/projects/prwd
+alias *prwddoc *prwd/doc
+.Ed
+.Pp
+Since you already define your aliases in your
+.Nm
+file, you might want to use them in your shell.  If you prefix your aliases
+with a '$' and add the following line to your .profile, you will be able to have
+your aliases available as environment variables.  Add this to your profile or
+shell configuration file:
+.Bd -literal -offset indent
+eval `prwd -a`
+.Ed
+.Pp
+Then use your aliases like any environment variable:
+.Bd -literal -offset indent
+cd $py3k
+.Ed
 .Sh GLOBAL SETTINGS
 Settings are defined with the
 .Em set

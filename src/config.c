@@ -30,10 +30,10 @@
 
 int 	 cfg_cleancut = 0;
 size_t	 cfg_maxpwdlen = MAXPWD_LEN;
-int	 cfg_mercurial = 0;
-int	 cfg_git = 0;
-int	 cfg_hostname = 0;
-int	 cfg_uid_indicator = 0;
+int	 cfg_mercurial = 1;
+int	 cfg_git = 1;
+int	 cfg_hostname = 1;
+int	 cfg_uid_indicator = 1;
 int	 cfg_newsgroup = 0;
 wchar_t	 cfg_filler[MAX_FILLER_LEN] = DEFAULT_FILLER;
 wchar_t	 cfg_template[MAX_OUTPUT_LEN] = L"";

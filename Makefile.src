@@ -13,6 +13,8 @@ install: src/${PROG}
 	install -m 755 src/${PROG} ${DESTDIR}${PREFIX}/bin
 	install -d ${DESTDIR}${MANDIR}/man1
 	install -m 644 ${PROG}.1 ${DESTDIR}${MANDIR}/man1
+	install -d ${DESTDIR}${MANDIR}/man5
+	install -m 644 ${PROG}rc.5 ${DESTDIR}${MANDIR}/man5
 
 clean:
 	cd src/ && make clean

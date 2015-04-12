@@ -59,13 +59,13 @@ template_from_config(wchar_t *out, size_t len)
 		CONCAT(L"${branch}${sep :}");
 
 	if (cfg_cleancut) {
-		swprintf(buf, 64, L"${path -c -l %d -f %ls}:", cfg_maxpwdlen,
+		swprintf(buf, 64, L"${path -c -l %d -f %ls}", cfg_maxpwdlen,
 		    cfg_filler);
 	} else if (cfg_newsgroup) {
-		swprintf(buf, 64, L"${path -n -l %d -f %ls}:", cfg_maxpwdlen,
+		swprintf(buf, 64, L"${path -n -l %d -f %ls}", cfg_maxpwdlen,
 		    cfg_filler);
 	} else {
-		swprintf(buf, 64, L"${path -l %d -f %ls}:", cfg_maxpwdlen,
+		swprintf(buf, 64, L"${path -l %d -f %ls}", cfg_maxpwdlen,
 		    cfg_filler);
 	}
 

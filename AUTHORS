@@ -1,2 +1,3 @@
-Bertrand Janin <b@janin.com>
-Stéphane Angel <s.angel@twidi.com> (initial git patch)
+prwd is written by Bertrand Janin <b@janin.com> with contributions from:
+ - Stéphane Angel - initial git patch
+ - Jens Schleusener - newsgroup-mode bug

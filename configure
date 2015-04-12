@@ -12,9 +12,13 @@ VERSION="1.9"
 alias echo=/bin/echo
 
 
-# Sad default, you can try CC=clang ./configure too
+# Attempt tp guess the best CC.
 if [ -z "$CC" ]; then
-	export CC=gcc
+	if cc -v 1>/dev/null 2>/dev/null; then
+		export CC=cc
+	else
+		export CC=gcc
+	fi
 fi
 
 

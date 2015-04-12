@@ -23,7 +23,9 @@
 #include <wchar.h>
 
 #include "cmd-branch.h"
+#include "strlcpy.h"
 #include "utils.h"
+#include "wcslcpy.h"
 
 /* How much to read of the branch file (e.g. HEAD, .hg/branch, etc.) */
 #define BRANCH_FILE_BUFSIZE 1024

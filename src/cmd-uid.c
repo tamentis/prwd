@@ -19,8 +19,9 @@
 #include <unistd.h>
 #include <wchar.h>
 
-#include "wgetopt.h"
 #include "cmd-uid.h"
+#include "wcslcpy.h"
+#include "wgetopt.h"
 
 #define ERR_BAD_ARG L"<uid-bad-arg>"
 

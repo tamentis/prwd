@@ -44,10 +44,9 @@ static void
 prwd(wchar_t *t)
 {
 	wchar_t output[MAX_OUTPUT_LEN];
-	int i;
 	const wchar_t *errstr;
 
-	i = template_render(t, output, MAX_OUTPUT_LEN, &errstr);
+	template_render(t, output, MAX_OUTPUT_LEN, &errstr);
 	if (errstr != NULL)
 		errx(1, "template error: %ls", errstr);
 

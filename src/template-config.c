@@ -19,6 +19,7 @@
 
 #include "prwd.h"
 #include "template.h"
+#include "wcslcpy.h"
 
 extern int cfg_hostname;
 extern int cfg_mercurial;

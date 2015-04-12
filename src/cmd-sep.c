@@ -17,6 +17,7 @@
 #include <wchar.h>
 
 #include "cmd-sep.h"
+#include "wcslcpy.h"
 
 #define ERR_BAD_ARG L"<sep-bad-arg>"
 

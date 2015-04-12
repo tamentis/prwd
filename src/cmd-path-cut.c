@@ -33,7 +33,7 @@ path_cleancut(wchar_t *out, wchar_t *path, size_t len, size_t maxlen,
     wchar_t *filler)
 {
 	size_t maxplen, flen;
-	wchar_t *last = NULL, *c;
+	wchar_t *c;
 
 	if (len == 0 || out == NULL)
 		errx(1, "path_cleancut: invalid output");
@@ -73,7 +73,6 @@ path_cleancut(wchar_t *out, wchar_t *path, size_t len, size_t maxlen,
 			path_quickcut(out, path, len, maxlen, filler);
 			return;
 		}
-		last = c;
 	}
 
 	wcsncpy(out + flen, c, len - flen);

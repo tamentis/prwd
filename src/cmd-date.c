@@ -18,11 +18,13 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include <wchar.h>
 
 #include "cmd-date.h"
 #include "strlcpy.h"
 #include "utils.h"
+#include "wcslcpy.h"
 
 #define ERR_BAD_ARG L"<date-bad-arg>"
 #define ERR_BAD_CHARSET L"<date-bad-charset>"

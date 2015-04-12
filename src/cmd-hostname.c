@@ -22,6 +22,7 @@
 
 #include "cmd-hostname.h"
 #include "utils.h"
+#include "wcslcpy.h"
 #include "wgetopt.h"
 
 #define ERR_BAD_ARG L"<hostname-bad-arg>"

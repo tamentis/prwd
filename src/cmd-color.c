@@ -23,6 +23,7 @@
 #include "cmd-color.h"
 #include "strlcpy.h"
 #include "utils.h"
+#include "wcslcpy.h"
 #include "wcstonum.h"
 
 #define ERR_BAD_ARG L"<color-bad-arg>"

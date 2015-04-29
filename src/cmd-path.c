@@ -145,12 +145,12 @@ cmd_path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 		}
 	}
 
+	alias_replace(buf, wcswd, MAX_OUTPUT_LEN);
+
 	if (newsgroupize) {
-		path_newsgroupize(out, wcswd, len);
+		path_newsgroupize(out, buf, len);
 		return;
 	}
-
-	alias_replace(buf, wcswd, MAX_OUTPUT_LEN);
 
 	if (maxlen > 0 && wcslen(buf) > maxlen) {
 		if (cleancut) {

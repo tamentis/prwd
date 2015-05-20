@@ -145,7 +145,7 @@ cmd_path_exec(int argc, wchar_t **argv, wchar_t *out, size_t len)
 		}
 	}
 
-	alias_replace(buf, wcswd, MAX_OUTPUT_LEN);
+	alias_replace_recursive(buf, wcswd, MAX_OUTPUT_LEN);
 
 	if (newsgroupize) {
 		path_newsgroupize(out, buf, len);

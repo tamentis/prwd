@@ -90,13 +90,25 @@ test_alias__replace__find_smallest(void)
 {
 	wchar_t pwd[] = L"/home/foo/x/y/z/projects/prwd";
 	wchar_t output[MAX_OUTPUT_LEN];
-	alias_count = 0;
+	alias_purge_all();
 	ALIAS_ADD(L"bad1", L"/home/foo");
 	ALIAS_ADD(L"bad2", L"/home");
 	ALIAS_ADD(L"bad3", L"/home/foo/x");
 	ALIAS_ADD(L"good", L"/home/foo/x/y/z");
 	alias_replace(output, pwd, MAX_OUTPUT_LEN);
 	return (assert_wstring_equals(output, L"good/projects/prwd"));
+}
+
+static int
+test_alias__replace__nested(void)
+{
+	wchar_t pwd[] = L"/home/foo/projects/prwd";
+	wchar_t output[MAX_OUTPUT_LEN];
+	alias_purge_all();
+	ALIAS_ADD(L"$p", L"/home/foo/projects");
+	ALIAS_ADD(L"$prwd", L"$p/prwd");
+	alias_replace_recursive(output, pwd, MAX_OUTPUT_LEN);
+	return (assert_wstring_equals(output, L"$prwd"));
 }
 
 static int

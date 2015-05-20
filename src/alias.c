@@ -198,3 +198,23 @@ alias_replace(wchar_t *out, wchar_t *path, size_t len)
 
 	wcslcpy(out + nlen, path + plen, len - nlen);
 }
+
+/*
+ * Keep on calling alias_replace until we are done finding aliases.
+ */
+void
+alias_replace_recursive(wchar_t *out, wchar_t *path, size_t len)
+{
+	wchar_t buf[MAXPATHLEN], *s = path;
+	int i;
+
+	for (i = 0; i < 100; i++) {
+		wcslcpy(buf, s, len);
+		alias_replace(out, buf, len);
+		if (wcscmp(buf, out) == 0)
+			return;
+		s = out;
+	}
+
+	warnx("reached maximum alias_replace() recursion");
+}

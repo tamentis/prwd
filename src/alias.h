@@ -36,5 +36,6 @@ void		 alias_dump_vars(void);
 struct alias 	*alias_get(wchar_t *);
 struct alias	*alias_get_by_path(wchar_t *);
 void		 alias_replace(wchar_t *, wchar_t *, size_t);
+void		 alias_replace_recursive(wchar_t *, wchar_t *, size_t);
 
 #endif /* ifndef _ALIAS_H_ */

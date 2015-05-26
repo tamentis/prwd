@@ -151,8 +151,6 @@ process_config_line(wchar_t *line, const wchar_t **errstrp)
 			return;
 		}
 		value = strdelim(&line);
-		if (!wc_path_is_valid(value))
-			return;
 		alias_add(name, value, errstrp);
 		if (*errstrp != NULL) {
 			return;

@@ -5,10 +5,10 @@
 
 1.9 Bertrand Janin <b@janin.com> (2015-04-12)
 
-	* Implemented fully templated mode.  All older options are obsolete
+	* Implemented fully templated mode.  All older options are obsolete.
 	  and used in this version as fallback for the template.
 	* Add command to adjust color in template.
-	* Add commadn to add timestamp/date in template.
+	* Add command to add timestamp/date in template.
 	* Fix a bug in newsgroup mode affecting one-level deep paths starting
 	  with an alias or '~' (found by Jens Schleusener).
 	* Split man page between prwd(1) and prwdrc(5).

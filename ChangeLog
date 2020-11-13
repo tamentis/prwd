@@ -1,3 +1,7 @@
+1.9.2 Bertrand Janin <b@janin.com> (2020-11-13)
+
+	* Fix compilation on latest macOS.
+
 1.9.1 Bertrand Janin <b@janin.com> (2015-05-20)
 
 	* Fix newsgroup mode not using aliases (found by @twidi, fixes #7).

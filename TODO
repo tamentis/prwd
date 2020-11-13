@@ -34,6 +34,8 @@ FOR 2.0
 
     [cmd] Add an ${exec whoami} command.  Even if bound to be abused.
 
+    [branch] add a max size and filler, like path.
+
 
 FOR LATER
     

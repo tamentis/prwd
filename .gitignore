@@ -8,6 +8,7 @@ aclocal.m4
 autom4te.cache/
 config.log
 config.status
+fake_cc.c
 src/.deps/
 tests/run-tests
 tests/inc-*.c

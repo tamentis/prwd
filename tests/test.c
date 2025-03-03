@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2025 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
+#include <unistd.h>
 #include <locale.h>
 
 #include "alias.h"

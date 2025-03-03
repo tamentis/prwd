@@ -28,8 +28,15 @@
 #include "wcslcpy.h"
 
 
-static int
-findr_target(char *target_filename)
+#ifdef REGRESS
+#define STATIC_INT int
+#else
+#define STATIC_INT static int
+#endif
+
+
+STATIC_INT
+_findr_target(char *out, size_t outlen, char *target_filename)
 {
 	char *c, pwd[MAXPATHLEN], path[MAXPATHLEN];
 
@@ -44,7 +51,7 @@ findr_target(char *target_filename)
 	for (;;) {
 		snprintf(path, MAXPATHLEN, "%s/%s", pwd, target_filename);
 		if (path_is_valid(path)) {
-			printf("%s\n", pwd);
+			strlcpy(out, pwd, outlen);
 			return 1;
 		}
 		if ((c = strrchr(pwd, '/')) == NULL)
@@ -57,8 +64,8 @@ findr_target(char *target_filename)
 }
 
 
-static int
-findr_repository(void)
+STATIC_INT
+_findr_repository(char *out, size_t outlen)
 {
 	char *c, pwd[MAXPATHLEN];
 
@@ -73,7 +80,7 @@ findr_repository(void)
 		for (size_t i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); i++) {
 			snprintf(path, MAXPATHLEN, "%s/%s", pwd, suffixes[i]);
 			if (path_is_valid(path)) {
-				printf("%s\n", pwd);
+				strlcpy(out, pwd, outlen);
 				return 1;
 			}
 		}
@@ -88,8 +95,8 @@ findr_repository(void)
 }
 
 
-static int
-findr_readme(void)
+STATIC_INT
+_findr_readme(char *out, size_t outlen)
 {
 	char *c, pwd[MAXPATHLEN];
 
@@ -104,7 +111,7 @@ findr_readme(void)
 		for (size_t i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); i++) {
 			snprintf(path, MAXPATHLEN, "%s/%s", pwd, suffixes[i]);
 			if (path_is_valid(path)) {
-				printf("%s\n", pwd);
+				strlcpy(out, pwd, outlen);
 				return 1;
 			}
 		}
@@ -119,6 +126,13 @@ findr_readme(void)
 }
 
 
+#define FINDR(retcode)			\
+	if (retcode == 1) {		\
+		printf("%s\n", path);	\
+		return 0;		\
+	}
+
+
 /*
  * Find the nearest parent considered a project root and print that path
  *
@@ -129,9 +143,11 @@ findr_readme(void)
 int
 findr(char *target_filename)
 {
-	if (findr_target(target_filename) || findr_repository() || findr_readme()) {
-		return 0;
-	}
+	char path[MAXPATHLEN];
+
+	FINDR(_findr_target(path, sizeof(path), target_filename));
+	FINDR(_findr_repository(path, sizeof(path)));
+	FINDR(_findr_readme(path, sizeof(path)));
 
 	return 1;
 }

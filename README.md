@@ -57,13 +57,20 @@ This tool also comes with a project root finder. You can start it simply with
 with a shell function added to your profile such as:
 
     # cdr - CD to the nearest folder considered a root
+    # Pass a parameter to find a folder with the given file/folder.
     cdr() {
-        if path=`prwd -f`; then
-            cd $path
+        if [ -z "$1" ]; then
+            path=`~/projects/prwd/src/prwd -f`
         else
+            path=`~/projects/prwd/src/prwd -F "$1"`
+        fi
+
+        if [ -z "$path" ]; then
             echo "error: couldn't not find target"
             return 1
         fi
+
+        cd $path
     }
 
 A root is defined as the first folder with a .git or .hg folder, if none is

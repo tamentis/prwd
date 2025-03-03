@@ -1,4 +1,4 @@
-.\" Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
+.\" Copyright (c) 2009-2025 Bertrand Janin <b@janin.com>
 .\" 
 .\" Permission to use, copy, modify, and distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
@@ -20,7 +20,14 @@
 .Nd universal shell prompt
 .Sh SYNOPSIS
 .Nm prwd
-.Op Fl aVh
+.Op Fl Vh
+.Op Fl t Ar template
+.Nm prwd
+.Op Fl a
+.Nm prwd
+.Op Fl f
+.Nm prwd
+.Op Fl F Ar filename
 .Sh DESCRIPTION
 .Nm
 is a replacement for your shell's PS1, it provides a simple templating language
@@ -45,6 +52,13 @@ your shell to expand the $ variable.
 Outputs all the aliases starting with '$' as shell variable exports. The output
 from this command is meant to be used with eval in your .profile file, see
 section ALIAS VARIABLES in the
+.It Fl f
+Print the closest project root in the parent hierarchy. The first folder with a
+\&.git or .hg folder will be returned, as fallback it will find the first folder
+with a README file. This is particularly helpful within a custom alias pairing
+cd and prwd -f together.
+.It Fl F Ar filename
+Same as above except it will only look for a folder with the given filename.
 .Xr prwdrc 5
 manual for more detailed information.
 .El

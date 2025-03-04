@@ -50,6 +50,33 @@ your current path to `*prwd/doc`.  Another good example is that `~` is a
 default alias for prwd, you can create more of these ultra-short aliases if you
 want.
 
+## Project root finder
+
+This tool also comes with a project root finder. You can start it simply with
+`prwd -f`. It will print the closest project root, this is particularly helpful
+with a shell function added to your profile such as:
+
+    # cdr - CD to the nearest folder considered a root
+    # Pass a parameter to find a folder with the given file/folder.
+    cdr() {
+        if [ -z "$1" ]; then
+            path=`~/projects/prwd/src/prwd -f`
+        else
+            path=`~/projects/prwd/src/prwd -F "$1"`
+        fi
+
+        if [ -z "$path" ]; then
+            echo "error: couldn't not find target"
+            return 1
+        fi
+
+        cd $path
+    }
+
+A root is defined as the first folder with a .git or .hg folder, if none is
+found, the first folder with a README file. If you want to setup an alias with
+a custom file, you can also use `prwd -F filename`.
+
 ## Installation
 
     ./configure

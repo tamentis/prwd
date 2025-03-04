@@ -27,7 +27,7 @@ mantest:
 rcmantest:
 	nroff -man ${PROG}rc.1 | less -R
 
-README: ${PROG}.1
+manpage.txt: ${PROG}.1
 	# On Linux
 	# nroff -c -man ${PROG}.1 | col -b > README
 	# On OpenBSD 5.3+
@@ -35,6 +35,6 @@ README: ${PROG}.1
 		| sed 's/.//g' \
 		| tail +3 \
 		| sed '$$d' \
-		> README
+		> manpage.txt
 
 .PHONY: clean test all mantest

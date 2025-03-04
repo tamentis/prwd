@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 Bertrand Janin <b@janin.com>
+ * Copyright (c) 2009-2025 Bertrand Janin <b@janin.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <wchar.h>
 #include <err.h>
 #include <locale.h>
@@ -26,6 +27,7 @@
 #include "prwd.h"
 #include "config.h"
 #include "alias.h"
+#include "findr.h"
 #include "cmd-path.h"
 #include "template.h"
 #include "wcslcpy.h"
@@ -57,13 +59,20 @@ prwd(wchar_t *t)
 int
 main(int argc, char **argv)
 {
-	char *t;
-	int opt, run_dump_alias_vars = 0;
+	char *t, *findr_target = NULL;
+	int opt, run_dump_alias_vars = 0, run_findr = 0;
 
-	while ((opt = getopt(argc, argv, "at:Vh")) != -1) {
+	while ((opt = getopt(argc, argv, "afF:t:Vh")) != -1) {
 		switch (opt) {
 		case 'a':
 			run_dump_alias_vars = 1;
+			break;
+		case 'f':
+			run_findr = 1;
+			break;
+		case 'F':
+			run_findr = 1;
+			findr_target = optarg;
 			break;
 		case 't':
 			mbstowcs(cfg_template, optarg, MAX_OUTPUT_LEN);
@@ -86,6 +95,10 @@ main(int argc, char **argv)
 		errx(0, "Unknown variable '$HOME'.");
 
 	read_config();
+
+	if (run_findr) {
+		return findr(findr_target);
+	}
 
 	if (run_dump_alias_vars) {
 		alias_dump_vars();

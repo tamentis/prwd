@@ -1,3 +1,7 @@
+1.10.0 Bertrand Janin <b@janin.com> (YYYY-MM-DD)
+
+	* Add "project root finder" tool with -f and -F flags
+
 1.9.2 Bertrand Janin <b@janin.com> (2020-11-13)
 
 	* Fix compilation on latest macOS.
